@@ -1,0 +1,75 @@
+name: Verify screenshots
+on:
+  workflow_dispatch:
+    inputs:
+        wordpressSiteUrl:
+          description: 'Site'
+          required: true
+          default: 'test'
+jobs:
+  cypress-run:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - shell: bash
+        env: 
+          SITE: ${{ github.event.inputs.wordpressSiteUrl }}
+        # make sure directory for screenshots exists - we'll extract existing screenshots there that will be used for verification
+        run: |
+            if [[ "${{ env.SITE }}" == "prod" ]]; then
+              mkdir -p /home/runner/work/wordpress-digimod/wordpress-digimod/testing/cypress/e2e/screenshots-for-https-digital-gov-bc-ca
+            else
+              mkdir -p /home/runner/work/wordpress-digimod/wordpress-digimod/testing/cypress/e2e/screenshots-for-https-digital-${{ env.SITE }}-apps-silver-devops-gov-bc-ca
+            fi
+      - uses: dawidd6/action-download-artifact@v2
+        env: 
+          SITE: ${{ github.event.inputs.wordpressSiteUrl }}
+        with:
+          workflow: take_screenshots.yaml
+           # Optional, a directory where to extract artifact(s), defaults to the current directory
+          path: ${{ env.SITE == 'prod' && '/home/runner/work/wordpress-digimod/wordpress-digimod/testing/cypress/e2e/screenshots-for-https-digital-gov-bc-ca' || format('/home/runner/work/wordpress-digimod/wordpress-digimod/testing/cypress/e2e/screenshots-for-https-digital-{0}-apps-silver-devops-gov-bc-ca', env.SITE) }}
+      - shell: bash
+        env: 
+          SITE: ${{ github.event.inputs.wordpressSiteUrl }}
+        # files get extracted into "cypress-screnshots" folder, move them out of it into parent directory and delete that folder
+        run: |
+          if [[ "${{ env.SITE }}" == "prod" ]]; then
+            cd /home/runner/work/wordpress-digimod/wordpress-digimod/testing/cypress/e2e/screenshots-for-https-digital-gov-bc-ca
+          else
+            cd /home/runner/work/wordpress-digimod/wordpress-digimod/testing/cypress/e2e/screenshots-for-https-digital-${{ env.SITE }}-apps-silver-devops-gov-bc-ca
+          fi
+          
+          mv cypress-screenshots/* .
+          rmdir cypress-screenshots
+      - name: Sitemap Screenshots
+        uses: cypress-io/github-action@v5
+        id: screenshots
+        env: 
+          SITE: ${{ github.event.inputs.wordpressSiteUrl }}
+        # Continue the build in case of an error, as we need to set the
+        # commit status in the next step, both in case of success and failure
+        continue-on-error: false
+        with:
+        # No recording of results in the cloud
+          record: false
+        # We need to force the install due to version checking  
+          install-command: npm ci -f
+          working-directory: testing
+          browser: firefox
+          spec: cypress/e2e/screenshot-tests.cy.js
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        env: 
+          SITE: ${{ github.event.inputs.wordpressSiteUrl }}
+        # add the line below to store screenshots only on failures
+        if: failure()
+        with:
+          name: cypress-screenshots-failed
+          path: ${{ env.SITE == 'prod' && '/home/runner/work/wordpress-digimod/wordpress-digimod/testing/cypress/e2e/screenshots-for-https-digital-gov-bc-ca' || format('/home/runner/work/wordpress-digimod/wordpress-digimod/testing/cypress/e2e/screenshots-for-https-digital-{0}-apps-silver-devops-gov-bc-ca', env.SITE) }}
+          if-no-files-found: error # 'warn' or 'error' are also available, defaults to `warn`, also `ignore`
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots-failed

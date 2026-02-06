@@ -1,0 +1,49 @@
+name: Deploy Plugin
+description: 'Deploy a single plugin from the wordpress-digimod repository to the given site.'
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+        - dev
+        - test
+        #for safety reasons dont run this on production, use the other action for production.
+        #- prod
+      project-name:
+        description: 'Project'
+        required: true
+        type: choice
+        options:
+        - digital
+        - cleanbc-bh
+      site-name:
+        description: 'Site name'
+        required: true
+        default: 'test'
+      plugin:
+        description: 'Plugin name'
+        required: true
+        default: ''
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        
+      - name: Deploy plugin
+        uses: ./.github/actions/deploy_plugin
+        with:
+          environment: ${{ github.event.inputs.environment }}
+          project-name: ${{ github.event.inputs.project-name }}
+          site-name: ${{ github.event.inputs.site-name }}
+          openshift-server: ${{ secrets.OPENSHIFT_SERVER }}
+          dev-token: ${{ secrets.OPENSHIFT_DEV_API_TOKEN }}
+          test-token: ${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
+          prod-token: ${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
+          
+          plugin: ${{ github.event.inputs.plugin }}

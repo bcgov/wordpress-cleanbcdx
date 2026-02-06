@@ -1,0 +1,84 @@
+name: Restart instance
+description: 'Restart the OpenShift deployment, effectively restarting the target site.'
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+        - dev
+        - test
+        - prod
+      project-name:
+        description: 'Project'
+        required: true
+        type: choice
+        options:
+        - digital
+        - cleanbc-bh
+      site-name:
+        description: 'Site name'
+        required: true
+        default: 'test'
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install OC CLI
+      run: |
+        curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+        tar xvzf openshift-client-linux.tar.gz
+        sudo mv oc kubectl /usr/local/bin/
+
+    - name: Restart instance
+      run: |
+        ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT }}
+        SITE_NAME=${{ github.event.inputs.site-name }}
+        OC_SITE_NAME=${{ github.event.inputs.project-name }}-${{ github.event.inputs.site-name }}
+        case "$ENVIRONMENT" in
+            "dev")
+            token=${{ secrets.OPENSHIFT_DEV_API_TOKEN }}
+            ;;
+            "test")
+            token=${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
+            ;;
+            "prod")
+            token=${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
+            if [ $SITE_NAME == "prod" ]; then
+              #OC_SITE_NAME=digital
+              OC_SITE_NAME=${{ github.event.inputs.project-name }}
+            fi
+            ;;
+            *)
+            echo "Unknown environment: $ENVIRONMENT"
+            exit 1
+            ;;
+        esac
+        echo "Restarting the site $OC_SITE_NAME in $ENVIRONMENT"
+        oc login ${{ secrets.OPENSHIFT_SERVER }} --token=$token             #--insecure-skip-tls-verify=true
+        NAMESPACE="c0cce6-$ENVIRONMENT"
+        OC_ENV=$ENVIRONMENT
+        DEPLOYMENT=$(oc get deployment -n $NAMESPACE -l app=wordpress,site=$OC_SITE_NAME -o jsonpath='{.items[0].metadata.name}')
+
+        #run command to restart the deployment
+        CMD1_RESULTS=$(oc rollout restart deployment/$DEPLOYMENT)
+        echo "${CMD1_RESULTS}"
+
+
+        #Generate GH Actions summary
+        echo "### Restarted Deployment/Instance" >> $GITHUB_STEP_SUMMARY
+        echo "Environment: ${OC_ENV}" >> $GITHUB_STEP_SUMMARY
+        echo "Project: ${PROJECT_NAME}" >> $GITHUB_STEP_SUMMARY
+        echo "Site: ${OC_SITE_NAME}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+
+        echo "### Command 1 Results: " >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+        echo "${CMD1_RESULTS}" >> $GITHUB_STEP_SUMMARY

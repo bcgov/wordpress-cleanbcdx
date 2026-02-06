@@ -1,0 +1,28 @@
+name: Deploy Plugin to Production
+description: 'Deploy a single plugin from the wordpress-digimod repository to the production environment.'
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: 'Plugin name'
+        required: true
+        default: ''
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Deploy plugin
+        uses: ./.github/actions/deploy_plugin
+        with:
+          environment: prod
+          project-name: digital
+          site-name: prod
+          openshift-server: ${{ secrets.OPENSHIFT_SERVER }}
+          dev-token: ${{ secrets.OPENSHIFT_DEV_API_TOKEN }}
+          test-token: ${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
+          prod-token: ${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
+          
+          plugin: ${{ github.event.inputs.plugin }}

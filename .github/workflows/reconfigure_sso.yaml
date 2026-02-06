@@ -1,0 +1,205 @@
+name: Reconfigure SSO
+description: 'Update the Miniorange SSO plugin settings to the proper values for the site selected. Usually used after a replicate from production.'
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+        - dev
+        - test
+        #for safety reasons dont run this on production, but we need it for recovery reasons.
+        - prod
+      project-name:
+        description: 'Project'
+        required: true
+        type: choice
+        options:
+        - digital
+        - cleanbc-bh
+      site-name:
+        description: 'Site name'
+        required: true
+        default: 'test'
+jobs:
+  prepare:
+    name: Set Keycloak Secret Name
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Prepare Keycloak
+        id: prepare-step
+        run: |
+          ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT }}
+          PROJECT_NAME=${{ github.event.inputs.PROJECT-NAME }}
+          SITE_NAME=${{ github.event.inputs.SITE-NAME }}
+          
+          #For unknown reason, dev secret doesnt always work. Use test key in dev. Only do this in the prepare step.
+          if [ "${ENVIRONMENT}" == "dev" ]; then
+            ENVIRONMENT="test"
+          fi
+
+          if [ "${PROJECT_NAME}" == "digital" ];  then #legacy key name for digital
+            CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_${ENVIRONMENT^^}_CLIENT_SECRET"
+
+          else
+            #For unknown reason, dev secret doesnt always work. Use test key in dev. Only do this in the prepare step.
+            SITE_NAME=${SITE_NAME//dev/test} 
+
+            CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_${PROJECT_NAME^^}_${SITE_NAME^^}_CLIENT_SECRET"            
+            CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME//-/_}  
+          fi      
+
+          echo "::set-output name=CLIENT_KEYCLOAK_SECRET_NAME::${CLIENT_KEYCLOAK_SECRET_NAME}";
+
+          echo "Secret Name"
+          echo "$CLIENT_KEYCLOAK_SECRET_NAME"
+          
+          if [ -z "${CLIENT_KEYCLOAK_SECRET_NAME}" ]; then
+            echo "Unable to determine keycloak secret name. Exiting."
+            exit 1
+          fi
+
+    outputs:
+      CLIENT_KEYCLOAK_SECRET_NAME: ${{ steps.prepare-step.outputs.CLIENT_KEYCLOAK_SECRET_NAME }}
+
+
+  deploy:
+    runs-on: ubuntu-22.04
+    needs:
+          - prepare
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install OC CLI
+      run: |
+        curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+        tar xvzf openshift-client-linux.tar.gz
+        sudo mv oc kubectl /usr/local/bin/
+
+
+    - name: Rename Miniorange plugin variables and settings
+      env:
+        CLIENT_KEYCLOAK_SECRET_NAME: ${{ needs.prepare.outputs.CLIENT_KEYCLOAK_SECRET_NAME }}
+      run: |
+        ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT }}
+        echo "Deploying to the OC environment $ENVIRONMENT"
+        case "$ENVIRONMENT" in
+            "dev")
+            token=${{ secrets.OPENSHIFT_DEV_API_TOKEN }}
+            OC_SITE_NAME=${{ github.event.inputs.PROJECT-NAME }}-${{ github.event.inputs.SITE-NAME }}
+            ;;
+
+            "test")
+            token=${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
+            OC_SITE_NAME=${{ github.event.inputs.PROJECT-NAME }}-${{ github.event.inputs.SITE-NAME }}
+            ;;
+
+            "prod")
+            token=${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
+            OC_SITE_NAME=${{ github.event.inputs.SITE-NAME }}
+            #echo "For safety reasons, we won't run this action on prod!"
+            #exit 1
+            ;;
+
+            *)
+            echo "Unknown environment: $ENVIRONMENT"
+            exit 1
+            ;;
+        esac
+
+        oc login ${{ secrets.OPENSHIFT_SERVER }} --token=$token           #--insecure-skip-tls-verify=true
+
+        NAMESPACE="c0cce6-$ENVIRONMENT"
+        OC_ENV=$ENVIRONMENT
+        OC_PROJECT_NAME=${{ github.event.inputs.PROJECT-NAME }}
+        
+        WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
+        WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
+
+        echo "Deploying to the site $OC_SITE_NAME" 
+
+        # Download wp-cli in the GitHub Actions workspace
+        curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        chmod +x wp-cli.phar
+
+        # Copy wp-cli to the WordPress instance 
+        echo "Copying WP-CLI to the Wordpress Instance"
+        oc cp --no-preserve wp-cli.phar $NAMESPACE/$WORDPRESS_POD_NAME:/tmp/wp-cli.phar -c $WORDPRESS_CONTAINER_NAME
+        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- chmod +x /tmp/wp-cli.phar
+
+        siteURL=https://${OC_SITE_NAME}.apps.silver.devops.gov.bc.ca
+        ssoURI=''
+
+        echo "Keycloak Secret Name: ${CLIENT_KEYCLOAK_SECRET_NAME}"
+        
+        if [ -z "${CLIENT_KEYCLOAK_SECRET_NAME}" ]; then
+          echo "Unable to determine keycloak secret name. Exiting."
+          exit 1
+        fi
+
+        clientSecret=${{ secrets[env.CLIENT_KEYCLOAK_SECRET_NAME] }}
+        case $OC_ENV in
+          'dev')
+            ssoURI='https://test.loginproxy.gov.bc.ca/auth'            
+            ;;
+
+          'test')
+            ssoURI='https://test.loginproxy.gov.bc.ca/auth'
+            ;;
+
+          'prod') #this branch wont run due to exit above.
+            ssoURI='https://loginproxy.gov.bc.ca/auth'        
+            ;;
+
+          *)
+            echo "No SSO integration set up for $SITE_NAME"
+            exit 1
+            ;;
+        esac
+
+        #if [ "${{ github.event.inputs.PROJECT-NAME }}" == "digital" ];  then 
+        if [ "${ENVIRONMENT}" == "prod" ];  then 
+          if [ "${{ github.event.inputs.SITE-NAME }}" == "digital" ];  then #production
+            echo "Running on production"
+            siteURL=https://${OC_SITE_NAME}.gov.bc.ca
+          else
+            echo "Running on prod environment, but not on production site. You will need to manually fix SSO. Use the test/dev settings."
+            exit 1
+          fi
+        fi
+
+        
+        if [ -z "${clientSecret}" ]; then
+          echo "Unable to determine keycloak secret. Exiting."
+          exit 1
+        fi
+
+        #run command to change miniorange plugin variables
+        CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar digimod-config-mo $clientSecret $ssoURI $siteURL ")
+        echo "${CMD1_RESULTS}"
+
+        #run command to fix any miniorange plugin settings
+        CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar digimod-fix-mo ")
+        echo "${CMD2_RESULTS}"
+
+
+
+        #Generate GH Actions summary
+        echo "### SSO Configured:" >> $GITHUB_STEP_SUMMARY
+        echo "Environment: ${OC_ENV}" >> $GITHUB_STEP_SUMMARY
+        echo "Project: ${OC_PROJECT_NAME}" >> $GITHUB_STEP_SUMMARY
+        echo "Site: ${OC_SITE_NAME}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+
+        echo "### Command 1 Results: " >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+        echo "${CMD1_RESULTS}" >> $GITHUB_STEP_SUMMARY
+
+        echo "### Command 2 Results: " >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+        echo "${CMD2_RESULTS}" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,29 @@
+name: Migrate to Production
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'test'
+      site-name:
+        description: 'Site name'
+        required: true
+        default: 'test'
+jobs:
+  deploy:
+    if: false #Disable action. This is a dangerous action as it replaces production.
+
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Deploy theme and plugins
+        uses: ./.github/actions/migrate_to_prod
+        with:
+          environment: ${{ github.event.inputs.environment }}
+          site-name: ${{ github.event.inputs.site-name }}
+          openshift-server: ${{ secrets.OPENSHIFT_SERVER }}
+          dev-token: ${{ secrets.OPENSHIFT_DEV_API_TOKEN }}
+          test-token: ${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
+          prod-token: ${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
