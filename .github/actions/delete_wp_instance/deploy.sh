@@ -12,7 +12,7 @@ TEST_TOKEN=$6
 PROD_TOKEN=$7
 
 #NG. no longer grabbing the branch    -b digimod-deploy
-git clone  https://github.com/bcgov/wordpress-deploy-digimod.git
+git clone  https://github.com/bcgov/wordpress-deploy-cleanbcdx.git
       
 #Log in to OpenShift
 echo "Deploying to $ENVIRONMENT"
@@ -24,9 +24,10 @@ case "$ENVIRONMENT" in
     token=$TEST_TOKEN
     ;;
     "prod")
-    # token=$PROD_TOKEN
-    echo "For safety reasons, we won't run this action on prod!"
-    exit 1
+    #TODO re-disable this
+     token=$PROD_TOKEN
+    #echo "For safety reasons, we won't run this action on prod!"
+    #exit 1
     ;;
     *)
     echo "Unknown environment: $ENVIRONMENT"
@@ -40,7 +41,7 @@ oc login $OPENSHIFT_SERVER --token=$token       #--insecure-skip-tls-verify=true
 echo "::endgroup::"
 
 #Go into the deployment folder
-cd wordpress-deploy-digimod
+cd wordpress-deploy-cleanbcdx
 
 #Setup some variables
 export NAMESPACE="f181a8-$ENVIRONMENT"
