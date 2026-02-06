@@ -1,5 +1,5 @@
 name: Deploy Plugin
-description: 'Deploy a single plugin from the wordpress-digimod repository to the given site.'
+description: 'Deploy a single plugin from the wordpress-cleanbcdx repository to the given site.'
 inputs:
   environment:
     description: 'Deployment environment'
@@ -8,7 +8,7 @@ inputs:
   project-name:
     description: 'Project name'
     required: true
-    default: 'digital'
+    default: 'cleanbcdx-bh'
   site-name:
     description: 'Site name'
     required: true

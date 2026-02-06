@@ -19,7 +19,7 @@ on:
         type: choice
         options:
         - digital
-        - cleanbc-bh
+        - cleanbcdx-bh
       site-name:
         description: 'Destination site name'
         required: true

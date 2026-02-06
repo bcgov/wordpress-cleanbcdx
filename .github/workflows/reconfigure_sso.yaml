@@ -18,8 +18,10 @@ on:
         required: true
         type: choice
         options:
-        - digital
-        - cleanbc-bh
+        - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
       site-name:
         description: 'Site name'
         required: true
@@ -101,7 +103,8 @@ jobs:
 
             "prod")
             token=${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
-            OC_SITE_NAME=${{ github.event.inputs.SITE-NAME }}
+            #OC_SITE_NAME=${{ github.event.inputs.SITE-NAME }}
+            OC_SITE_NAME=${{ github.event.inputs.PROJECT-NAME }}-${{ github.event.inputs.SITE-NAME }}
             #echo "For safety reasons, we won't run this action on prod!"
             #exit 1
             ;;
@@ -114,7 +117,7 @@ jobs:
 
         oc login ${{ secrets.OPENSHIFT_SERVER }} --token=$token           #--insecure-skip-tls-verify=true
 
-        NAMESPACE="c0cce6-$ENVIRONMENT"
+        NAMESPACE="f181a8-$ENVIRONMENT"
         OC_ENV=$ENVIRONMENT
         OC_PROJECT_NAME=${{ github.event.inputs.PROJECT-NAME }}
         
@@ -132,7 +135,7 @@ jobs:
         oc cp --no-preserve wp-cli.phar $NAMESPACE/$WORDPRESS_POD_NAME:/tmp/wp-cli.phar -c $WORDPRESS_CONTAINER_NAME
         oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- chmod +x /tmp/wp-cli.phar
 
-        siteURL=https://${OC_SITE_NAME}.apps.silver.devops.gov.bc.ca
+        siteURL=https://${OC_SITE_NAME}.apps.gold.devops.gov.bc.ca
         ssoURI=''
 
         echo "Keycloak Secret Name: ${CLIENT_KEYCLOAK_SECRET_NAME}"
@@ -164,9 +167,22 @@ jobs:
 
         #if [ "${{ github.event.inputs.PROJECT-NAME }}" == "digital" ];  then 
         if [ "${ENVIRONMENT}" == "prod" ];  then 
-          if [ "${{ github.event.inputs.SITE-NAME }}" == "digital" ];  then #production
+          if [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-bh-prod" ];  then #production
             echo "Running on production"
-            siteURL=https://${OC_SITE_NAME}.gov.bc.ca
+            siteURL=https://betterhomesbc.ca
+
+          elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-ge-prod" ];  then #production
+            echo "Running on production"
+            siteURL=https://goelectricbc.gov.bc.ca
+
+          elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-bb-prod" ];  then #production
+            echo "Running on production"
+            siteURL=https://betterbuildingsbc.ca
+
+          elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbc-prod" ];  then #production
+            echo "Running on production"
+            siteURL=https://cleanbc.gov.bc.ca
+
           else
             echo "Running on prod environment, but not on production site. You will need to manually fix SSO. Use the test/dev settings."
             exit 1

@@ -11,7 +11,7 @@ KEYCLOAK_PROD_CLIENT_SECRET=$7
 oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN --insecure-skip-tls-verify=true
 
 # Export site
-NAMESPACE="c0cce6-$ENVIRONMENT"
+NAMESPACE="f181a8-$ENVIRONMENT"
 OC_ENV=$ENVIRONMENT
 OC_SITE_NAME=digital-$SITE_NAME
 WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=nginx,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
@@ -37,7 +37,7 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     #log into prod
     oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN --insecure-skip-tls-verify=true
     # Import site
-    NAMESPACE="c0cce6-prod"
+    NAMESPACE="f181a8-prod"
     OC_ENV=prod
     OC_SITE_NAME=digital-$SITE_NAME
     WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
@@ -57,5 +57,5 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar ai1wm restore wp-backup.wpress"
 
     #run command to change miniorange plugin variables
-oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar digimod-config-mo $KEYCLOAK_PROD_CLIENT_SECRET $SITE_NAME ${OC_SITE_NAME}.apps.silver.devops.gov.bc.ca"
+oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar digimod-config-mo $KEYCLOAK_PROD_CLIENT_SECRET $SITE_NAME ${OC_SITE_NAME}.apps.gold.devops.gov.bc.ca"
 fi

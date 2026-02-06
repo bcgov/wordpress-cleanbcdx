@@ -18,7 +18,7 @@ oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN              #--insecure-skip-tls
 echo "::endgroup::"
 
 # Export backup file from backup
-NAMESPACE="c0cce6-prod"
+NAMESPACE="f181a8-prod"
 OC_ENV=prod
 OC_SITE_NAME=$PROJECT_NAME-backup
 WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
@@ -96,7 +96,7 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     echo "::endgroup::"
 
 
-    NAMESPACE="c0cce6-$ENVIRONMENT"
+    NAMESPACE="f181a8-$ENVIRONMENT"
     WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
     WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
 

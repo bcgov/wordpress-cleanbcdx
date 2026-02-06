@@ -43,7 +43,7 @@ echo "::endgroup::"
 cd wordpress-deploy-digimod
 
 #Setup some variables
-export NAMESPACE="c0cce6-$ENVIRONMENT"
+export NAMESPACE="f181a8-$ENVIRONMENT"
 export OC_ENV=$ENVIRONMENT
 export OC_SITE_NAME=$PROJECT_NAME-$SITE_NAME
 

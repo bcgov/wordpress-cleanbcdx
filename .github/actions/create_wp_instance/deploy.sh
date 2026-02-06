@@ -12,7 +12,7 @@ TEST_TOKEN=$6
 PROD_TOKEN=$7
 
 #NG. no longer grabbing the branch    -b digimod-deploy
-git clone  https://github.com/bcgov/wordpress-deploy-digimod.git
+git clone  https://github.com/bcgov/wordpress-deploy-cleanbcdx.git
       
 #Log in to OpenShift
 echo "Deploying to $ENVIRONMENT"
@@ -24,9 +24,10 @@ case "$ENVIRONMENT" in
     token=$TEST_TOKEN
     ;;
     "prod")
-    # token=$PROD_TOKEN
-    echo "For safety reasons, we won't run this action on prod!"
-    exit 1
+    token=$PROD_TOKEN
+    #todo re-disable
+    #echo "For safety reasons, we won't run this action on prod!"
+    #exit 1
     ;;
     *)
     echo "Unknown environment: $ENVIRONMENT"
@@ -40,10 +41,10 @@ oc login $OPENSHIFT_SERVER --token=$token           #--insecure-skip-tls-verify=
 echo "::endgroup::"
 
 #Go into the deployment folder
-cd wordpress-deploy-digimod
+cd wordpress-deploy-cleanbcdx
 
 #Setup some variables
-export NAMESPACE="c0cce6-$ENVIRONMENT"
+export NAMESPACE="f181a8-$ENVIRONMENT"
 export OC_ENV=$ENVIRONMENT
 export OC_SITE_NAME=$PROJECT_NAME-$SITE_NAME
 
@@ -116,7 +117,7 @@ oc cp --no-preserve wp-cli.phar $NAMESPACE/$WORDPRESS_POD_NAME:/tmp/wp-cli.phar 
 oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- chmod +x /tmp/wp-cli.phar
 
 #Perform a site install
-WP_INSTALL_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar core install --url=${OC_SITE_NAME}.apps.silver.devops.gov.bc.ca --admin_user=tester --admin_email=info@example.com  --title="${OC_SITE_NAME}.gov.bc.ca Testing Framework")
+WP_INSTALL_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar core install --url=${OC_SITE_NAME}.apps.gold.devops.gov.bc.ca --admin_user=tester --admin_email=info@example.com  --title="${OC_SITE_NAME}.gov.bc.ca Testing Framework")
 echo "WP Install Results: ${WP_INSTALL_RESULTS}"
 
 #Disable site indexing

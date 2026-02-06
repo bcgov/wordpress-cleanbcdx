@@ -1,5 +1,5 @@
 name: Deploy Theme
-description: 'Deploy the block-theme from the bcgov-wordpress-block-theme-digimod repository to the given site.'
+description: 'Deploy the block-theme from the bcgov-wordpress-block-theme repository to the given site.'
 on:
   workflow_dispatch:
     inputs:
@@ -12,14 +12,17 @@ on:
         - dev
         - test
         #for safety reasons dont run this on production
-        #- prod
+        #todo re-disable
+        - prod
       project-name:
         description: 'Project'
         required: true
         type: choice
         options:
-        - digital
-        - cleanbc-bh
+        - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
       site-name:
         description: 'Site name'
         required: true

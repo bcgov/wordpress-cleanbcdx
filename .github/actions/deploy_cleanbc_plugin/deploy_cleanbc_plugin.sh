@@ -14,7 +14,7 @@ PLUGIN_BRANCH_NAME=$8
 
 
 
-NAMESPACE="c0cce6-$ENVIRONMENT"
+NAMESPACE="f181a8-$ENVIRONMENT"
 OC_ENV=$ENVIRONMENT
 OC_SITE_NAME=$PROJECT_NAME-$SITE_NAME
 
@@ -28,7 +28,7 @@ case "$ENVIRONMENT" in
 	token=$TEST_TOKEN
 	;;
 	"prod")		
-	#todo exception for the cleanbc production sites that are cleanbc, cleanbc-bh, cleanbc-goev
+	#todo exception for the cleanbc production sites that are cleanbc, cleanbcdx-bh, cleanbc-goev
 	token=$PROD_TOKEN
 	OC_SITE_NAME=$PROJECT_NAME
 	;;

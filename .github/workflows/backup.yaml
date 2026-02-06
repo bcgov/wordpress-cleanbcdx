@@ -41,7 +41,7 @@ jobs:
       # save the backup and delete one oldest backup
       - name: Update backup files
         run: |
-          NAMESPACE="c0cce6-prod"
+          NAMESPACE="f181a8-prod"
           OC_ENV=prod
           OC_SITE_NAME=digital-backup
           WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')

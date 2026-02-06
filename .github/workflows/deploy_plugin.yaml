@@ -1,5 +1,5 @@
 name: Deploy Plugin
-description: 'Deploy a single plugin from the wordpress-digimod repository to the given site.'
+description: 'Deploy a single plugin from the wordpress-cleanbcdx repository to the given site.'
 on:
   workflow_dispatch:
     inputs:
@@ -12,14 +12,17 @@ on:
         - dev
         - test
         #for safety reasons dont run this on production, use the other action for production.
-        #- prod
+        #todo re-disable
+        - prod
       project-name:
         description: 'Project'
         required: true
         type: choice
-        options:
-        - digital
-        - cleanbc-bh
+        options:  
+        - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
       site-name:
         description: 'Site name'
         required: true

@@ -1,4 +1,4 @@
-name: Deploy CleanBC Plugin
+name: Deploy Plugin
 description: 'Deploy the single plugin from the bcgov-plugin-cleanbc repository to the given site.'
 on:
   workflow_dispatch:
@@ -17,9 +17,12 @@ on:
         description: 'Project'
         required: true
         type: choice
-        default: 'cleanbc-bh'
-        options:
-        - cleanbc-bh
+        default: 'cleanbcdx-bh'
+        options:   
+        - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
 
       site-name:
         description: 'Site name'

@@ -8,7 +8,7 @@ DEV_TOKEN=$2
 TEST_TOKEN=$3
 PROD_TOKEN=$4
 
-NAMESPACE="c0cce6-dev"
+NAMESPACE="f181a8-dev"
 
 
 

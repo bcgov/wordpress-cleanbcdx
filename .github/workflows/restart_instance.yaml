@@ -18,7 +18,7 @@ on:
         type: choice
         options:
         - digital
-        - cleanbc-bh
+        - cleanbcdx-bh
       site-name:
         description: 'Site name'
         required: true
@@ -63,7 +63,7 @@ jobs:
         esac
         echo "Restarting the site $OC_SITE_NAME in $ENVIRONMENT"
         oc login ${{ secrets.OPENSHIFT_SERVER }} --token=$token             #--insecure-skip-tls-verify=true
-        NAMESPACE="c0cce6-$ENVIRONMENT"
+        NAMESPACE="f181a8-$ENVIRONMENT"
         OC_ENV=$ENVIRONMENT
         DEPLOYMENT=$(oc get deployment -n $NAMESPACE -l app=wordpress,site=$OC_SITE_NAME -o jsonpath='{.items[0].metadata.name}')
 
