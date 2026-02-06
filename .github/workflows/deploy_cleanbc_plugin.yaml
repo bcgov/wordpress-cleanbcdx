@@ -1,4 +1,4 @@
-name: Deploy Plugin
+name: Deploy CleanBC Plugin
 description: 'Deploy the single plugin from the bcgov-plugin-cleanbc repository to the given site.'
 on:
   workflow_dispatch:
