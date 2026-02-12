@@ -17,8 +17,10 @@ on:
         required: true
         type: choice
         options:
-        - digital
         - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
       site-name:
         description: 'Site name ("digital" for prod)'
         required: true
