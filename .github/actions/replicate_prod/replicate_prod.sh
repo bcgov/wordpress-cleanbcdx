@@ -181,9 +181,11 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
         oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar ai1wm restore wp-backup.wpress"
     fi
 
-    echo "- Removing uploaded restore file"
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm /var/www/html/wp-content/ai1wm-backups/wp-backup.wpress
-    
+    #on the backup site, we need the wpress file to stay.
+    if [[ "${SITE_NAME}" != "backup" ]]; then 
+        echo "- Removing uploaded restore file"
+        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm /var/www/html/wp-content/ai1wm-backups/wp-backup.wpress
+    fi
 
     #activate the plugins
     # oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar plugin activate $active_plugins
