@@ -53,9 +53,9 @@ jobs:
             ;;
             "prod")
             token=${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
-            if [ $SITE_NAME == "prod" ]; then
-              OC_SITE_NAME=${{ github.event.inputs.project-name }}
-            fi
+            #if [ $SITE_NAME == "prod" ]; then
+            #  OC_SITE_NAME=${{ github.event.inputs.project-name }}
+            #fi
             ;;
             *)
             echo "Unknown environment: $ENVIRONMENT"
