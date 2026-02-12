@@ -40,7 +40,7 @@ echo "::endgroup::"
 # Export site from production
 NAMESPACE="f181a8-prod"
 OC_ENV=prod
-OC_SITE_NAME=$PROJECT_NAME
+OC_SITE_NAME=$PROJECT_NAME-prod
 WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
 WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
 if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
@@ -112,12 +112,12 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     
     #dont allow live site to live site. do allow prod digital to prod backup.
     if [[ "$ENVIRONMENT" == "prod" ]]; then 
-        if [[ "$OC_SITE_NAME" == "$PROJECT_NAME-$PROJECT_NAME" ]]; then 
+        if [[ "$OC_SITE_NAME" == "$PROJECT_NAME-prod" ]]; then 
             echo "::error::Cant replicate to environment: production, site: $PROJECT_NAME!"
             exit 1
         fi
     fi 
-
+exit 1 #todo remove, failsafe during testing
 
     echo "::group::Login to target OC"
     oc login $OPENSHIFT_SERVER --token=$token               #--insecure-skip-tls-verify=true
