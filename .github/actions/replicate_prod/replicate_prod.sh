@@ -78,6 +78,9 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     oc cp -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html/wp-content/ai1wm-backups/$LATEST_FILE ./wp-backup.wpress --retries=5    #attempt to prevent the EOF error when copying the large backup by using retries option
     echo "- Grabbed backup file $LATEST_FILE"
 
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm /var/www/html/wp-content/ai1wm-backups/$LATEST_FILE
+    echo "- Removed backup file from server $LATEST_FILE"
+
     LOCAL_MD5=($(md5sum ./wp-backup.wpress))
     echo "-- MD5 of copied backup file: $LOCAL_MD5"
 
@@ -170,7 +173,7 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
 
     else
         # The command was not successful
-        echo "Restore command failed, trying one more time..."
+        echo "- Restore command failed, trying one more time..."
 
         #need to re-activate the plugins first
         oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar plugin activate all-in-one-wp-migration all-in-one-wp-migration-unlimited-extension
@@ -178,6 +181,9 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
         oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar ai1wm restore wp-backup.wpress"
     fi
 
+    echo "- Removing uploaded restore file"
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm /var/www/html/wp-content/ai1wm-backups/wp-backup.wpress
+    
 
     #activate the plugins
     # oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar plugin activate $active_plugins
@@ -185,8 +191,6 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     #Disable site indexing
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option set blog_public 0
 
-    #Re-create the SearchWP's id's table that is not backed up.
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar digimod-fix-searchwpmetrics
 
 
     echo "::endgroup::"
