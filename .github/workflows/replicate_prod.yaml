@@ -12,14 +12,17 @@ on:
         - dev
         - test
         #for safety reasons dont run this on production
-        #- prod
+        #todo re-disable this
+        - prod
       project-name:
         description: 'Project'
         required: true
         type: choice
-        options:
-        - digital
+        options: 
         - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
       site-name:
         description: 'Destination site name'
         required: true
