@@ -15,6 +15,16 @@ PROD_TOKEN=$7
 echo "::group::Login to Production OC"
 #oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN              #--insecure-skip-tls-verify=true
 
+
+#dont allow live site to live site. do allow prod digital to prod backup.
+if [[ "$ENVIRONMENT" == "prod" ]]; then 
+    if [[ "$SITE_NAME" == "prod" ]]; then 
+        echo "::error::Not allowed to replicate to environment: production, site: $PROJECT_NAME!"
+        exit 1
+    fi
+fi 
+
+
 #Sometimes oc login will fail to connect, so lets re-try on failure.
 set +e
 oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
@@ -110,15 +120,7 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     OC_ENV=$ENVIRONMENT
     echo "Deploying to the site $OC_SITE_NAME in $OC_ENV"
     
-    #dont allow live site to live site. do allow prod digital to prod backup.
-    if [[ "$ENVIRONMENT" == "prod" ]]; then 
-        if [[ "$OC_SITE_NAME" == "$PROJECT_NAME-prod" ]]; then 
-            echo "::error::Cant replicate to environment: production, site: $PROJECT_NAME!"
-            exit 1
-        fi
-    fi 
-exit 1 #todo remove, failsafe during testing
-
+ 
     echo "::group::Login to target OC"
     oc login $OPENSHIFT_SERVER --token=$token               #--insecure-skip-tls-verify=true
     echo "::endgroup::"
