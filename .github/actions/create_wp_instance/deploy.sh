@@ -11,7 +11,6 @@ DEV_TOKEN=$5
 TEST_TOKEN=$6
 PROD_TOKEN=$7
 
-#NG. no longer grabbing the branch    -b digimod-deploy
 git clone  https://github.com/bcgov/wordpress-deploy-cleanbcdx.git
       
 #Log in to OpenShift
