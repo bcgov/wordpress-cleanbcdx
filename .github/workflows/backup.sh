@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#This file is copied to digital-backup and run there.
+#This file is copied to ***-backup and run there.
 #Cleans up the number of backup files.
 
 # Set directory

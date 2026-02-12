@@ -22,7 +22,7 @@ on:
         - cleanbcdx-bb
         - cleanbc
       site-name:
-        description: 'Site name ("digital" for prod)'
+        description: 'Site name ("prod" for prod)'
         required: true
         default: 'test'
       backup-number:

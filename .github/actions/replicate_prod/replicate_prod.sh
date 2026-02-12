@@ -16,7 +16,7 @@ echo "::group::Login to Production OC"
 #oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN              #--insecure-skip-tls-verify=true
 
 
-#dont allow live site to live site. do allow prod digital to prod backup.
+#dont allow live site to live site. do allow prod to prod backup.
 if [[ "$ENVIRONMENT" == "prod" ]]; then 
     if [[ "$SITE_NAME" == "prod" ]]; then 
         echo "::error::Not allowed to replicate to environment: production, site: $PROJECT_NAME!"

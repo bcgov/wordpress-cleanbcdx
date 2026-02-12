@@ -43,16 +43,13 @@ jobs:
             ENVIRONMENT="test"
           fi
 
-          if [ "${PROJECT_NAME}" == "digital" ];  then #legacy key name for digital
-            CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_${ENVIRONMENT^^}_CLIENT_SECRET"
+          
+          #For unknown reason, dev secret doesnt always work. Use test key in dev. Only do this in the prepare step.
+          SITE_NAME=${SITE_NAME//dev/test} 
 
-          else
-            #For unknown reason, dev secret doesnt always work. Use test key in dev. Only do this in the prepare step.
-            SITE_NAME=${SITE_NAME//dev/test} 
-
-            CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_${PROJECT_NAME^^}_${SITE_NAME^^}_CLIENT_SECRET"            
-            CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME//-/_}  
-          fi      
+          CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_${PROJECT_NAME^^}_${SITE_NAME^^}_CLIENT_SECRET"            
+          CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME//-/_}  
+                
 
           echo "::set-output name=CLIENT_KEYCLOAK_SECRET_NAME::${CLIENT_KEYCLOAK_SECRET_NAME}";
 
@@ -165,7 +162,7 @@ jobs:
             ;;
         esac
 
-        #if [ "${{ github.event.inputs.PROJECT-NAME }}" == "digital" ];  then 
+         
         if [ "${ENVIRONMENT}" == "prod" ];  then 
           if [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-bh-prod" ];  then #production
             echo "Running on production"
