@@ -6,7 +6,7 @@ on:
     inputs:
       project-name:
         description: 'Project'
-        required: true
+        #required: true
         type: choice
         options:      
         - 
