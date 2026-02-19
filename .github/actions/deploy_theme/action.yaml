@@ -42,7 +42,7 @@ runs:
       shell: bash
     - name: Clone bcgov-wordpress-block-theme repository
       run: |
-        git clone -b development https://github.com/bcgov/bcgov-wordpress-block-theme.git
+        git clone https://github.com/bcgov/bcgov-wordpress-block-theme.git
       shell: bash
     - name: Deploy theme
       run: |
