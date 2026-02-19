@@ -40,9 +40,9 @@ runs:
         sudo mv composer.phar /usr/local/bin/composer
         composer --version
       shell: bash
-    - name: Clone bcgov-wordpress-block-theme-digimod repository
+    - name: Clone bcgov-wordpress-block-theme repository
       run: |
-        git clone -b development https://github.com/bcgov/bcgov-wordpress-block-theme-digimod.git
+        git clone -b development https://github.com/bcgov/bcgov-wordpress-block-theme.git
       shell: bash
     - name: Deploy theme
       run: |

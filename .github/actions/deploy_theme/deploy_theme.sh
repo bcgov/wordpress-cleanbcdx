@@ -66,7 +66,7 @@ else
     echo "::warning::Block-theme not found"
 fi
 
-cd bcgov-wordpress-block-theme-digimod
+cd bcgov-wordpress-block-theme
 
 #Satis is no longer available from GH action workers. /dist folder is commited when changes are made, should not need to build theme.
 #composer update
