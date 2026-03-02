@@ -128,6 +128,11 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     echo "Uploading backup file"
     oc cp --no-preserve ./wp-backup.wpress -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html/wp-content/ai1wm-backups/wp-backup.wpress
 
+    #erase any cleanbc plugin assets before restore
+    echo "Cleaning the bcgov-plugin-cleanbc/dist/assets folder"
+    oc exec  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "rm /var/www/html/wp-content/plugins/bcgov-plugin-cleanbc/dist/assets/*"
+
+
     #perform the restore
     echo "Running restore"
     echo " Namespace: ${NAMESPACE}"

@@ -163,6 +163,11 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     oc cp --no-preserve ./wp-backup.wpress -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html/wp-content/ai1wm-backups/wp-backup.wpress --retries=5    #attempt to prevent the EOF error when copying the large backup by using retries option
 
 
+    #erase any cleanbc plugin assets before restore
+    echo "Cleaning the bcgov-plugin-cleanbc/dist/assets folder"
+    oc exec  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "rm /var/www/html/wp-content/plugins/bcgov-plugin-cleanbc/dist/assets/*"
+
+
     #perform the restore. Check for failure, and run again if failed.
     echo "Running restore"
     ret=0
