@@ -165,7 +165,18 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
 
     #erase any cleanbc plugin assets before restore
     echo "Cleaning the bcgov-plugin-cleanbc/dist/assets folder"
-    oc exec  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "rm /var/www/html/wp-content/plugins/bcgov-plugin-cleanbc/dist/assets/*"
+    set +e
+	CLEANBCPLUGIN_VERSION=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar plugin get bcgov-plugin-cleanbc --field=version 2>&1)
+	CLEANBCPLUGIN_VERSION_EXIT_CODE=$?
+	set -e
+	if [ CLEANBCPLUGIN_VERSION_EXIT_CODE -eq 0 ]; then		
+        oc exec  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "rm /var/www/html/wp-content/plugins/bcgov-plugin-cleanbc/dist/assets/*"
+    
+	else
+		echo "bcgov-plugin-cleanbc Not installed"
+
+		echo "::warning::bcgov-plugin-cleanbc Not installed"
+	fi
 
 
     #perform the restore. Check for failure, and run again if failed.
