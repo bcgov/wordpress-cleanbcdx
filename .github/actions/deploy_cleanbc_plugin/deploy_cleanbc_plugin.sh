@@ -30,7 +30,7 @@ case "$ENVIRONMENT" in
 	"prod")		
 	#todo exception for the cleanbc production sites that are cleanbc, cleanbcdx-bh, cleanbc-goev
 	token=$PROD_TOKEN
-	OC_SITE_NAME=$PROJECT_NAME
+	#OC_SITE_NAME=$PROJECT_NAME
 	;;
 	*)
 	echo "Unknown environment: $ENVIRONMENT"
