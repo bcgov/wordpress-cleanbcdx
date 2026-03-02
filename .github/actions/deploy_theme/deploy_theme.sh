@@ -22,7 +22,7 @@ case "$ENVIRONMENT" in
     ;;
     "prod")
     token=$PROD_TOKEN
-    OC_SITE_NAME=$PROJECT_NAME
+    OC_SITE_NAME=$PROJECT_NAME-$SITE_NAME
     ;;
     *)
     echo "Unknown environment: $ENVIRONMENT"
