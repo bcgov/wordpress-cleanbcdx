@@ -199,11 +199,11 @@ jobs:
 
 
         #run command to change miniorange plugin variables
-        CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar digimod-config-mo $clientSecret $ssoURI $siteURL ")
+        CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar cleanbcdx-config-mo $clientSecret $ssoURI $siteURL ")
         echo "${CMD1_RESULTS}"
 
         #run command to fix any miniorange plugin settings
-        CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar digimod-fix-mo ")
+        CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar cleanbcdx-fix-mo ")
         echo "${CMD2_RESULTS}"
 
 
