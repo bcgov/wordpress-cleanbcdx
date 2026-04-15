@@ -192,6 +192,12 @@ jobs:
           exit 1
         fi
 
+
+        echo "Activating cleanbcdx-misc plugin"
+        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar plugin activate cleanbcdx-misc
+
+
+
         #run command to change miniorange plugin variables
         CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar digimod-config-mo $clientSecret $ssoURI $siteURL ")
         echo "${CMD1_RESULTS}"
