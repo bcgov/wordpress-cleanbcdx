@@ -1,0 +1,95 @@
+$xxs: 0;
+$xs: 479px;
+$sm: 782px;
+$md: 991px;
+$lg: 1199px;
+
+/* @media Breakpoints */
+$breakpoint-xxs: $xxs;
+$breakpoint-xs: $xs;
+$breakpoint-xs-sm: 600px;
+$breakpoint-wp-block-sm: $breakpoint-xs-sm;
+$breakpoint-sm: $sm;
+$breakpoint-sm-md: 840px;
+$breakpoint-wp-content-sm: $breakpoint-sm-md;
+$breakpoint-md: $md;
+$breakpoint-md-lg: 1024px;
+$breakpoint-lg: $lg;
+$breakpoint-xl: 1440px;
+$breakpoint-wp-content-wide: $breakpoint-xl;
+
+// General colours
+$black: #000;
+$white: #fff;
+$mineshaft: #222;
+$scorpiongrey: #585858;
+$dovegrey: #70777c;
+$dustygrey: #9a9a9a;
+$lightgray: #bababa;
+$lightgrey: #bababa;
+$grey: #808080;
+$porcelain: #f3f4f5;
+$crimsonred: #d71d24; // was: #e01f26
+
+// Government web colours
+$midnightblue: #002a4e; // was: #036
+$menuBlue: #1c2d64;
+$generallink: #1a5a96;
+$sanmarinoblue: #496ea7;
+$headeryellow: #f4bb2d;
+$curiousblue: #1e9dd3;
+$highlightblue: #d3e1e8;
+$lighthighlightblue: #f3f9fb;
+
+// Go Electric v1 Project colours
+$headeryellow: #ecc51d;
+$highlightyellow: #fcf6dd;
+$gofootergrey: #1f2639;
+$bondiblue: #007e9e;
+$aquablue: #b3deea;
+$squeezeblue: #e7f4f7;
+$bahamablue: #005c97;
+$capergreen: #d8ebc6;
+$pirategold: $headeryellow;
+$silvergrey: #a1a1a1;
+$vehiclegrey: #ccc;
+$snow: $white;
+$bcgov-red-primary: #d71d24;
+$sushigreen: #61a744;
+$eucalyptus: #1d8045;
+$bondiblue: #0090b5;
+$bahamablue: #369;
+$prussianblue: #002a4e;
+$weborange: #f2a900;
+$sunorange: #fdb414;
+$anchororange: #eb7d3b;
+$dawngray: #a49e99;
+$gallerygray: #edebeb;
+
+body {
+	// WP base font sizes based on :root normal (16px), huge (42px)
+	--wp--preset--font-size--normal: clamp(0.875rem, 0.875rem + ((1vw - 0.2rem) * 0.536), 1rem);
+	--wp--preset--font-size--huge: clamp(0.875rem, 0.875rem + ((1vw - 0.2rem) * 0.536), 2.625);
+	// WP theme sizes for editor selections
+	--wp--preset--font-size--extra-small: clamp(0.875rem, 0.875rem + ((1vw - 0.2rem) * 0.179), 1rem);
+	--wp--preset--font-size--small: clamp(0.875rem, 0.875rem + ((1vw - 0.2rem) * 0.357), 1.125rem);
+	--wp--preset--font-size--medium: clamp(1.125rem, 1.125rem + ((1vw - 0.2rem) * 0.536), 1.25rem);
+	--wp--preset--font-size--large: clamp(1.25rem, 1.25rem + ((1vw - 0.2rem) * 0.514), 1.5rem);
+	--wp--preset--font-size--x-large: clamp(1.5rem, 1.5rem + ((1vw - 0.2rem) * 0.536), 2rem);
+	--wp--preset--font-size--extra-large: clamp(1.8rem, 1.8rem + ((1vw - 0.2rem) * 0.617), 2.16rem);
+	--wp--preset--font-size--extra-extra-large: clamp(2.16rem, 2.16rem + ((1vw - 0.2rem) * 0.737), 2.592rem);
+}
+
+* {
+	// Shadows from https://getcssscan.com/css-box-shadow-examples
+	// #39
+	--box-shadow: rgba(0, 0, 0, 0.1) 0 20px 25px -5px, rgba(0, 0, 0, 0.04) 0 10px 10px -5px;
+
+	&::selection {
+		background-color: $curiousblue;
+	}
+}
+
+$searchIcon: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiMwMDVDOTciIGQ9Ik0xNS41IDE0SDE0LjcxTDE0LjQzIDEzLjczQzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNUMxNiA1LjkxIDEzLjA5IDMgOS41IDNDNS45MSAzIDMgNS45MSAzIDkuNUMzIDEzLjA5IDUuOTEgMTYgOS41IDE2QzExLjExIDE2IDEyLjU5IDE1LjQxIDEzLjczIDE0LjQzTDE0IDE0LjcxVjE1LjVMMTkgMjAuNDlMMjAuNDkgMTlMMTUuNSAxNFpNOS41IDE0QzcuMDEgMTQgNSAxMS45OSA1IDkuNUM1IDcuMDEgNy4wMSA1IDkuNSA1QzExLjk5IDUgMTQgNy4wMSAxNCA5LjVDMTQgMTEuOTkgMTEuOTkgMTQgOS41IDE0WiIvPjwvc3ZnPg==);
+
+$closeIcon: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBQcm8gNi41LjEgYnkgQGZvbnRhd2Vzb21lIC0gaHR0cHM6Ly9mb250YXdlc29tZS5jb20gTGljZW5zZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tL2xpY2Vuc2UgKENvbW1lcmNpYWwgTGljZW5zZSkgQ29weXJpZ2h0IDIwMjQgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTE5My45IDI1NkwyOTYuNSAxNTMuNGwyMS4yLTIxLjJjMy4xLTMuMSAzLjEtOC4yIDAtMTEuM2wtMjIuNi0yMi42Yy0zLjEtMy4xLTguMi0zLjEtMTEuMyAwTDE2MCAyMjIuMSAzNi4zIDk4LjNjLTMuMS0zLjEtOC4yLTMuMS0xMS4zIDBMMi4zIDEyMWMtMy4xIDMuMS0zLjEgOC4yIDAgMTEuM0wxMjYuMSAyNTYgMi4zIDM3OS43Yy0zLjEgMy4xLTMuMSA4LjIgMCAxMS4zbDIyLjYgMjIuNmMzLjEgMy4xIDguMiAzLjEgMTEuMyAwTDE2MCAyODkuOSAyNjIuNiAzOTIuNWwyMS4yIDIxLjJjMy4xIDMuMSA4LjIgMy4xIDExLjMgMGwyMi42LTIyLjZjMy4xLTMuMSAzLjEtOC4yIDAtMTEuM0wxOTMuOSAyNTZ6Ii8+PC9zdmc+);

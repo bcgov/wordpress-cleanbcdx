@@ -2,8 +2,8 @@
 
 /**
  * Plugin Name: CLEANBCDX - miscellaneous
- * Description: Miscellaneous features for managing from GithubActions on OpenShift; CLI Keycloak SSO/Miniorange adjuster.
- * Version: 1.2.7
+ * Description: Miscellaneous features for managing from GithubActions on OpenShift; CLI Keycloak SSO/Miniorange adjuster, and increment a hit count whenever Safe Redirect Manager performs a redirect.
+ * Version: 1.2.8
  * Author: CleanBC DX
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -13,7 +13,7 @@
 
 /* 
 Changelog
-
+1.2.8 - Safe Redirect Manager hit count
 1.2.7 - Forked from DIGIMOD-misc
 */
 
@@ -37,7 +37,41 @@ function cleanbcdx_misc_update_check_init()
 //End update check code.
 
 
+add_action( 'plugins_loaded', function() {
 
+	if ( ! class_exists( 'SRM_Redirect' ) ) {
+		return;
+	}
+
+	// Increment hits
+	add_action( 'srm_do_redirect', function( $requested_path ) {
+
+		$matched_redirect = SRM_Redirect::factory()->match_redirect( $requested_path );
+
+		if ( empty( $matched_redirect['redirect_id'] ) ) {
+			return;
+		}
+
+		$redirect_id = absint( $matched_redirect['redirect_id'] );
+
+		$count = (int) get_post_meta( $redirect_id, '_srm_redirect_hit_count', true );
+		update_post_meta( $redirect_id, '_srm_redirect_hit_count', $count + 1 );
+
+	}, 10, 1 );
+
+	// Admin column
+	add_filter( 'manage_redirect_rule_posts_columns', function( $columns ) {
+		$columns['srm_redirect_hits'] = 'Hits';
+		return $columns;
+	});
+
+	add_action( 'manage_redirect_rule_posts_custom_column', function( $column, $post_id ) {
+		if ( 'srm_redirect_hits' === $column ) {
+			echo (int) get_post_meta( $post_id, '_srm_redirect_hit_count', true );
+		}
+	}, 10, 2 );
+
+});
 
 /* Prevent WP password protected pages from showing in web searches
 */

@@ -1,0 +1,446 @@
+/* stylelint-disable no-duplicate-selectors */
+
+.wp-site-blocks #post-content,
+.wp-site-blocks main {
+	z-index: 0;
+}
+
+header {
+	z-index: 2;
+}
+
+.main-nav-container {
+	order: -2;
+}
+
+.toggle-search-icon-container {
+	order: 2;
+
+	@media (min-width: $breakpoint-sm) {
+		order: 2;
+	}
+}
+
+body:not(.alpha-v3) {
+
+	.toggle-search-btn {
+
+		a::before {
+			content: $searchIcon;
+			display: block;
+			width: 100%;
+			height: 100%;
+			position: relative;
+			top: 4px;
+		}
+	}
+}
+
+.toggle-search-btn {
+
+	a {
+		font-size: 0 !important;
+		height: 2rem;
+		width: 2rem;
+	}
+}
+
+// Notification banner adjustments to work with Search bar
+body.custom-cleanbc {
+
+	.notification {
+
+		padding: 0 2rem 0;
+		width: calc(100vw - 4rem);
+		margin-bottom: -1rem;
+
+		button {
+			max-width: 32ch;
+		}
+
+		.inner-container {
+			text-align: center;
+			padding: 2rem;
+		}
+
+		~ div #search-field-container form {
+			position: relative;
+			top: -0.5rem;
+		}
+	}
+}
+
+#search-field-container {
+	width: 100%;
+	padding-right: 1rem !important;
+	padding-left: 0.5rem !important;
+
+	form {
+		width: 100%;
+		position: relative;
+		height: 4rem;
+
+		.wp-block-search__input {
+			background-color: $white;
+			border: 1px solid var(--wp--preset--color--gray-80);
+			border-radius: 0.25rem;
+			color: $mineshaft;
+			font-size: 1rem;
+			height: 3rem;
+			padding: 0 1rem;
+			position: absolute;
+			bottom: 0;
+			margin: 0.5rem 0;
+			width: 100%;
+			z-index: 0;
+		}
+
+		button {
+			border-radius: 0.15rem;
+			font-size: 1rem;
+			height: 3rem;
+			margin: 0.25rem -0.5rem 0 auto;
+			padding: 0 1rem;
+			z-index: 0;
+		}
+	}
+}
+
+@media (min-width: $breakpoint-sm) {
+
+	.wp-block-navigation .has-child .wp-block-navigation__submenu-container {
+		padding: 0;
+		box-shadow: var(--box-shadow);
+	}
+}
+
+.wp-block-navigation-item__content {
+
+	&::before {
+		content: "" !important;
+	}
+
+	padding: 2rem 1rem;
+
+	~.wp-block-navigation__submenu-container .wp-block-navigation-item__content {
+		padding: 0.5rem 1rem;
+
+	}
+}
+
+.is-style-ribbon-menu {
+
+	padding: 2rem 0;
+
+	@media (min-width: $breakpoint-sm) {
+		padding: 0;
+	}
+
+	.has-modal-open {
+		min-height: 100dvh;
+	}
+}
+
+/*
+ *  Ribbon Menu Template Part.
+ */
+
+body.cleanbc {
+
+	&.has-ribbon-menu {
+
+		.site-header {
+
+			nav.is-style-ribbon-menu {
+
+
+				.is-offscreen {
+					display: inherit;
+				}
+
+				.has-modal-open {
+					position: fixed !important;
+					overflow-x: hidden !important;
+				}
+
+				select.pll-switcher-select {
+					border: 0;
+				}
+
+			}
+		}
+
+		.wp-block-navigation {
+
+			a.current-menu-ancestor {
+				text-decoration: underline;
+			}
+
+			@supports selector(:has(*)) {
+
+				a.current-menu-ancestor {
+					text-decoration: none;
+					font-weight: normal;
+				}
+			}
+
+			li:has(a:hover),
+			li:has(a.current-menu-ancestor),
+			li.current-menu-item:has(a:hover),
+			a.current-menu-ancestor {
+				background-color: var(--wp--preset--color--custom-light-highlight, $lighthighlightblue) !important;
+			}
+
+
+			&__container {
+
+				>.wp-block-navigation-submenu {
+
+					&.current-menu-item {
+						background-color: var(--wp--preset--color--custom-light-highlight, $lighthighlightblue) !important;
+					}
+				}
+			}
+
+			li.current-menu-item {
+
+
+				>a.wp-block-navigation-item__content {
+					background-color: var(--wp--preset--color--custom-light-highlight, $lighthighlightblue) !important;
+					font-weight: bold !important;
+				}
+			}
+
+			a {
+				border-bottom: 0 !important;
+
+				&:hover,
+				&:focus {
+					text-decoration: underline;
+					border-bottom: 0 !important;
+				}
+			}
+
+			@supports selector(:has(*)) {
+
+				a {
+
+					&:hover,
+					&:focus {
+						text-decoration: none;
+						border-bottom: 0 !important;
+					}
+				}
+			}
+
+			*:not(button) {
+				line-height: 1.5;
+			}
+
+			&.has-background {
+
+				.has-child {
+
+					.wp-block-navigation {
+
+						&__submenu-container {
+
+							border: 0 !important;
+							padding-right: 0;
+							width: 100%;
+
+							@media (min-width: $breakpoint-sm) {
+
+								border: 0 solid transparent;
+
+								a {
+
+									padding: 0.25rem 0.5rem;
+
+									@media (min-width: $breakpoint-sm) {
+										padding: 0.85rem;
+									}
+
+									&:hover,
+									&:focus {
+										text-decoration: underline;
+										filter: contrast(100%);
+									}
+
+									@supports selector(:has(*)) {
+
+										&:hover,
+										&:focus {
+											text-decoration: none;
+											border-bottom: 0 !important;
+										}
+									}
+								}
+							}
+
+							.wp-block-navigation {
+
+								&__submenu-container {
+
+									@media (min-width: $breakpoint-sm) {
+										left: 100%;
+										top: 0;
+									}
+								}
+
+								&__submenu-icon {
+
+									line-height: 0;
+									margin: auto;
+									transform: rotate(-90deg);
+
+									@media (min-width: $breakpoint-sm) {
+										transform: rotate(0deg);
+									}
+								}
+							}
+						}
+					}
+
+				}
+			}
+
+			&__container {
+				gap: 0;
+
+				.has-background {
+					padding: 0;
+				}
+
+				.wp-block-navigation {
+
+					&-submenu {
+						padding: 0;
+
+						a {
+							border-left: 4px solid transparent;
+
+							padding: 0.5rem;
+
+							@media (min-width: $breakpoint-sm) {
+								padding: 2rem 1rem;
+
+							}
+
+							&:hover,
+							&:focus {
+								background-color: transparent;
+								border-left: 4px solid var(--wp--preset--color--secondary-brand);
+							}
+						}
+
+						&.wp-block-navigation__submenu-container {
+
+							a {
+								width: 100%;
+								padding: 0.5rem;
+
+								@media (min-width: $breakpoint-sm) {
+									padding: 0.5rem;
+								}
+							}
+						}
+					}
+
+					&__submenu-icon {
+						margin: 0 2px 0 0;
+						width: 0.85rem;
+						height: 100%;
+						padding: 0;
+						position: relative;
+						left: -0.5rem;
+					}
+				}
+			}
+		}
+
+		ol.has-background:is(.is-style-ribbon-menu),
+		ul.has-background:is(.is-style-ribbon-menu) {
+			padding: 0;
+		}
+
+		.wp-block-navigation {
+
+			&.footer-menu {
+
+				.wp-block-navigation-item,
+				.current-menu-item {
+
+					>a.wp-block-navigation-item {
+
+						&__content {
+							background-color: transparent !important;
+							text-decoration: underline !important;
+							width: 100%;
+						}
+					}
+				}
+			}
+		}
+
+		div.wp-site-blocks  div.wp-block-group.alignfull.cleanbc-subfooter.has-primary-brand-background-color.has-background.is-layout-constrained  div.wp-block-columns  div  nav  ul li a {
+			text-decoration: none !important;
+
+			&:hover {
+
+				:hover,
+				:focus-visible {
+					background-color: var(--wp--preset--color--secondary-brand) !important;
+					text-decoration: none !important;
+				}
+			}
+		}
+	}
+}
+
+// Override block theme highlighting defaults
+footer a.back-to-top.back-to-top {
+	border: 2px solid var(--wp--preset--color--white);
+	border-radius: 2px;
+
+	&:focus-visible,
+	&:focus {
+		outline: 2px solid var(--wp--preset--color--primary-brand);
+		outline-offset: 0;
+	}
+}
+
+// Override WordPress mobile breakpoint defaults
+@media (min-width: $breakpoint-sm) {
+
+	.wp-block-navigation__responsive-container:not(.hidden-by-default):not(.is-menu-open) {
+		display: block;
+		width: 100%;
+		position: relative;
+		z-index: auto;
+		background-color: inherit;
+	}
+
+	.wp-block-navigation__responsive-container:not(.hidden-by-default):not(.is-menu-open) .wp-block-navigation__responsive-container-close {
+		display: none;
+	}
+
+	.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__submenu-container.wp-block-navigation__submenu-container.wp-block-navigation__submenu-container.wp-block-navigation__submenu-container {
+		left: 0;
+	}
+
+	.wp-block-navigation__responsive-container-open:not(.always-shown) {
+		display: none;
+	}
+}
+
+@media (max-width: $breakpoint-sm - 1) {
+
+	.wp-block-navigation__responsive-container:not(.hidden-by-default):not(.is-menu-open) {
+		display: none;
+	}
+
+	.wp-block-navigation__responsive-container-open:not(.always-shown) {
+		display: flex;
+	}
+}

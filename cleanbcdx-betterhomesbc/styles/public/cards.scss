@@ -1,0 +1,28 @@
+.is-shadowed {
+	--card-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+	box-shadow: var(--card-shadow);
+}
+
+.card-content {
+	height: 100%;
+
+	.wp-block-buttons {
+		margin-top: auto;
+	}
+}
+
+.card-title-link {
+	display: grid;
+	text-decoration: none !important;
+
+	* {
+		text-wrap: wrap;
+		text-wrap: pretty;
+	}
+
+	&:is(:hover, :focus-visible) .linked-card {
+		cursor: pointer;
+		outline: 2px solid var(--wp--preset--color--primary-brand);
+		border-radius: 1rem;
+	}
+}

@@ -1,0 +1,37 @@
+{
+    "apiVersion": 2,
+    "name": "bcgovcleanbc/query-filter-block",
+    "title": "CleanBC DX Query Filter Block",
+    "category": "cleanbcdx-dx-plugins",
+    "icon": "visibility",
+    "description": "Displays a filter select based on a chosen taxonomy and updates the query string.",
+    "keywords": ["query", "filter", "rebates", "taxonomy"],
+    "supports": {
+        "html": false,
+        "typography": {
+            "fontSize": true,
+            "fontStyle": true,
+            "fontWeight": true,
+            "letterSpacing": true,
+            "lineHeight": true,
+            "textDecoration": true,
+            "textTransform": true
+        },
+        "color": {
+            "text": true
+        }
+    },
+    "attributes": {
+        "label": {
+            "type": "string",
+            "default": ""
+        },
+        "style": {
+            "type": "object"
+        },
+        "selectedTaxonomy": {
+            "type": "string",
+            "default": ""
+        }
+    }
+}

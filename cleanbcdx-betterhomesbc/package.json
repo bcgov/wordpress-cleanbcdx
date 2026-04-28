@@ -1,0 +1,59 @@
+{
+  "name": "cleanbcdx-betterhomesbc",
+  "author": "Nate King",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run lint:js && vite build --minify false && wp-scripts build 'scripts/admin.js' --output-path=dist-basic",
+    "build:watch": "vite build --watch",
+    "build:watch-no-minify": "vite build --watch --minify false",
+    "build:production": "npm run lint:js && npm run lint:css && npm run test-vite && vite build && wp-scripts build 'scripts/admin.js' --output-path=dist-basic",
+    "lint:css": "LINT_SEVERITY=warn stylelint 'styles/**/*.scss'",
+    "fix:css": "stylelint 'styles/**/*.scss' --fix",
+    "lint:js": "LINT_SEVERITY=warn eslint 'scripts/**/*.js'",
+    "fix:js": "eslint 'scripts/**/*.js' --fix",
+    "preview": "vite preview",
+    "test-vite": "vitest --run",
+    "test": "jest --passWithNoTests"
+  },
+  "engines": {
+    "node": ">=22.21.1 <23.0.0"
+  },
+  "dependencies": {
+    "vue": "^3.3.2",
+    "vue-slider-component": "^4.1.0-beta.7"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/eslint-parser": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-react": "^7.28.5",
+    "@bcgov/wordpress-eslint": "github:bcgov/wordpress-eslint#semver:1.x",
+    "@bcgov/wordpress-stylelintrc": "github:bcgov/wordpress-stylelintrc#semver:1.x",
+    "@eslint/js": "^9.39.1",
+    "@rushstack/eslint-patch": "^1.14.1",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/babel-preset-jsx": "^1.4.0",
+    "@vue/eslint-config-prettier": "^7.1.0",
+    "@wordpress/scripts": "^30.27.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-vue": "^9.33.0",
+    "globals": "^15.15.0",
+    "jest": "^29.7.0",
+    "jsdom": "^21.1.2",
+    "prettier": "^2.8.8",
+    "sass": "^1.93.3",
+    "terser": "^5.44.0",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21",
+    "vitest": "^1.6.1"
+  },
+  "overrides": {
+    "esbuild": "^0.25.12"
+  }
+}

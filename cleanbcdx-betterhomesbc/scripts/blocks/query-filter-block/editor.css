@@ -1,0 +1,14 @@
+.query-filter-block .query-filter-group label {
+	display: block;
+    margin-top: 0.5em;
+	font: inherit;
+	color: inherit;
+	font-weight: inherit;
+	font-style: inherit;
+	text-transform: inherit;
+	text-decoration: inherit;
+}
+
+@view-transition {
+  navigation: auto;
+}

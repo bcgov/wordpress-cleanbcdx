@@ -1,0 +1,56 @@
+{
+    "apiVersion": 2,
+    "name": "bcgovcleanbc/query-conditional-group",
+    "title": "CleanBC DX Query Conditional Group",
+    "category": "cleanbcdx-dx-plugins",
+    "icon": "visibility",
+    "description": "Render this block’s inner content only when URL query params match the configured rules.",
+    "attributes": {
+        "groups": {
+            "type": "array",
+            "default": []
+        },
+        "groupLogic": {
+            "type": "string",
+            "default": "OR"
+        },
+        "invertGroups": {
+            "type": "boolean",
+            "default": false
+        },
+
+        "rules": {
+            "type": "array",
+            "default": []
+        },
+        "logic": {
+            "type": "string",
+            "default": "AND"
+        },
+        "invert": {
+            "type": "boolean",
+            "default": false
+        },
+
+        "caseSensitive": {
+            "type": "boolean",
+            "default": false
+        },
+        "clientSideCheck": {
+            "type": "boolean",
+            "default": false
+        },
+        "hideUntilJs": {
+            "type": "boolean",
+            "default": true
+        }
+    },
+    "supports": {
+        "anchor": true,
+        "spacing": {
+            "margin": true,
+            "padding": true
+        },
+        "html": false
+    }
+}

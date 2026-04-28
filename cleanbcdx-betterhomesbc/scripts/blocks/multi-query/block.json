@@ -1,0 +1,26 @@
+{
+    "apiVersion": 2,
+    "name": "bcgovcleanbc/multi-query-content",
+    "title": "CleanBC DX Multi-Query Content",
+    "category": "cleanbcdx-dx-plugins",
+    "icon": "update-alt",
+    "description": "Displays a value based on one or more URL query parameters. Use {{value}} to set the default placeholder output, which can be mixed with other text content.",
+    "attributes": {
+        "alignment": { "type": "string", "default": "left" },
+        "placeholderText": { "type": "string", "default": "{{value}}" },
+        "fallbackText": { "type": "string", "default": "No match found." },
+        "paramKeys": { "type": "array", "default": [] },
+        "combinations": { "type": "array", "default": [] },
+        "previewMode": { "type": "boolean", "default": false },
+        "previewValues": { "type": "object", "default": {} },
+        "useOrLogic": { "type": "boolean", "default": false },
+        "useParamValueDirect": { "type": "boolean", "default": false }
+    },
+    "supports": {
+        "align": ["left", "center", "right"],
+        "color": { "text": true, "background": true },
+        "typography": { "fontSize": true, "lineHeight": true },
+        "dimensions": { "margin": true, "padding": true },
+        "spacing": { "margin": true, "padding": true }
+    }
+}

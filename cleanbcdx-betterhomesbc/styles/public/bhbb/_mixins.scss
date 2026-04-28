@@ -1,0 +1,56 @@
+@mixin hover-outline {
+
+	&:hover,
+	&:focus {
+		outline: 0.125rem solid $mineshaft;
+		outline-offset: 0.125rem;
+	}
+}
+
+@mixin grid1-2 {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+	row-gap: 2rem;
+	max-width: 100%;
+	align-items: start;
+
+	@media (min-width: $breakpoint-md) {
+		gap: 1rem;
+		row-gap: 0;
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@mixin grid1-2-3 {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0;
+	row-gap: 2rem;
+	max-width: 100%;
+	align-items: start;
+
+	@media (min-width: $breakpoint-sm) {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1rem;
+	}
+
+	@media (min-width: $breakpoint-lg) {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@mixin media-object {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-content: flex-start;
+	align-items: stretch;
+
+	@media (min-width: $breakpoint-md) {
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: flex-start;
+		justify-content: space-between;
+	}
+}

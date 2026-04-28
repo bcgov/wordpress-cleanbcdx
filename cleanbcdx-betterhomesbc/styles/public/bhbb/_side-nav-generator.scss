@@ -1,0 +1,102 @@
+.admin-instructions {
+	display: none !important;
+}
+
+#side-nav-container {
+	position: sticky;
+	top: 8rem;
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+
+	.in-page-nav {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		box-sizing: border-box;
+
+		li {
+			border-right: 4px solid $menuAncestorBackground;
+			width: 100%;
+			max-width: 100%;
+			min-width: 0;
+			margin-top: 0;
+			box-sizing: border-box;
+
+			@media (min-width: 599px) {
+				max-width: calc(100% - 1.66rem);
+			}
+
+			&.active {
+				border-right: 4px solid $menuAncestorHighlight;
+
+				> a {
+					background-color: $menuAncestorBackground;
+					color: var(--wp--preset--color--primary-brand);
+					padding: 0.5rem calc(1rem - 4px);
+					text-decoration: none;
+					font-weight: bold;
+					letter-spacing: -0.05px;
+				}
+			}
+
+			a {
+				border-right: 4px solid transparent;
+				padding: 0.5rem calc(1rem - 2px);
+				display: inline-block;
+				font-size: 1rem;
+				text-decoration: none;
+				text-wrap: pretty;
+				width: 100%;
+				max-width: 100%;
+				min-width: 0;
+				box-sizing: border-box;
+				overflow-wrap: anywhere;
+			}
+		}
+
+		ul {
+			margin: 0.5rem 0 0;
+			width: 100%;
+			max-width: calc(100% - 1rem);
+			min-width: 0;
+			box-sizing: border-box;
+
+			li {
+				line-height: 2;
+				list-style: none;
+				margin-left: 0;
+				min-width: 0 !important;
+				width: 100%;
+				max-width: 100%;
+				border-right: 4px solid $menuAncestorBackground;
+				border-left: 0;
+				box-sizing: border-box;
+
+				a {
+					padding: 0.665rem calc(1rem - 2px);
+					width: 100%;
+					max-width: 100%;
+					min-width: 0;
+					box-sizing: border-box;
+				}
+
+				&.active {
+					border-color: $menuAncestorHighlight;
+
+					> a {
+						border: 0;
+						padding: 0.665rem calc(1rem - 2px) !important;
+						width: 100%;
+					}
+				}
+			}
+		}
+	}
+}

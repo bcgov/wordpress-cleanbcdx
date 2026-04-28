@@ -1,0 +1,285 @@
+/* ==========================================================================
+   Gravity Forms (Form ID: 2) – converted styling
+   ========================================================================== */
+
+#gform_2 {
+	container-name: contact;
+	container-type: inline-size;
+}
+
+/* ---- Layout container (replaces .control-container) ---- */
+#gform_2 .gform_fields {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 1rem;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	counter-reset: gf_question;
+
+	@container contact (width <= 680px) {
+		padding: 0 !important;
+	}
+}
+
+/* Small screens */
+@media (max-width: 680px) {
+
+	#gform_2 .gform_fields {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 400px) {
+
+	#gform_2 .gform_fields {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+}
+
+/* ---- Each field (replaces .question-container + stacked layout) ---- */
+#gform_2 .gfield {
+	display: grid;
+	grid-template-columns: minmax(20%, 220px) 1fr;
+	margin: 0;
+	padding: 0;
+
+	@container contact (width <= 680px) {
+		grid-template-columns: 100%;
+		justify-content: start;
+		align-content: start;
+		width: 100%;
+	}
+}
+
+/* Terms and conditions column */
+#gform_2 .gfield.terms-conditions {
+	grid-template-columns: 1fr;
+	position: relative;
+	left: 1rem;
+}
+
+/* “Stacked” look: left rail + badge.
+   Applies to all visible fields by default; hidden fields won't show because they're display:none */
+#gform_2 .gfield::before {
+	content: "";
+	position: absolute;
+	left: 0.75rem;
+	top: 0.25rem;
+	bottom: 0.25rem;
+	width: 3px;
+	background: transparent; /* you can set a rail color if you want */
+	z-index: 0;
+}
+
+/* Space the field content so it doesn’t overlap the badge/rail */
+#gform_2 .gfield > .gfield_label,
+#gform_2 .gfield > .ginput_container,
+#gform_2 .gfield > .gfield_description {
+	margin-left: 2.5rem;
+	margin-top: 0;
+	width: 85%;
+
+	@container contact (width <= 680px) {
+		margin: 0;
+		width: 100%;
+	}
+
+}
+
+/* ---- Labels ---- */
+#gform_2 .gfield .gfield_label {
+	font-size: 0.9rem;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	font-weight: normal;
+	line-height: 1.5;
+	margin-block-start: 0.15rem;
+	margin-block-end: 0;
+	text-wrap: balance;
+	text-wrap: pretty;
+	text-align: right;
+	width: 100%;
+
+	@container contact (width <= 680px) {
+		width: 100%;
+		text-align: left;
+		margin: 0;
+		justify-content: flex-start;
+		padding-block: 0.5rem;
+	}
+}
+
+#gform_2  .subscribe-gform > div:nth-child(2) {
+	display: flex;
+	align-items: center;
+	padding-block: 0;
+}
+
+/* ---- Pending state (placeholder selected / empty required fields) ----
+   Uses :required:invalid for selects + aria-invalid for other inputs. */
+#gform_2 .gfield:has(select.gfield_select:required:invalid)::after,
+#gform_2 .gfield:has(input[aria-required="true"][aria-invalid="false"][value=""])::after {
+	border-color: #bfdfe7;
+	background-image: none;
+}
+
+/* If your browser support for :has() is a concern, remove the two rules above,
+   and rely on the input/select styling below (still works well). */
+
+/* ---- Disabled state badge (matches your “locked/disabled” logic) ---- */
+#gform_2 .gfield:has(:is(input, select, textarea):disabled)::after {
+	border-color: oklch(86.686% 0.0001 271.152) !important;
+	background-color: rgb(243, 243, 243);
+	background-image: none !important;
+}
+
+/* ---- Error state badge (Gravity Forms typically sets aria-invalid="true") ---- */
+#gform_2 .gfield:has(:is(input, select, textarea)[aria-invalid="true"])::after {
+	border-color: oklch(39.984% 0.16408 29.223) !important;
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSJyZWQiIG9wYWNpdHk9Ii40IiBkPSJNMCAyNTZhMjU2IDI1NiAwIDEgMCA1MTIgMEEyNTYgMjU2IDAgMSAwIDAgMjU2em0xNTguMS02NGMxMS4zLTExLjMgMjIuNi0yMi42IDMzLjktMzMuOWM1LjcgNS43IDExLjMgMTEuMyAxNyAxN2MxNS43IDE1LjcgMzEuMyAzMS4zIDQ3IDQ3YzE1LjctMTUuNyAzMS4zLTMxLjMgNDctNDdjNS43LTUuNyAxMS4zLTExLjMgMTctMTdjMTEuMyAxMS4zIDIyLjYgMjIuNiAzMy45IDMzLjljLTUuNyA1LjctMTEuMyAxMS4zLTE3IDE3Yy0xNS43IDE1LjctMzEuMyAzMS4zLTQ3IDQ3YzE1LjcgMTUuNyAzMS40IDMxLjQgNDcgNDdjNS43IDUuNyAxMS4zIDExLjMgMTcgMTdMMzIwIDM1My45bC0xNy0xNy00Ny00N2MtMTUuNyAxNS43LTMxLjMgMzEuMy00NyA0N2MtNS43IDUuNy0xMS4zIDExLjMtMTcgMTdjLTExLjMtMTEuMy0yMi42LTIyLjYtMzMuOS0zMy45YzUuNy01LjcgMTEuMy0xMS4zIDE3LTE3YzE1LjctMTUuNyAzMS40LTMxLjQgNDctNDdjLTE1LjctMTUuNy0zMS4zLTMxLjMtNDctNDcjLTUuNy01LjctMTEuMy0xMS4zLTE3LTE3eiIvPjxwYXRoIGZpbGw9ImRhcmtyZWQiIGQ9Ik0zMzcgMjA5bDE3LTE3TDMyMCAxNTguMWwtMTcgMTctNDcgNDctNDctNDctMTctMTdMMTU4LjEgMTkybDE3IDE3IDQ3IDQ3LTQ3IDQ3LTE3IDE3TDE5MiAzNTMuOWwxNy0xNyA0Ny00NyA0NyA0NyAxNyAxN0wzNTMuOSAzMjBsLTE3LTE3LTQ3LTQ3IDQ3LTQ3eiIvPjwvc3ZnPg==) !important;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 1.1rem;
+	background-color: oklch(99.115% 0.00423 15.765);
+}
+
+/* ---- Inputs / textareas ---- */
+#gform_2 :is(input.large, textarea.textarea) {
+	border: 2px solid transparent;
+	border-radius: 0.4375rem;
+	color: #369;
+	font-size: 1rem;
+	padding: 0.5rem;
+	background-color: #fff;
+	outline-offset: 2px;
+	outline: 2px solid var(--wp--preset--color--custom-info-border, #bfdfe7);
+}
+
+#gform_2 :is(input.large, textarea.textarea):focus,
+#gform_2 :is(input.large, textarea.textarea):focus-visible {
+	border-color: #369 !important;
+	outline-color: var(--wp--preset--color--primary-brand, #369);
+}
+
+/* Invalid from browser validation */
+#gform_2 :is(input.large, textarea.textarea):invalid {
+	outline-color: oklab(40% 0.1432 0.08);
+	background-color: #ffe5e5;
+}
+
+/* Gravity Forms error state */
+#gform_2 :is(input.large, textarea.textarea)[aria-invalid="true"] {
+	outline-color: oklab(40% 0.1432 0.08);
+	background-color: oklch(99.115% 0.00423 15.765);
+}
+
+/* Disabled */
+#gform_2 :is(input.large, textarea.textarea):disabled {
+	color: #999;
+	background-color: rgb(243, 243, 243);
+	outline-color: oklch(86.686% 0.0001 271.152);
+}
+
+/* ---- Selects (replaces your .select block) ---- */
+#gform_2 select.gfield_select {
+	-webkit-appearance: none;
+	appearance: none;
+	background-color: #fff;
+	color: #369;
+	font-size: 1rem;
+	padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+	border: 2px solid transparent;
+	border-radius: 0.4375rem;
+	outline-offset: 2px;
+	outline: 2px solid var(--wp--preset--color--custom-info-border, #bfdfe7);
+
+	/* down arrow */
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48cGF0aCBmaWxsPSIjMzY5IiBkPSJNMjM5IDQ5OC43bDE2MC0xMjggMTguNy0xNS0zMC0zNy41LTE4LjcgMTUtMTQ1IDExNkw3OSAzMzMuM2wtMTguNy0xNS0zMCAzNy41IDE4LjcgMTUgMTYwIDEyOCAxNSAxMiAxNS0xMnptMC00ODUuNWwtMTUtMTItMTUgMTJMNDkgMTQxLjNsLTE4LjcgMTUgMzAgMzcuNSAxOC43LTE1IDE0NS0xMTYgMTQ1IDExNiAxOC43IDE1IDMwLTM3LjUtMTguNy0xNUwyMzkgMTMuM3oiLz48L3N2Zz4=);
+	background-repeat: no-repeat;
+	background-position: right 0.65rem center;
+	background-size: 0.85rem;
+}
+
+#gform_2 select.gfield_select:focus,
+#gform_2 select.gfield_select:focus-visible {
+	outline: 3px solid #369 !important;
+	border-color: #369 !important;
+}
+
+/* Placeholder selected (your "pending") */
+#gform_2 select.gfield_select:required:invalid {
+	outline: 2px solid #bfdfe7;
+}
+
+/* GF error */
+#gform_2 .gfield.gfield_error {
+	padding: 0;
+	background: none;
+	border: none;
+}
+
+#gform_2 .validation_message {
+	font-size: 0;
+	width: 100%;
+	padding: 0 1rem;
+	text-align: right;
+}
+
+#gform_2 select.gfield_select[aria-invalid="true"] {
+	color: oklch(39.984% 0.16408 29.223);
+	outline-color: oklch(39.984% 0.16408 29.223) !important;
+	background-color: oklch(99.115% 0.00423 15.765);
+}
+
+/* Disabled select */
+#gform_2 select.gfield_select:disabled {
+	color: #fff;
+	background-color: rgb(243, 243, 243);
+	outline: 2px solid oklch(86.686% 0.0001 271.152) !important;
+	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NDggNTEyIj48cGF0aCBmaWxsPSJsaWdodGdyYXkiIGQ9Ik0yMzkgNDk4LjdsMTYwLTEyOCAxOC43LTE1LTMwLTM3LjUtMTguNyAxNS0xNDUgMTE2TDc5IDMzMy4zbC0xOC43LTE1LTMwIDM3LjUgMTguNyAxNSAxNjAgMTI4IDE1IDEyIDE1LTEyem0wLTQ4NS41bC0xNS0xMi0xNSAxMkw0OSAxNDEuM2wtMTguNyAxNSAzMCAzNy41IDE4LjctMTUgMTQ1LTExNiAxNDUgMTE2IDE4LjcgMTUgMzAtMzcuNS0xOC43LTE1TDIzOSAxMy4zeiIvPjwvc3ZnPg==);
+}
+
+/* ---- Checkbox lists spacing (nice-to-have) ---- */
+#gform_2 .gfield_checkbox {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 0.5rem;
+}
+
+#gform_2 .gfield_checkbox .gchoice {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-block-end: 0;
+}
+
+#gform_2 .gfield_checkbox .gchoice label {
+	max-width: 100%;
+	width: 100%;
+}
+
+#gform_2 .gform_button[type="submit"] {
+	background-color: var(--wp--preset--color--white);
+	border: 1px solid currentcolor;
+	border-radius: 0.33rem;
+	color: var(--wp--preset--color--primary-brand);
+}
+
+/* ---- Footer spacing ---- */
+#gform_2 .gform_footer {
+	padding: 0 2rem 2rem;
+}
+
+/* Optional: keep submit aligned with form padding on mobile */
+@media (max-width: 400px) {
+
+	#gform_2 .gform_footer {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+}

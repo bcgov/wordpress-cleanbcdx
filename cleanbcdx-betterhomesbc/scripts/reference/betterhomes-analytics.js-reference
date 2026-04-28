@@ -1,0 +1,586 @@
+// NOTE: This file is transient and will be deleted in future commits.
+
+/*!
+ * hoverIntent v1.10.0 // 2019.02.25 // jQuery v1.7.0+
+ * http://briancherne.github.io/jquery-hoverIntent/
+ *
+ * You may use hoverIntent under the terms of the MIT license. Basically that
+ * means you are free to use hoverIntent as long as this header is left intact.
+ * Copyright 2007-2019 Brian Cherne
+ */
+! function(factory) { "use strict"; "function" == typeof define && define.amd ? define(["jquery"], factory) : "object" == typeof module && module.exports ? module.exports = factory(require("jquery")) : jQuery && !jQuery.fn.hoverIntent && factory(jQuery) }(function($) {
+    "use strict";
+    let cX, cY, _cfg = { interval: 100, sensitivity: 6, timeout: 0 },
+        INSTANCE_COUNT = 0,
+        track = function(ev) { cX = ev.pageX, cY = ev.pageY },
+        compare = function(ev, $el, s, cfg) {
+            if (Math.sqrt((s.pX - cX) * (s.pX - cX) + (s.pY - cY) * (s.pY - cY)) < cfg.sensitivity) return $el.off(s.event, track), delete s.timeoutId, s.isActive = !0, ev.pageX = cX, ev.pageY = cY, delete s.pX, delete s.pY, cfg.over.apply($el[0], [ev]);
+            s.pX = cX, s.pY = cY, s.timeoutId = setTimeout(function() { compare(ev, $el, s, cfg) }, cfg.interval)
+        };
+    $.fn.hoverIntent = function(handlerIn, handlerOut, selector) {
+        let instanceId = INSTANCE_COUNT++,
+            cfg = $.extend({}, _cfg);
+        $.isPlainObject(handlerIn) ? (cfg = $.extend(cfg, handlerIn), $.isFunction(cfg.out) || (cfg.out = cfg.over)) : cfg = $.isFunction(handlerOut) ? $.extend(cfg, { over: handlerIn, out: handlerOut, selector: selector }) : $.extend(cfg, { over: handlerIn, out: handlerIn, selector: handlerOut });
+        let handleHover = function(e) {
+            let ev = $.extend({}, e),
+                $el = $(this),
+                hoverIntentData = $el.data("hoverIntent");
+            hoverIntentData || $el.data("hoverIntent", hoverIntentData = {});
+            let state = hoverIntentData[instanceId];
+            state || (hoverIntentData[instanceId] = state = { id: instanceId }), state.timeoutId && (state.timeoutId = clearTimeout(state.timeoutId));
+            let mousemove = state.event = "mousemove.hoverIntent.hoverIntent" + instanceId;
+            if ("mouseenter" === e.type) {
+                if (state.isActive) return;
+                state.pX = ev.pageX, state.pY = ev.pageY, $el.off(mousemove, track).on(mousemove, track), state.timeoutId = setTimeout(function() { compare(ev, $el, state, cfg) }, cfg.interval)
+            } else {
+                if (!state.isActive) return;
+                $el.off(mousemove, track), state.timeoutId = setTimeout(function() {! function(ev, $el, s, out) { delete $el.data("hoverIntent")[s.id], out.apply($el[0], [ev]) }(ev, $el, state, cfg.out) }, cfg.timeout)
+            }
+        };
+        return this.on({ "mouseenter.hoverIntent": handleHover, "mouseleave.hoverIntent": handleHover }, cfg.selector)
+    }
+});
+
+let debugState;
+let disableClick;
+
+// helper function once debugging is done comment out this single console.log
+/**
+ *
+ * @param text
+ */
+function debug(text) {
+    if (debugState) {
+        // window.console && console.log(text);
+    }
+}
+
+/**
+ *
+ */
+function getQueryStringValues() {
+    let vars = [],
+        hash;
+    let hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for (let i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+jQuery(document).ready(function($) {
+    // <!-- Snowplow starts plowing - Standalone Search vE.2.14.0 -->
+    ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+        p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+        };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","https://www2.gov.bc.ca/StaticWebResources/static/sp/sp-2-14-0.js","snowplow"));
+    let collector = 'spt.apps.gov.bc.ca';
+    window.snowplow('newTracker','rt',collector, {
+        appId: "Snowplow_standalone",
+        cookieLifetime: 86400 * 548,
+        platform: 'web',
+        post: true,
+        forceSecureTracker: true,
+        contexts: {
+            webPage: true,
+            performanceTiming: true
+        }
+    });
+    window.snowplow('enableActivityTracking', 30, 30); // Ping every 30 seconds after 30 seconds
+    window.snowplow('enableLinkClickTracking');
+    window.snowplow('trackPageView');
+    // Change the 'Search term parameter' to what is being used on the site, generally it is q.
+    let searchParameter = 's'
+    // This checks for the search parameter that was put in above along with an equal, for example q= or s=
+    if (window.location.search.indexOf(searchParameter + '=') > -1) {
+      window.snowplow('trackSiteSearch',
+          getUrlParamArray(searchParameter,'')
+      );
+    }
+
+    /**
+     *
+     * @param param
+     * @param defaultValue
+     */
+    function getUrlParamArray(param, defaultValue) {
+        let vars = [];
+        let parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            if ( key === param ) {
+                vars.push(value);
+            }
+        });
+        return vars;
+    }
+    //<!-- Snowplow stop plowing -->
+
+
+    debugState = false;
+    disableClicks = false;
+
+    // Object Setup
+    let $_menuItem = $('.menu-item a'); // menu links
+    let $_btn = $('.et_pb_button'); // generic Divi button
+
+    let $_renovate = $('.landing-page-box.renovate');
+    let $_build = $('.landing-page-box.build');
+
+    let $_reactContainer = $('#react-container');
+
+    let $_regionsSelect = $('select[name="regions"]');
+    let $_regionsSubmit = $('#main-pqea-search input[type="submit"]');
+
+    // HOMEPAGE
+    if ($_renovate.length) {
+        $_renovate.hoverIntent({
+            over: function() {
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/entry/jsonschema/2-0-0',
+                    data: {
+                        action: 'hover',
+                        area: 'Renovating a home'
+                    }
+                });
+                debug('data: {\n  action: hover \n  area: Renovating a home \n}');
+            },
+            out: function() {},
+            timeout: 100
+        });
+        // CLICK TRACKING
+        $_renovate.on('click', '.et_clickable', function(e) {
+            window.snowplow('trackSelfDescribingEvent', {
+                schema: 'iglu:ca.bc.gov.cleanbc/entry/jsonschema/2-0-0',
+                data: {
+                    action: 'click',
+                    area: 'Renovating a home'
+                }
+            });
+            debug('data: {\n  action: click, \n  area: \'Renovating a home\', \n}');
+            if (disableClicks) {
+                return false;
+            }
+        });
+    }
+    if ($_build.length) {
+        $_build.hoverIntent({
+            over: function() {
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/entry/jsonschema/2-0-0',
+                    data: {
+                        action: 'hover',
+                        area: 'Building a home'
+                    }
+                });
+                debug('data: {\n  action: hover \n  area: Building a home \n}');
+            },
+            out: function() {},
+            timeout: 100
+        });
+        // CLICK TRACKING
+        $_build.on('click', '.et_clickable', function(e) {
+            window.snowplow('trackSelfDescribingEvent', {
+                schema: 'iglu:ca.bc.gov.cleanbc/entry/jsonschema/2-0-0',
+                data: {
+                    action: 'click',
+                    area: 'Building a home'
+                }
+            });
+            debug('data: {\n  action: click, \n  area: \'Building a home\', \n}');
+            if (disableClicks) {
+                return false;
+            }
+        });
+    }
+
+    // REACT REBATE SEARCH TOOL
+    if ($_reactContainer.length) {
+
+        // Rebate Search Tool & Rebate Results
+        let $_projectTypeSelect = 'select[name="buildingType"]';
+        let $_locationInput = '.search-location .search-field';
+        let $_heatingTypeSelect = 'select[name="heatingType"]';
+        let $_articleIncentive = 'article.incentive';
+        let reactCheckedValues = []; // aggregate of Products/Priorities/Programs checkboxes
+        let projectTypeSelected = decodeURIComponent(getQueryStringValues()['buildingType']);
+        let locationSelected = decodeURIComponent(getQueryStringValues()['location']);
+        let heatingTypeSelected = decodeURIComponent(getQueryStringValues()['heatingType']);
+        let urlPath = decodeURIComponent(window.location.origin + window.location.pathname);
+
+        // HOVER TRACKING
+
+        // PROJECT / LOCATION / SYSTEM
+        /*$_reactContainer.hoverIntent({
+            over: function() {
+                var optionSelected = $("option:selected", this);
+                var valueSelected = this.value;
+                if (valueSelected != '') {
+                    window.snowplow('trackSelfDescribingEvent', {
+                        schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                        data: {
+                            action: 'hover',
+                            element_type: 'select',
+                            area: 'Project type',
+                            value: valueSelected
+                        }
+                    });
+                    debug('data: {\n  action: hover, \n  element_type: select, \n  area: Project type, \n  value: ' + valueSelected + ' \n}');
+                } else {
+                    window.snowplow('trackSelfDescribingEvent', {
+                        schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                        data: {
+                            action: 'hover',
+                            element_type: 'select',
+                            area: 'Project type',
+                            value: 'Please choose'
+                        }
+                    });
+                    debug('data: {\n  action: hover, \n  element_type: select, \n  area: Project type, \n  value: Please choose \n}');
+                }
+                projectTypeSelected = valueSelected;
+            },
+            out: function() {},
+            timeout: 100,
+            selector: $_projectTypeSelect
+        });
+        $_reactContainer.hoverIntent({
+            over: function() {
+                var inputValue = $(this).val();
+                if (inputValue != '') {
+                    window.snowplow('trackSelfDescribingEvent', {
+                        schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                        data: {
+                            action: 'hover',
+                            element_type: 'search-location',
+                            area: 'location',
+                            value: inputValue
+                        }
+                    });
+                    debug('data: {\n  action: hover, \n  element_type: search-location, \n  area: Location, \n  value: \'' + inputValue + '\'\ \n}');
+                } else {
+                    window.snowplow('trackSelfDescribingEvent', {
+                        schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                        data: {
+                            action: 'hover',
+                            element_type: 'search-location',
+                            area: 'location',
+                            value: 'n/a'
+                        }
+                    });
+                    debug('data: {\n  action: hover, \n  element_type: search-location, \n  area: Location, \n  value: n/a \n}');
+                }
+                locationSelected = inputValue;
+            },
+            out: function() {},
+            timeout: 100,
+            selector: $_locationInput
+        });
+        $_reactContainer.hoverIntent({
+            over: function() {
+                var optionSelected = $("option:selected", this);
+                var valueSelected = this.value;
+                if (valueSelected != '') {
+                    window.snowplow('trackSelfDescribingEvent', {
+                        schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                        data: {
+                            action: 'hover',
+                            element_type: 'select',
+                            area: 'Heating system',
+                            value: valueSelected
+                        }
+                    });
+                    debug('data: {\n  action: hover, \n  element_type: select, \n  area: Heating system, \n  value: ' + valueSelected + ' \n}');
+                } else {
+                    window.snowplow('trackSelfDescribingEvent', {
+                        schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                        data: {
+                            action: 'hover',
+                            element_type: 'select',
+                            area: 'Heating system',
+                            value: 'Please choose'
+                        }
+                    });
+                    debug('data: {\n  action: hover, \n  element_type: select, \n  area: Heating system, \n  value: Please choose \n}');
+                }
+                heatingTypeSelected = valueSelected;
+            },
+            out: function() {},
+            timeout: 100,
+            selector: $_heatingTypeSelect
+        });
+        // INCENTIVES
+        $_reactContainer.hoverIntent({
+            over: function() {
+                var articleTitle = $(this).find('h3.incentive-title');
+                var articleRebate = $(this).find('.rebate');
+                var articleHrefValue = $(this).find('a').attr('href');
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'hover',
+                        element_type: 'incentive',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: $.trim(articleTitle.text()),
+                        rebate: $.trim(articleRebate.text()),
+                        destination: articleHrefValue
+                    }
+                });
+
+                debug('data: {\n  action: hover, \n  element_type: incentive, \n  project_type: \'' + projectTypeSelected + '\'\, \n  location: \'' + locationSelected + '\'\, \n  heating_type: \'' + heatingTypeSelected + '\'\, \n  filter_values: [' + reactCheckedValues + '], \n  label: \'' + $.trim(articleTitle.text()) + '\'\, \n  rebate: \'' + $.trim(articleRebate.text()) + '\', \n  destination: \'' + articleHrefValue + '\'\, \n}');
+            },
+            out: function() {},
+            timeout: 100,
+            selector: $_articleIncentive // 'article.incentive'
+        });*/
+
+        // CHANGE TRACKING
+
+        // PROJECT / LOCATION / SYSTEM
+        $_reactContainer.on('change', $_projectTypeSelect, function(e) {
+            let optionSelected = $("option:selected", this);
+            let valueSelected = this.value;
+            if (valueSelected != '') {
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'change',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: valueSelected
+                    }
+                });
+                reactCheckedValues = []; // reset collected filter checkbox values
+                debug('data: {\n  action: change, \n  element_type: select, \n  area: Project type, \n  value: ' + valueSelected + ' \n}');
+            } else {
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'change',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: valueSelected
+                    }
+                });
+                debug('data: {\n  action: change, \n  element_type: select, \n  area: Project type, \n  value: Please choose \n}');
+            }
+            projectTypeSelected = valueSelected;
+        });
+        $_reactContainer.on('change paste blur', $_locationInput, function(e) {
+            let inputValue = $(this).val();
+            if (inputValue != '') {
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'change',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: inputValue
+                    }
+                });
+                debug('data: {\n  action: change, \n  element_type: search-location, \n  area: Location \n  value: \'' + inputValue + '\'\ \n}');
+            } else {
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'change',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: 'n/a'
+                    }
+                });
+                debug('data: {\n  action: change, \n  element_type: search-location, \n  area: Location \n  value: n/a \n}');
+            }
+            locationSelected = inputValue;
+        });
+        $_reactContainer.on('change', '.heating-types input', function(e) {
+            let optionSelected = $("input:selected", this);
+            let valueSelected = this.value;
+            if ($(this).is(':checked')) {
+                reactCheckedValues.push($(this).val());
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'change',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: valueSelected
+                    }
+                });
+                debug('data: {\n  action: change, \n  element_type: radio-button, \n  area: \'' + valueSelected + '\', \n}');
+            }
+            heatingTypeSelected = valueSelected;
+        });
+        $_reactContainer.on('change', 'select[name="heatingType"]', function(e) {
+            let optionSelected = $("option:selected", this);
+            let valueSelected = this.value;
+            if (valueSelected != '') {
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'change',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: valueSelected
+                    }
+                });
+                debug('data: {\n  action: change, \n  element_type: select, \n  area: Heating system, \n  value: ' + valueSelected + ' \n}');
+            } else {
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'change',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: 'Please Choose'
+                    }
+                });
+                debug('data: {\n  action: change, \n  element_type: select, \n  area: Heating system, \n  value: Please choose \n}');
+            }
+            heatingTypeSelected = valueSelected;
+        });
+        // FILTER SEARCH RESULTS
+        $_reactContainer.on('change', '.product-category-checkbox input', function(e) {
+            let optionSelected = $("input:selected", this);
+            let valueSelected = this.value;
+            if ($(this).is(':checked')) {
+                reactCheckedValues.push($(this).val());
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'select',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: valueSelected
+                    }
+                });
+                debug('data: {\n  action: select, \n  element_type: filter, \n  project_type: \'' + projectTypeSelected + '\'\, \n  location: \'' + locationSelected + '\'\, \n  heating_type: \'' + heatingTypeSelected + '\'\, \n  filter_values: [' + reactCheckedValues + '], \n  label: \'' + valueSelected + '\', \n}');
+            } else {
+                let removeItem = $(this).val();
+                reactCheckedValues = $.grep(reactCheckedValues, function(value) {
+                    return value != removeItem;
+                });
+                window.snowplow('trackSelfDescribingEvent', {
+                    schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                    data: {
+                        action: 'deselect',
+                        element_type: 'filter',
+                        project_type: projectTypeSelected,
+                        location: locationSelected,
+                        heating_type: heatingTypeSelected,
+                        filter_values: reactCheckedValues,
+                        label: valueSelected
+                    }
+                });
+                debug('data: {\n  action: deselect, \n  element_type: filter, \n  project_type: \'' + projectTypeSelected + '\'\, \n  location: \'' + locationSelected + '\'\, \n  heating_type: \'' + heatingTypeSelected + '\'\, \n  filter_values: [' + reactCheckedValues + '], \n  label: \'' + valueSelected + '\', \n}');
+            }
+        });
+
+        // REACT CLICK TRACKING
+
+        // INCENTIVES
+        $_reactContainer.on('click', $_articleIncentive, function(e) {
+            let articleTitle = $(this).find('h3.incentive-title');
+            let articleRebate = $(this).find('.rebate');
+            let articleHrefValue = $(this).find('a').attr('href');
+            window.snowplow('trackSelfDescribingEvent', {
+                schema: 'iglu:ca.bc.gov.cleanbc/rst/jsonschema/2-0-0',
+                data: {
+                    action: 'click',
+                    element_type: 'incentive',
+                    project_type: projectTypeSelected,
+                    location: locationSelected,
+                    heating_type: heatingTypeSelected,
+                    filter_values: reactCheckedValues,
+                    label: $.trim(articleTitle.text()),
+                    rebate: $.trim(articleRebate.text()),
+                    destination: articleHrefValue
+                }
+            });
+
+            debug('data: {\n  action: click, \n  element_type: incentive, \n  project_type: \'' + projectTypeSelected + '\'\, \n  location: \'' + locationSelected + '\'\, \n  heating_type: \'' + heatingTypeSelected + '\'\, \n  filter_values: [' + reactCheckedValues + '], \n  label: \'' + $.trim(articleTitle.text()) + '\'\, \n  rebate: \'' + $.trim(articleRebate.text()) + '\', \n  destination: \'' + articleHrefValue + '\'\,  \n}');
+            if (disableClicks) {
+                return false;
+            }
+        });
+
+    }
+    // END REACT REBATE SEARCH TOOL
+
+    // SEARCH FOR RESIDENTIAL RENOVATION ENERGY ADVISORS
+    // LINK TRACKING
+    if ($('#pqea-table').length) {
+        $('#pqea-table').find('a').each(function() {
+            let eaRegion = $('#pqea-table').parent().find('.region-heading').text();
+            let eaCompany = $(this).closest('tr').find('td.company a').text();
+            let eaContactMethod = $(this).parent().attr('class');
+            $(this).addClass('ea-' + transformText(camelText(eaRegion)) + '-' + transformText(camelText(eaCompany)) + '-' + transformText(eaContactMethod));
+        })
+
+        /**
+         *
+         * @param str
+         */
+        function camelText(str) {
+            return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
+                return 0 == index ? word.toLowerCase() : word.toUpperCase();
+            }).replace(/\s+/g, '');
+        }
+
+        /**
+         *
+         * @param str
+         */
+        function transformText(str) {
+            return $.trim(str.replace(/\s+/g, ''));
+        }
+    }
+
+    // MANAGE EVENTS AFTER LOAD
+    $(window).on("load", function() {
+        // debug('DEV: window loaded');
+    });
+
+    // LOAD CONFIRMED
+    debug('DEV: Better Homes remote analytics script loaded. \nDEV: Set debugState to false to disable logging. \nDEV: Set disableClicks to true to enable click logging output.');
+});
+
+// Remote Script Load (Dev)
+// This external script will be migrated to this page for production
+// It is currently loaded remotely to allow for IDE based development
+// (function(d, s, id){
+// 	 var js, rjs = d.getElementsByTagName(s)[0];
+// 	 if (d.getElementById(id)){ return; }
+// 	 js = d.createElement(s); js.id = id;
+// 	 js.onload = function(){
+// 		  // remote script has loaded
+// 	 };
+// 	 js.src = '//nateking.ca/remote/GCPE/custom-betterhomes.js?ver=' + Math.floor(Math.random(3,9)*222000);
+// 	 rjs.parentNode.insertBefore(js, rjs);
+// }(document, 'script', 'dev-custom-remote'));

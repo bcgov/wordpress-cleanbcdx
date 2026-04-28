@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25.082 25.083">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #008FB4;
+      }
+
+      .cls-2, .cls-4 {
+        fill: none;
+      }
+
+      .cls-2 {
+        stroke: #008FB4;
+        stroke-width: 1.5px;
+      }
+
+      .cls-3 {
+        stroke: none;
+      }
+    </style>
+  </defs>
+  <g id="Group_260" data-name="Group 260" transform="translate(0 0)">
+    <g id="Group_259" data-name="Group 259" transform="translate(7.602 7.058)">
+      <g id="Group_256" data-name="Group 256" transform="translate(0 0)">
+        <path id="Path_254" data-name="Path 254" class="cls-1" d="M13.975,22.563l2.448-7.85h3.145l3.3,10.371H20.276l-.818-2.822H16.423l-.755,2.822h-2.5Zm2.794-2.005h2.343l-.661-2.228-.279-1.012-.255-1.012h-.032l-.238,1.021-.25,1.03Z" transform="translate(-13.165 -14.713)"/>
+        <path id="minus" class="cls-1" d="M3.543,16H.472a.478.478,0,0,0,0,.956H3.543a.478.478,0,0,0,0-.956Z" transform="translate(8.857 -12.19)"/>
+      </g>
+    </g>
+    <g id="Ellipse_6" data-name="Ellipse 6" class="cls-2" transform="translate(0)">
+      <ellipse class="cls-3" cx="12.541" cy="12.541" rx="12.541" ry="12.541"/>
+      <ellipse class="cls-4" cx="12.541" cy="12.541" rx="11.791" ry="11.791"/>
+    </g>
+  </g>
+</svg>

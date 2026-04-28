@@ -1,0 +1,82 @@
+html:has(body.betterbuildingsbc, body.betterhomesbc) {
+
+	.new.invert-on-hover:has(a:focus-visible, a:hover) .wp-block-group {
+		background-color: var(--wp--preset--color--custom-new-buildings) !important;
+		border: 2px solid $white !important;
+
+		.wp-block-heading a {
+			color: $white !important;
+		}
+	}
+
+	.reno.invert-on-hover:has(a:focus-visible, a:hover) .wp-block-group {
+		background-color: var(--wp--preset--color--custom-renovations) !important;
+		border: 2px solid $white !important;
+
+		.wp-block-heading a {
+			color: $white !important;
+		}
+	}
+
+	.invert-on-hover a:is(:focus-visible, :hover) {
+		outline: none !important;
+	}
+
+	.incentive-option .wp-block-cover__background {
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+
+	.incentive-option:has(a:focus-visible, a:hover) .wp-block-cover__background {
+		opacity: 0.5;
+	}
+
+	.light a:is(:hover, :focus-visible) {
+		outline-color: $white !important;
+	}
+
+	@media (min-width: 800px) {
+
+		.home-landing-content {
+			border-radius: 0.5rem;
+		}
+	}
+
+	@media (max-width: 750px) {
+
+		#incentives-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.toggle-search-btn.toggle-search-btn.toggle-search-btn a {
+			font-size: 0 !important;
+			width: 2.5rem;
+		}
+
+		.search-tip {
+			position: relative;
+			top: -0.5rem;
+			padding-block: 0 1rem;
+			padding-inline: 1rem;
+		}
+
+		.search-field-row {
+			flex-direction: column;
+		}
+	}
+
+	@media (max-width: 950px) {
+
+		.incentives-search-btn.incentives-search-btn {
+			display: none;
+		}
+	}
+
+	.search-tip {
+		font-weight: bold;
+
+		a {
+			white-space: nowrap;
+		}
+	}
+}
