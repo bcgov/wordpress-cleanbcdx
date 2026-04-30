@@ -3,7 +3,7 @@
 /**
  * Plugin Name: CLEANBCDX - miscellaneous
  * Description: Miscellaneous features for managing from GithubActions on OpenShift; CLI Keycloak SSO/Miniorange adjuster, and increment a hit count whenever Safe Redirect Manager performs a redirect.
- * Version: 1.2.9
+ * Version: 1.2.10
  * Author: CleanBC DX
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -44,20 +44,28 @@ add_action( 'plugins_loaded', function() {
 	}
 
 	// Increment hits
-	add_action( 'srm_do_redirect', function( $requested_path ) {
+    add_action( 'srm_do_redirect', function( $requested_path ) {
 
-		$matched_redirect = SRM_Redirect::factory()->match_redirect( $requested_path );
+        if (
+            isset( $_GET['pdf_size_check'] ) ||
+            isset( $_GET['pdf_size_proxy'] ) ||
+            ( isset( $_SERVER['REQUEST_METHOD'] ) && 'HEAD' === $_SERVER['REQUEST_METHOD'] )
+        ) {
+            return;
+        }
 
-		if ( empty( $matched_redirect['redirect_id'] ) ) {
-			return;
-		}
+        $matched_redirect = SRM_Redirect::factory()->match_redirect( $requested_path );
 
-		$redirect_id = absint( $matched_redirect['redirect_id'] );
+        if ( empty( $matched_redirect['redirect_id'] ) ) {
+            return;
+        }
 
-		$count = (int) get_post_meta( $redirect_id, '_srm_redirect_hit_count', true );
-		update_post_meta( $redirect_id, '_srm_redirect_hit_count', $count + 1 );
+        $redirect_id = absint( $matched_redirect['redirect_id'] );
 
-	}, 10, 1 );
+        $count = (int) get_post_meta( $redirect_id, '_srm_redirect_hit_count', true );
+        update_post_meta( $redirect_id, '_srm_redirect_hit_count', $count + 1 );
+
+    }, 10, 1 );
 
 	// Admin column
 	add_filter( 'manage_redirect_rule_posts_columns', function( $columns ) {
@@ -70,6 +78,31 @@ add_action( 'plugins_loaded', function() {
 			echo (int) get_post_meta( $post_id, '_srm_redirect_hit_count', true );
 		}
 	}, 10, 2 );
+
+});
+
+// Have the temporary ability to zero out hit counts with /wp-admin/?reset_srm_hits=1
+add_action( 'admin_init', function() {
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    if ( ! isset( $_GET['reset_srm_hits'] ) ) {
+        return;
+    }
+
+    $redirects = get_posts( [
+        'post_type'      => 'redirect_rule',
+        'posts_per_page' => -1,
+        'fields'         => 'ids',
+    ] );
+
+    foreach ( $redirects as $id ) {
+        update_post_meta( $id, '_srm_redirect_hit_count', 0 );
+    }
+
+    wp_die( 'SRM redirect hit counts reset.' );
 
 });
 
