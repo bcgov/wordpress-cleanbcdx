@@ -3,7 +3,7 @@
 /**
  * Plugin Name: CLEANBCDX - miscellaneous
  * Description: Miscellaneous features for managing from GithubActions on OpenShift; CLI Keycloak SSO/Miniorange adjuster, and increment a hit count whenever Safe Redirect Manager performs a redirect.
- * Version: 1.2.8
+ * Version: 1.2.9
  * Author: CleanBC DX
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -95,7 +95,52 @@ add_filter( 'wp_robots', 'cleanbcdx_misc_noindex_protected_pages' );
 add_filter( 'aioseo_robots_meta', 'cleanbcdx_misc_noindex_protected_pages_aioseo' );
 */
 
+add_action('admin_bar_menu', function ($wp_admin_bar) {
+	if (!is_user_logged_in() || !is_admin_bar_showing()) {
+		return;
+	}
 
+	$sites = [
+		[
+			'title' => 'Better Homes BC',
+			'url'   => 'https://betterhomesbc.ca/wp-admin/',
+		],
+		[
+			'title' => 'Better Buildings BC',
+			'url'   => 'https://betterbuildingsbc.ca/wp-admin/',
+		],
+		[
+			'title' => 'CleanBC',
+			'url'   => 'https://cleanbc.gov.bc.ca/wp-admin/',
+		],
+		[
+			'title' => 'Go Electric BC',
+			'url'   => 'https://goelectricbc.gov.bc.ca/wp-admin/',
+		],
+	];
+
+	$wp_admin_bar->add_node([
+		'id'    => 'my-sites',
+		'title' => 'CleanBC DX Sites',
+		'href'  => false,
+		'meta'  => [
+            'menu_order' => 1,
+		],
+	]);
+
+	foreach ($sites as $index => $site) {
+		$wp_admin_bar->add_node([
+			'id'     => 'my-sites-' . $index,
+			'parent' => 'my-sites',
+			'title'  => esc_html($site['title']),
+			'href'   => esc_url($site['url']),
+			'meta'   => [
+				'target' => '_blank',
+				'rel'    => 'noopener noreferrer',
+			],
+		]);
+	}
+}, 20);
 
 // CLI command to modify keycloak config (used for when the site gets imported to a different instance)
 if (defined('WP_CLI')) {

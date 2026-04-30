@@ -71,17 +71,31 @@ class Setup {
         add_action( 'init', [ $plugin_enable_vue_app, 'vuejs_app_block_init_plugin' ] );
         add_action( 'rest_api_init', [ $plugin_enable_vue_app, 'custom_api_posts_routes' ] );
 
-		// Allow embedding the iframe from Planner
-		add_action('send_headers', function () {
-			header("Content-Security-Policy: frame-ancestors 'self' https://bchomeenergyplanner.ca always");
-		});
-
-		add_filter( 'body_class', function( $classes ) {
-			if ( ! empty( $_GET['source'] ) && 'planner' === $_GET['source'] ) {
-				$classes[] = 'is-iframe-view';
+		// Allow embedding the iframe from Planner.
+		add_action(
+            'send_headers',
+            function () {
+				header( "Content-Security-Policy: frame-ancestors 'self' https://bchomeenergyplanner.ca always" );
 			}
-			return $classes;
-		});
+        );
+
+		add_filter(
+			'body_class',
+			function ( $classes ) {
+				// Read-only query var used only to add a body class; no state change occurs.
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( isset( $_GET['source'] ) ) {
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					$source = sanitize_key( wp_unslash( $_GET['source'] ) );
+
+					if ( 'planner' === $source ) {
+						$classes[] = 'is-iframe-view';
+					}
+				}
+
+				return $classes;
+			}
+		);
 	}
 
     /**
