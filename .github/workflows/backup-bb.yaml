@@ -1,6 +1,6 @@
 # Manual+Scheduled workflow
 # This is the scheduled workflow to create site backups daily.
-name: Backup
+name: Backup BB
 on:
   workflow_dispatch:
     inputs:
@@ -14,7 +14,7 @@ on:
         - cleanbcdx-ge
         - cleanbcdx-bb
         - cleanbc
-        default: 'cleanbcdx-bh'
+        default: 'cleanbcdx-bb'
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron: '0 2 * * *'
