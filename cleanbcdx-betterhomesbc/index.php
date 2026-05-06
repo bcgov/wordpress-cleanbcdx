@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CleanBC Plugin Supplemental: Better Homes BC
  * Description: A plugin to load custom blocks (enables Vue-based posts filtering), scripts, styles and settings to augment the BCGov Block Theme Supplemental: CleanBC plugin and its capabilities on the Better Homes BC website.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Author: Nate King
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
