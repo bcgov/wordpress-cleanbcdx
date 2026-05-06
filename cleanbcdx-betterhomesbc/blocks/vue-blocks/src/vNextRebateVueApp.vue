@@ -5522,7 +5522,17 @@ function updateAddressBar() {
 }
 
 // -- ESP Tier derivation --
+const hrrOnlyBuildingTypeSlug = '2-high-rise-residential-building-7-or-more-storeys';
+
 const espTier = computed(() => {
+    // This MURB high-rise type always maps to HRR.
+    if (
+        selectedBuildingGroupSlug.value === 'murb' &&
+        selectedBuildingTypeSlug.value === hrrOnlyBuildingTypeSlug
+    ) {
+        return 'HRR';
+    }
+
     const incomeSlug = selectedIncomeRangeSlug.value;
     if (!incomeSlug) return '';
 
