@@ -73,11 +73,11 @@ class Setup {
 
 		// Allow embedding the iframe from Planner.
 		add_action(
-            'send_headers',
-            function () {
-				header( "Content-Security-Policy: frame-ancestors 'self' https://bchomeenergyplanner.ca always" );
+			'send_headers',
+			function () {
+				header( "Content-Security-Policy: frame-ancestors 'self' https://bchomeenergyplanner.ca https://betterhomesbc.ca" );
 			}
-        );
+		);
 
 		add_filter(
 			'body_class',
