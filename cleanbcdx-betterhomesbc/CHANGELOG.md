@@ -1,3 +1,6 @@
+## 0.1.2 May 11, 2026
+– Updated to include BB scripts and styles (for temporary inclusion in BH plugin)
+
 ## 0.1.1 May 6, 2026
 – Added MURB 7 story highrise guard to ensure HRR rebate tier
 – Fixed new plugin references for pattern and accessibility page load processing
