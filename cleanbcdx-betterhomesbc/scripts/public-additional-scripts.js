@@ -13,4 +13,5 @@
 import './public/betterhomes/accessibility';
 import './public/betterhomes/rebates-archive';
 import './public/betterhomes/definitions-form-resubmit';
+import './public/betterhomes/tablesPattern';
 import './public/betterbuildings/accessibility';
