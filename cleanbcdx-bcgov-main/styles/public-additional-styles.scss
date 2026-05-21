@@ -1,0 +1,51 @@
+@import "./variables";
+@import "./public/svg";
+@import "./public/general";
+@import "./public/action-box";
+@import "./public/bootstrap-legacy";
+@import "./public/cards";
+@import "./public/definitions";
+@import "./public/driver-category-query";
+@import "./public/glossary";
+@import "./public/header-and-navigation";
+@import "./public/patterns";
+@import "./public/tables";
+@import "./public/block-theme-overrides";
+@import "./public/rebate-query-tool";
+@import "./public/side-nav-generator";
+
+:root {
+	color-scheme: light dark;
+	color: var(--white);
+	background-color: var(--mineshaft);
+
+	font-synthesis: none;
+	text-rendering: optimizelegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-text-size-adjust: 100%;
+}
+
+.sr-only {
+	border: 0 !important;
+	clip: rect(1px, 1px, 1px, 1px) !important;
+	clip-path: inset(50%) !important;
+	height: 1px !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	position: absolute !important;
+	width: 1px !important;
+	white-space: nowrap !important;
+}
+
+.sr-only-focusable:focus-visible,
+.sr-only-focusable:active {
+	clip: auto !important;
+	clip-path: none !important;
+	height: auto !important;
+	margin: auto !important;
+	overflow: visible !important;
+	width: auto !important;
+	white-space: normal !important;
+}

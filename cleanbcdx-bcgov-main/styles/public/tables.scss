@@ -1,0 +1,97 @@
+/* -------------------------------------------------------------------------- */
+
+/* Base table styling (desktop)  */
+
+/* -------------------------------------------------------------------------- */
+
+.wp-block-table {
+
+	table[role="table"] {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	/* -------------------------------------------------------------------------- */
+
+	/*  Mobile layout @ <=600px:
+	/*  Turn each row into a stacked "card".
+	/* -------------------------------------------------------------------------- */
+	@media (max-width: 700px) {
+
+		table[role="table"] {
+			border: 1px solid #ccc;
+		}
+
+		table[role="table"],
+		thead[role="rowgroup"],
+		tbody[role="rowgroup"],
+		tr[role="row"],
+		th[role="columnheader"],
+		td[role="cell"] {
+			display: block;
+		}
+
+		thead[role="rowgroup"] {
+
+			/* Hide table headers (we'll rely on data-label) */
+			position: absolute;
+			width: 0;
+			height: 0;
+			overflow: clip;
+			clip: rect(0, 0, 0, 0);
+		}
+
+		tr[role="row"] {
+			padding: 0.5rem;
+		}
+
+		th[role="columnheader"],
+		td[role="cell"] {
+
+			&:not(:last-of-type) {
+				border-bottom: 1px solid #ccc;
+			}
+		}
+
+		td[role="cell"] {
+
+			/* Show the column-header text via data-label in a pseudo-element */
+			position: relative;
+			margin-bottom: 0.5rem;
+		}
+
+		td[role="cell"]::before {
+			content: attr(data-label);
+			position: relative;
+			font-weight: bold;
+			color: #666;
+			display: block;
+		}
+	}
+}
+
+/* -------------------------------------------------------------------------- */
+
+/* Base table pattern styling (desktop)  */
+
+/* -------------------------------------------------------------------------- */
+.table-pattern {
+
+	[role="table"] {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	[role="row"] {
+		border-bottom: 1px solid var(--wp--preset--color--custom-border-gray);
+	}
+
+	[role="columnheader"],
+	[role="cell"] {
+		padding: 1rem;
+	}
+
+	> :last-child [role="row"] {
+		border-bottom: 1px solid transparent;
+	}
+}

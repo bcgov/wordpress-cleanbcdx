@@ -1,0 +1,65 @@
+.post-content .entry-content.queried-action-card-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.post-content .entry-content.queried-action-card-content > * {
+  padding-inline: 0;
+  margin-inline: 0 !important;
+  flex: 1;
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
+.wp-block-query.vue-card-container .wp-block-post-template {
+  background: none;
+  gap: 1rem;
+}
+.wp-block-query .vue-card-content {
+  list-style-type: none !important;
+  box-shadow: rgba(0, 0, 0, 0.1019607843) 0 20px 25px -5px, rgba(0, 0, 0, 0.0392156863) 0 10px 10px -5px;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.wp-block-query .vue-card-content .wp-block-button {
+  margin: auto auto 0;
+  padding-top: 1rem;
+  width: 100%;
+}
+.wp-block-query .vue-card-content .wp-block-button .wp-block-button__link {
+  font-size: clamp(0.875rem, 0.875rem + (1vw - 0.48rem) * 0.24, 1rem);
+  border: 2px solid;
+  background-color: var(--wp--preset--color--secondary-brand) !important;
+  color: #fff !important;
+  border-radius: 0.33rem !important;
+  padding: 0.667rem 1.333rem;
+  width: 100%;
+  min-height: 80px;
+  display: inline-flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+.wp-block-query .vue-card-content .wp-block-button .wp-block-button__link:hover, .wp-block-query .vue-card-content .wp-block-button .wp-block-button__link:focus-visible {
+  outline: 2px solid var(--wp--preset--color--secondary-brand) !important;
+  outline-offset: 2px;
+  display: inline-flex !important;
+}
+.wp-block-query .vue-card-content .wp-block-button svg {
+  height: 1rem !important;
+  max-width: 1.25rem;
+  width: 100% !important;
+}
+.wp-block-query .taxonomy-category {
+  margin-inline: 0 !important;
+  min-height: 40px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.wp-block-query .taxonomy-category img {
+  max-width: 3rem;
+  padding: 0.25rem;
+  margin-right: 0.66rem;
+}

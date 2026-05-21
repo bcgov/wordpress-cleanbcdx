@@ -1,0 +1,71 @@
+/* -------------------------------------------------------------------------- */
+/* Base table styling (desktop)  */
+/* -------------------------------------------------------------------------- */
+.wp-block-table {
+  /* -------------------------------------------------------------------------- */
+  /*  Mobile layout @ <=600px:
+  /*  Turn each row into a stacked "card".
+  /* -------------------------------------------------------------------------- */
+}
+.wp-block-table table[role=table] {
+  width: 100%;
+  border-collapse: collapse;
+}
+@media (max-width: 700px) {
+  .wp-block-table table[role=table] {
+    border: 1px solid #ccc;
+  }
+  .wp-block-table table[role=table],
+  .wp-block-table thead[role=rowgroup],
+  .wp-block-table tbody[role=rowgroup],
+  .wp-block-table tr[role=row],
+  .wp-block-table th[role=columnheader],
+  .wp-block-table td[role=cell] {
+    display: block;
+  }
+  .wp-block-table thead[role=rowgroup] {
+    /* Hide table headers (we'll rely on data-label) */
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: clip;
+    clip: rect(0, 0, 0, 0);
+  }
+  .wp-block-table tr[role=row] {
+    padding: 0.5rem;
+  }
+  .wp-block-table th[role=columnheader]:not(:last-of-type),
+  .wp-block-table td[role=cell]:not(:last-of-type) {
+    border-bottom: 1px solid #ccc;
+  }
+  .wp-block-table td[role=cell] {
+    /* Show the column-header text via data-label in a pseudo-element */
+    position: relative;
+    margin-bottom: 0.5rem;
+  }
+  .wp-block-table td[role=cell]::before {
+    content: attr(data-label);
+    position: relative;
+    font-weight: bold;
+    color: #666;
+    display: block;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Base table pattern styling (desktop)  */
+/* -------------------------------------------------------------------------- */
+.table-pattern [role=table] {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-pattern [role=row] {
+  border-bottom: 1px solid var(--wp--preset--color--custom-border-gray);
+}
+.table-pattern [role=columnheader],
+.table-pattern [role=cell] {
+  padding: 1rem;
+}
+.table-pattern > :last-child [role=row] {
+  border-bottom: 1px solid transparent;
+}
