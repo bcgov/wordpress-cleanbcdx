@@ -1,0 +1,201 @@
+html:has(body.betterbuildingsbc, body.betterhomesbc, body.goelectricbc) {
+
+	/* -------------------------------------------------------------------------- */
+
+	/* HOW IT WORKS CONTAINERS */
+
+	/* -------------------------------------------------------------------------- */
+
+	.how-it-works-ge-container {
+
+		--three-up-grid-bp: 640px;
+		--five-up-grid-bp: 800px;
+
+		container: howitworks / inline-size;
+
+		.how-it-works-grid {
+			container: howitworksgrid / inline-size;
+
+			display: grid;
+			grid-template-columns: minmax(40%, 200px) 1fr;
+			gap: 1rem;
+
+			&.three-up .how-it-works-diagram::after {
+				content: $howitworks-bg-3up-h;
+				display: block;
+
+				@container howitworksgrid (width < 640px) {
+					content: $howitworks-bg-3up-v;
+				}
+			}
+
+			&.five-up .how-it-works-diagram::after {
+				content: $howitworks-bg-5up-h;
+				display: block;
+
+				@container howitworksgrid (width < 734px) {
+					content: $howitworks-bg-5up-v;
+				}
+			}
+
+
+			#how-it-works-commercial {
+
+				&::before {
+					content: $howitworks-commercial-icons-3up-h;
+					display: block;
+					position: absolute;
+
+					@container howitworksgrid (width < 640px) {
+						content: $howitworks-commercial-icons-3up-v;
+					}
+				}
+			}
+
+			#how-it-works-fleet-murb-work {
+
+				&::before {
+					content: $howitworks-fleet-murb-work-icons-5up-h;
+					display: block;
+					position: absolute;
+
+					@container howitworksgrid (width < 734px) {
+						content: $howitworks-fleet-murb-work-icons-5up-v;
+					}
+				}
+			}
+
+			#how-it-works-home {
+
+				&::before {
+					content: $howitworks-home-icons-5up-h;
+					display: block;
+					position: absolute;
+
+					@container howitworksgrid (width < 734px) {
+						content: $howitworks-home-icons-5up-v;
+					}
+				}
+			}
+
+			#how-it-works-lhd {
+
+				&::before {
+					content: $howitworks-lhd-icons-5up-h;
+					display: block;
+					position: absolute;
+
+					@container howitworksgrid (width < 734px) {
+						content: $howitworks-lhd-icons-5up-v;
+					}
+				}
+			}
+
+			.how-it-works-diagram {
+				position: relative;
+				isolation: isolate;
+
+				&::before {
+					display: flex;
+					float: inline-end;
+				}
+
+				min-height: 100px;
+
+				p {
+					font-size: 0;
+				}
+			}
+
+			.how-it-works-labels {
+				grid-template-columns: 1fr;
+				align-items: center;
+
+				p {
+					text-align: left;
+				}
+			}
+
+			&.three-up {
+
+				@container howitworks (width >= 640px) {
+					grid-template-columns: 1fr;
+				}
+
+				.how-it-works-diagram {
+					max-width: 640px;
+					width: 100%;
+
+					&::before,
+					&::after {
+						max-width: 640px;
+						width: 100%;
+
+						@container howitworksgrid (width < 640px) {
+							max-width: 200px;
+							right: 0;
+							float: inline-end;
+						}
+					}
+				}
+
+				.how-it-works-labels {
+					max-width: 640px;
+					width: 100%;
+
+					@container howitworks (width >= 640px) {
+						grid-template-columns: repeat(3, minmax(0, 1fr));
+
+						> * {
+							align-items: center;
+						}
+
+						p {
+							text-align: center;
+						}
+					}
+				}
+			}
+
+			&.five-up {
+
+				@container howitworks (width >= 734px) {
+					grid-template-columns: 1fr;
+				}
+
+				.how-it-works-diagram {
+					max-width: 1080px;
+					width: 100%;
+
+					&::before,
+					&::after {
+						max-width: 1080px;
+						width: 100%;
+
+						@container howitworksgrid (width < 734px) {
+							max-width: 200px;
+							right: 0;
+							float: inline-end;
+						}
+					}
+				}
+
+				.how-it-works-labels {
+
+					@container howitworks (width >= 800px) {
+						grid-template-columns: repeat(5, minmax(0, 1fr));
+
+						> * {
+							align-items: center;
+							justify-content: center;
+						}
+
+						p {
+							text-align: center;
+						}
+					}
+				}
+			}
+		}
+	}
+}

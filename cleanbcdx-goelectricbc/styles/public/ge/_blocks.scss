@@ -1,0 +1,263 @@
+/* stylelint-disable no-descending-specificity */
+body.custom-goelectricbc {
+
+	/** Where block styles go. */
+	.is-style-bcgov-primary-button {
+
+		&.wp-block-button {
+
+			.wp-block-button {
+
+				&__link {
+					border: 2px solid var(--prussianblue);
+					font-size: 1.2rem !important;
+					padding: 1.333rem;
+
+					&:hover,
+					&:focus {
+						color: var(--prussianblue);
+						background-color: var(--snow);
+					}
+
+					&:focus {
+						outline: 2px dashed var(--headeryellow);
+						outline-offset: -4px;
+					}
+				}
+			}
+
+			&.business {
+
+				&.wp-block-button {
+
+					.wp-block-button {
+
+						&__link {
+							background-image: linear-gradient(0deg, var(--sushigreen) 15%, var(--prussianblue) 15%);
+							border: none;
+							padding-bottom: 2rem;
+
+							&:hover,
+							&:focus {
+								background-image: linear-gradient(0deg, var(--sushigreen) 15%, var(--snow) 15%);
+								border: none;
+								color: var(--prussianblue);
+							}
+
+							&:focus {
+								outline: 2px dashed var(--prussianblue);
+								outline-offset: -4px;
+							}
+						}
+					}
+				}
+			}
+
+			&.disabled {
+
+				.wp-block-button {
+
+					&__link {
+						color: var(--snow);
+						background-color: var(--dawngray);
+						border: 2px solid var(--dawngray);
+						pointer-events: none;
+
+						&:hover,
+						&:focus {
+							color: var(--snow);
+							background-color: var(--dawngray);
+							pointer-events: none;
+						}
+					}
+				}
+			}
+
+			&.external {
+
+				.wp-block-button {
+
+					&__link {
+						position: relative;
+						padding-right: 2.5rem;
+
+						&::after {
+							content: "";
+							background-image: $external-link-icon-light;
+							display: block;
+							height: 1rem;
+							width: 1rem;
+							position: absolute;
+							top: auto;
+							bottom: 40%;
+							left: auto;
+							right: 1rem;
+						}
+
+						&:hover,
+						&:focus {
+
+							&::after {
+								content: "";
+								background-image: $external-link-icon-dark;
+							}
+						}
+					}
+				}
+			}
+
+			&.light,
+			&.yellow {
+
+				.wp-block-button {
+
+					&__link {
+						color: var(--prussianblue);
+						background-color: var(--headeryellow);
+						border: 2px solid var(--headeryellow);
+
+						&:hover,
+						&:focus {
+							color: var(--prussianblue);
+							background-color: var(--snow);
+						}
+
+						&:focus {
+							outline: 2px dashed var(--prussianblue);
+							outline-offset: -4px;
+						}
+					}
+				}
+
+				&.external {
+
+					.wp-block-button {
+
+						&__link {
+
+							&::after {
+								background-image: $external-link-icon-dark;
+							}
+						}
+					}
+				}
+			}
+
+			&.personal {
+
+				&.wp-block-button {
+
+					.wp-block-button {
+
+						&__link {
+							background-image: linear-gradient(0deg, var(--bondiblue) 15%, var(--prussianblue) 15%);
+							border: none;
+							padding-bottom: 2rem;
+
+							&:hover,
+							&:focus {
+								background-image: linear-gradient(0deg, var(--bondiblue) 15%, var(--snow) 15%);
+								border: none;
+								color: var(--prussianblue);
+							}
+
+							&:focus {
+								outline: 2px dashed var(--prussianblue);
+								outline-offset: -4px;
+							}
+						}
+					}
+				}
+			}
+
+			&.secondary {
+
+				.wp-block-button {
+
+					&__link {
+						color: var(--midnightblue);
+						background-color: var(--snow);
+						border: 2px solid var(--bahamablue);
+
+						&:hover,
+						&:focus {
+							color: var(--snow);
+							background-color: var(--bahamablue);
+							border: 2px solid var(--bahamablue);
+						}
+					}
+				}
+
+				&.external {
+
+					.wp-block-button {
+
+						&__link {
+
+							&::after {
+								background-image: $external-link-icon-dark;
+							}
+
+							&:hover,
+							&:focus {
+
+								&::after {
+									background-image: $external-link-icon-light;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.wp-block-table {
+		margin: 0;
+
+		table {
+			border-collapse: separate !important;
+			border-spacing: 0;
+			border-radius: 0.66rem;
+			width: 100%;
+			margin: 0;
+			padding: 0;
+
+			td,
+			th {
+				padding: 10px;
+				word-break: normal;
+			}
+
+			th {
+				border-top: none;
+				background-color: var(--squeezeblue);
+			}
+
+			td:first-child,
+			th:first-child {
+				border-left: none;
+			}
+
+			th:first-child {
+				border-radius: 0.66rem 0 0 0;
+			}
+
+			th:last-child {
+				border-radius: 0 0.66rem 0 0;
+			}
+
+			th:only-child {
+				border-radius: 0.66rem 0.66rem 0 0;
+			}
+
+			tr:last-child td:first-child {
+				border-radius: 0 0 0 0.66rem;
+			}
+
+			tr:last-child td:last-child {
+				border-radius: 0 0 0.66rem 0;
+			}
+		}
+	}
+}

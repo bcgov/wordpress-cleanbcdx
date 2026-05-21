@@ -1,0 +1,1 @@
+const goEVAccessibilityLoader=()=>{window.requestAnimationFrame(()=>{if("goelectricbc"===window.site.customBodyClass){document.querySelector(".custom-logo-link img").setAttribute("alt","BC Government and Clean BC Go Electric logos")}})};"complete"===document.readyState?goEVAccessibilityLoader():document.addEventListener("DOMContentLoaded",goEVAccessibilityLoader);

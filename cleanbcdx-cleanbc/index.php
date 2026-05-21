@@ -1,0 +1,43 @@
+<?php
+/**
+ * Plugin Name: CleanBC DX Supplemental: CleanBC
+ * Description: A plugin to load custom blocks enabling Vue-based custom posts filtering, scripts, styles and settings to augment the capabilities on the CleanBC website.
+ * Version: 1.0.0
+ * Author: Nate King | CleanBC DX
+ * Author URI: mailto:nate.king@gov.bc.ca
+ * License: GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Repository: https://github.com/bcgov/wordpress-cleanbcdx/
+ * Requires Plugins: cleanbcdx-bcgov-main
+ *
+ * @package Bcgov\Plugin\CleanBCDXCBC
+ */
+
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 'Direct access denied.' );
+}
+
+// Include the Loader and Setup classes.
+require_once plugin_dir_path( __FILE__ ) . '/Loader.php';
+require_once plugin_dir_path( __FILE__ ) . '/Setup.php';
+
+if ( class_exists( 'Bcgov\\Plugin\\CleanBCDXCBC\\Loader' ) ) {
+    $base_dir = plugin_dir_path( __FILE__ ) . '/';
+    $loader   = new Bcgov\Plugin\CleanBCDXCBC\Loader( [ $base_dir ] ); // Pass the base directory as an array.
+    $loader->register();
+
+    $local_composer  = __DIR__ . '/vendor/autoload.php';
+    $server_composer = __DIR__ . '/../../../../vendor/autoload.php';
+    if ( ! class_exists( 'Composer\\Autoload\\ClassLoader', false ) ) {
+        if ( file_exists( $local_composer ) ) {
+            require_once $local_composer;
+        } elseif ( file_exists( $server_composer ) ) {
+            require_once $server_composer;
+        }
+    }
+}
+
+if ( class_exists( 'Bcgov\\Plugin\\CleanBCDXCBC\\Setup' ) ) {
+    new Bcgov\Plugin\CleanBCDXCBC\Setup();
+}

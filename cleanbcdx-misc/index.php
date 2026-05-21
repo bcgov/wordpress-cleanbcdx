@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: CLEANBCDX - miscellaneous
+ * Plugin Name: CleanBC DX: Miscellaneous
  * Description: Miscellaneous features for managing from GithubActions on OpenShift; CLI Keycloak SSO/Miniorange adjuster, and increment a hit count whenever Safe Redirect Manager performs a redirect.
  * Version: 1.2.10
  * Author: CleanBC DX
@@ -9,20 +9,13 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  * Plugin URI: https://github.com/bcgov/wordpress-cleanbcdx/tree/main/cleanbcdx-misc
  * Update URI: https://raw.githubusercontent.com/bcgov/wordpress-cleanbcdx/main/cleanbcdx-misc/index.php
+ * Requires Plugins: cleanbcdx-bcgov-main
  */
-
-/* 
-Changelog
-1.2.8 - Safe Redirect Manager hit count
-1.2.7 - Forked from DIGIMOD-misc
-*/
 
 // Exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
 }
-
-
 
 // Begin function to check for updates to plugin
 require_once "cleanbcdx-update-check.php";

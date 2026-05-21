@@ -1,0 +1,112 @@
+/* stylelint-disable no-descending-specificity */
+
+/* Breadcrumbs styles
+*
+*/
+body.custom-goelectricbc {
+
+	&.home bcgov-breadcrumb,
+	&.search bcgov-breadcrumb {
+		display: none;
+	}
+
+	.breadcrumb-nav-section {
+		padding: 0 2rem;
+
+		@media (min-width: 1500px) {
+			padding: 0;
+		}
+	}
+
+	bcgov-breadcrumb {
+
+		background-color: transparent;
+		margin: 0 auto !important;
+		padding: 0.5rem 0 !important;
+		max-width: 1200px !important;
+		width: 92% !important;
+
+		@media screen and (max-width: $breakpoint-lg) {
+			margin-left: 1rem !important;
+			margin-right: 1rem !important;
+		}
+
+		@media (max-width: $breakpoint-sm) {
+			padding: 1rem;
+		}
+
+		* {
+			color: var(--dovegrey);
+			letter-spacing: 0.15px;
+			text-decoration: none;
+			font-size: 1rem;
+		}
+
+		a {
+			color: var(--dovegrey);
+
+			&:hover,
+			&:focus {
+
+				span {
+					color: var(--bondiblue) !important;
+				}
+			}
+		}
+
+		ol,
+		ul {
+			margin-top: 0 !important;
+
+			flex-wrap: wrap;
+
+
+			li::after {
+				content: "/" !important;
+				color: var(--silvergrey);
+			}
+
+			li:last-of-type::after {
+				content: "" !important;
+			}
+		}
+
+		@media (max-width: $breakpoint-lg) {
+			left: 0;
+		}
+
+		@media (max-width: $breakpoint-sm) {
+			left: 0;
+			margin-bottom: -2rem;
+			position: relative;
+		}
+
+		.wp-block-column + p {
+			color: var(--scorpiongrey);
+		}
+
+		ul {
+
+			li {
+				list-style: none !important;
+				margin-bottom: 1rem !important;
+				color: var(--scorpiongrey);
+
+				&::before {
+					content: "\2022";
+					color: var(--bondiblue);
+					font-weight: bold;
+					display: inline-block;
+					width: 1rem;
+					margin-left: -1rem;
+					font-size: 1rem;
+				}
+			}
+		}
+
+	}
+
+	span.aioseo-breadcrumb-separator {
+		padding-inline: 0.66rem;
+	}
+}

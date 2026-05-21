@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20.942" height="20.9419" viewBox="0 0 20.942 20.9419">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #be9951;
+      }
+
+      .cls-2 {
+        fill: #9e8043;
+      }
+
+      .cls-3 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <title>Asset 1</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="Layer_1-2" data-name="Layer 1">
+      <path class="cls-1" d="M10.471,20.9419A10.4709,10.4709,0,1,1,20.942,10.4709,10.4915,10.4915,0,0,1,10.471,20.9419"/>
+      <path class="cls-2" d="M8.8652,15.2119l7.317-7.3149,4.568,4.568a10.5232,10.5232,0,0,1-6.764,7.868Z"/>
+      <polygon class="cls-3" points="8.866 15.213 4.875 11.222 5.896 10.201 8.866 13.17 15.161 6.876 16.182 7.897 8.866 15.213"/>
+    </g>
+  </g>
+</svg>

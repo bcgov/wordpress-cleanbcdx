@@ -1,12 +1,13 @@
 <?php
 /**
-* Plugin Name: CLEANBCDX - Security
+* Plugin Name: CleanBC DX: Security
 * Description: Prevents form login for any users that have "@" in their username (keycloak users). Also disables /users API endpoint
 * Version: 1.0.0
 * Author: CleanBC DX
 * License: GPL-2.0+
 * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 * Repository: https://github.com/bcgov/wordpress-cleanbcdx/tree/main/cleanbcdx-theme-assets
+* Requires Plugins: cleanbcdx-bcgov-main
 */
 
 // Exit if accessed directly

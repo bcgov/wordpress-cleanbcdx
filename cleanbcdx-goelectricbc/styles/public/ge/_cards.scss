@@ -1,0 +1,403 @@
+/* stylelint-disable no-descending-specificity */
+
+body.custom-goelectricbc {
+
+	/* Card and card container styles
+	*
+	*/
+	.three-up-card-feature {
+
+		.wp-block-columns {
+
+			.wp-block-group {
+				height: 100%;
+
+				.pills {
+					display: flex;
+					justify-content: flex-start;
+					align-items: flex-start;
+					margin: 1rem 0 0;
+					padding: 0;
+
+					* {
+						color: #002a4e;
+						line-height: 1;
+						margin: 0.85rem 0.25rem 0.85rem 0;
+						display: inline-block;
+						width: fit-content;
+						padding: 0.66rem 1.66rem !important;
+						border: 1px solid #002a4e !important;
+						border-radius: 999px;
+						font-size: 0.85rem;
+					}
+				}
+			}
+		}
+	}
+
+	.wp-block-bcgov-card-container {
+		margin: 0 auto;
+
+		.wp-block-bcgov-card {
+
+			justify-content: space-between;
+			background-color: var(--snow) !important;
+			box-shadow: none;
+			border: 1px solid var(--dovegrey);
+			border-radius: 0.66rem;
+
+			h2 {
+				font-size: 2.5rem;
+				margin-top: 1rem;
+
+				@media (max-width: $breakpoint-sm) {
+					font-size: 8vw;
+				}
+			}
+
+			h3 {
+				font-size: 2rem;
+				margin-top: 1rem;
+
+				@media (max-width: $breakpoint-sm) {
+					font-size: 6vw;
+				}
+			}
+
+			figure.wp-block-image {
+				border-radius: 0.66rem 0.66rem 0 0;
+			}
+
+			margin: 0 auto 2rem;
+		}
+
+		&.feature-cards,
+		&.feature-cards.alt {
+
+			flex-wrap: nowrap;
+			margin: 0;
+
+			.wp-block-bcgov-card {
+
+				display: flex;
+				flex-direction: column;
+				margin: 0;
+				border: 1px solid var(--midnightblue);
+				max-width: 100%;
+				box-shadow: none;
+				border-radius: 0.66rem;
+
+				.wp-block-image {
+
+					display: flex;
+					justify-content: flex-end;
+
+					img {
+						max-width: 85%;
+						height: auto;
+					}
+				}
+
+				.wp-block-buttons {
+
+					display: flex;
+					margin: 0;
+					padding: 0;
+					width: 100%;
+
+					.wp-block-button {
+
+						display: flex;
+						flex: 1 0;
+
+						@media (max-width: $breakpoint-md) {
+
+							flex: 1 auto;
+						}
+
+						border-top: 1px solid var(--midnightblue);
+
+						&:not(:first-of-type) {
+							border-left: 1px solid var(--midnightblue);
+
+							@media (max-width: $breakpoint-sm) {
+								border-left: none;
+							}
+						}
+
+						margin: 0;
+						padding: 0;
+
+						a {
+							background: none;
+							background-color: var(--snow);
+							border-radius: 0 0 0.66rem 0.66rem;
+							border: 0;
+							color: var(--prussianblue);
+							text-align: center;
+							display: block;
+							width: 100%;
+							padding: 1.5rem 2rem;
+
+							&:hover,
+							&:focus {
+								color: var(--snow) !important;
+								background-color: var(--prussianblue);
+
+								&::after {
+									content: $external-link-icon-light;
+								}
+							}
+
+							&::after {
+								display: inline-block;
+								content: $external-link-icon-dark;
+								font-size: 1rem;
+							}
+
+							span {
+								display: inline-block;
+
+								&::after {
+									display: inline-block;
+									content: $external-link-icon-light;
+									font-size: 1rem;
+								}
+
+								&:hover,
+								&:focus {
+
+									&::after {
+										content: $external-link-icon-dark;
+									}
+								}
+							}
+						}
+
+						&.two-up:first-of-type {
+
+							a {
+								border-radius: 0 0 0 0.66rem;
+							}
+						}
+
+						&.two-up:last-of-type {
+
+							a {
+								border-radius: 0 0 0.66rem 0;
+							}
+						}
+					}
+				}
+			}
+
+			&.first {
+
+				.wp-block-bcgov-card {
+					border-radius: 0 0.66rem 0.66rem;
+					border-top: 12px solid var(--bondiblue);
+
+					&.green {
+						border-top: 12px solid var(--sushigreen);
+					}
+
+					&.orange {
+						border-top: 12px solid var(--sushigreen);
+					}
+
+					&.yellow {
+						border-top: 12px solid var(--sushigreen);
+					}
+				}
+			}
+
+			&.lg-break-2 {
+
+				flex-direction: row;
+
+				@media (max-width: $breakpoint-md) {
+
+					flex-direction: column;
+				}
+
+				>* {
+					width: 49%;
+
+					@media (max-width: $breakpoint-md) {
+						width: 100%;
+					}
+				}
+
+				.wp-block-bcgov-card {
+					margin: 2rem 2rem 0 0;
+
+					@media (max-width: $breakpoint-md) {
+						margin: 2rem 0 0 0;
+					}
+
+					&:last-of-type {
+						margin: 2rem 0 0 0;
+					}
+				}
+			}
+		}
+
+		&.feature-cards.alt {
+
+			.wp-block-bcgov-card {
+				background-color: var(--bahamablue) !important;
+				background-size: 75%;
+
+				@media (max-width: $breakpoint-md) {
+					background-size: 40%;
+				}
+
+				@media (max-width: $breakpoint-sm) {
+					background-image: none !important;
+				}
+
+				background-position: right top;
+				background-repeat: no-repeat;
+
+				flex-direction: row;
+				flex-wrap: wrap;
+
+				position: relative;
+
+				.bg-overlay {
+					background-image: $feature-card-alt-overlay;
+					background-repeat: no-repeat;
+					background-size: contain;
+					background-position-x: -80px;
+
+					@media (max-width: $breakpoint-md) {
+						background-position-x: 60%;
+					}
+
+					@media (max-width: $breakpoint-sm) {
+						background-image: none;
+					}
+
+					position: absolute;
+					border-radius: 0.66rem 0 0 0.66rem;
+					top: -1px;
+					bottom: 0;
+					left: 0;
+					right: 0;
+					z-index: 0;
+				}
+
+				>*:not(.bg-overlay) {
+					z-index: 1;
+
+					@media (max-width: $breakpoint-sm) {
+						width: 100%;
+					}
+				}
+
+				h2,
+				h3 {
+					color: var(--snow);
+					font-size: 2.25rem;
+					max-width: 300px;
+					padding: 3rem 0 0 2rem;
+
+					@media (max-width: $breakpoint-md) {
+						max-width: 100%;
+						padding: 2rem 2rem 6rem;
+					}
+
+					@media (max-width: $breakpoint-sm) {
+						max-width: 100%;
+						padding: 1rem 2rem 2rem;
+						font-size: 8vw;
+					}
+				}
+
+				.wp-block-image {
+					min-height: 300px;
+
+					img {
+						display: none;
+
+						@media (max-width: $breakpoint-sm) {
+							display: block;
+							object-fit: cover;
+							max-height: 300px;
+							width: 100%;
+						}
+
+						max-width: 100%;
+						height: auto;
+					}
+				}
+			}
+		}
+
+		&.soft {
+			gap: 2rem;
+
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			margin: 0 auto 2rem;
+			background-color: var(--snow);
+
+			// @media (max-width: $breakpoint-sm) {
+			// 	flex-direction: column;
+			// }
+
+			&.lg-break-2 > * {
+				width: 100%;
+				max-width: calc(50% - 1rem);
+				margin: 0 !important;
+
+				@media (max-width: $breakpoint-sm) {
+					max-width: 100%;
+				}
+			}
+
+			&.lg-break-3 > * {
+				width: 100%;
+				max-width: calc(32.33% - 1rem);
+				margin: 0 !important;
+
+				@media (max-width: $breakpoint-sm) {
+					max-width: 100%;
+				}
+			}
+
+			&.lg-break-4 > * {
+				width: 100%;
+				max-width: calc(23% - 0.66rem);
+				margin: 0 !important;
+
+				@media (max-width: $breakpoint-sm) {
+					max-width: 100%;
+					margin: 0 auto 0.5rem !important;
+				}
+			}
+
+			.wp-block-bcgov-card {
+
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				box-shadow: 0 4px 12px rgba(var(--mineshaft), 0.25);
+				border: 0;
+				border-radius: 0.66rem;
+
+				flex: 1 auto;
+				margin: 0 auto 2rem;
+				padding: 0;
+
+				.wp-block-image {
+
+					&.inset {
+						padding: 2rem 2rem 0.5rem !important;
+					}
+				}
+			}
+		}
+	}
+}

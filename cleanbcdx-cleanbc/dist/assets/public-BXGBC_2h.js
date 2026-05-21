@@ -1,0 +1,1 @@
+const cleanbcAccessibilityLoader=()=>{window.requestAnimationFrame(()=>{if("cleanbc"===window.site.customBodyClass){document.querySelector(".custom-logo-link img").setAttribute("alt","BC Government and Clean BC logos")}})};"complete"===document.readyState?cleanbcAccessibilityLoader():document.addEventListener("DOMContentLoaded",cleanbcAccessibilityLoader);

@@ -1,0 +1,36 @@
+@import "./variables";
+@import "./admin/patterns";
+
+:root {
+	// Shadows from https://getcssscan.com/css-box-shadow-examples
+	// #39
+	--box-shadow: rgba(0, 0, 0, 0.1) 0 20px 25px -5px, rgba(0, 0, 0, 0.04) 0 10px 10px -5px;
+
+	&::selection {
+		background-color: var(--curiousblue);
+	}
+}
+
+/**
+* For general admin styles use: body.wp-admin { }
+*/
+
+/**
+* For admin editor based styles use: html :where(.editor-styles-wrapper) { }
+*/
+
+html :where(.editor-styles-wrapper) {
+
+	#vehicleFilterApp {
+		background-color: var(--lightgrey);
+		border: 1px solid var(--grey);
+		padding: 2rem;
+		text-align: center;
+	}
+
+	.is-shadowed {
+		--card-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+		box-shadow: var(--card-shadow);
+	}
+
+}

@@ -1,0 +1,19 @@
+$xxs: 0;
+$xs: 479px;
+$sm: 782px;
+$md: 991px;
+$lg: 1199px;
+
+/* @media Breakpoints */
+$breakpoint-xxs: $xxs;
+$breakpoint-xs: $xs;
+$breakpoint-xs-sm: 600px;
+$breakpoint-wp-block-sm: $breakpoint-xs-sm;
+$breakpoint-sm: $sm;
+$breakpoint-sm-md: 840px;
+$breakpoint-wp-content-sm: $breakpoint-sm-md;
+$breakpoint-md: $md;
+$breakpoint-md-lg: 1024px;
+$breakpoint-lg: $lg;
+$breakpoint-xl: 1440px;
+$breakpoint-wp-content-wide: $breakpoint-xl;

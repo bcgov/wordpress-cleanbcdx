@@ -1,0 +1,107 @@
+/* column drop shadow override */
+body.custom-goelectricbc {
+
+	.pill {
+		display: inline-block;
+	}
+
+	.sticky-menu {
+		position: sticky;
+		top: 6.5rem;
+		bottom: 4rem;
+	}
+
+	.wp-block-column.is-style-dropshadow,
+	.wp-block-image.is-style-dropshadow img {
+		box-shadow: -1px 5px 17px 0 rgba(0, 42, 78, 0.1);
+	}
+
+	.wp-block-media-text:not(.link-card) {
+		display: flex;
+		flex-direction: column;
+
+		.wp-block-media-text__content {
+			order: 1;
+		}
+
+		.wp-block-media-text__media {
+			order: 2;
+			padding-inline: 1rem;
+		}
+
+		@media (min-width: 600px) {
+
+			display: grid;
+			flex-direction: unset;
+
+			.wp-block-media-text__content {
+				order: unset;
+			}
+
+			.wp-block-media-text__media {
+				order: unset;
+				padding-inline: inherit;
+			}
+		}
+	}
+
+	.has-icon-above {
+
+		&::before {
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: contain;
+			content: "";
+			display: block;
+			height: 90px;
+			width: 90px;
+			position: relative;
+			margin-inline: auto;
+		}
+
+		&.apply-authorized-reps::before {
+			background-image: $apply-authorized-reps;
+		}
+
+		&.apply-building-owners::before {
+			background-image: $apply-building-owners;
+		}
+
+		&.apply-businesses::before {
+			background-image: $apply-businesses;
+		}
+
+		&.apply-fleet::before {
+			background-image: $apply-fleet;
+		}
+
+		&.apply-indigenous-communities::before {
+			background-image: $apply-indigenous-communities;
+		}
+
+		&.apply-local-governments::before {
+			background-image: $apply-local-governments;
+		}
+
+		&.apply-non-profits::before {
+			background-image: $apply-non-profits;
+		}
+
+		&.apply-public-sector::before {
+			background-image: $apply-public-sector;
+		}
+
+		&.apply-renters::before {
+			background-image: $apply-renters;
+		}
+
+		&.apply-unit-owners::before {
+			background-image: $apply-unit-owners;
+		}
+
+		&.apply-workplace::before {
+			background-image: $apply-workplace;
+		}
+	}
+
+}

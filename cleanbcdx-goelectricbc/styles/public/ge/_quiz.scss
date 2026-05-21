@@ -1,0 +1,64 @@
+/* stylelint-disable no-descending-specificity */
+
+body.custom-goelectricbc {
+
+	.quiz-container {
+
+		label {
+			font-weight: 300 !important;
+		}
+
+		.response {
+			display: block;
+			width: 100%;
+		}
+
+		.top-border {
+			border-top: 1px solid var(--dovegrey);
+			margin-top: 3rem;
+		}
+
+		ul {
+			display: block;
+			width: 100%;
+
+			li {
+				list-style: none;
+				overflow: visible !important;
+
+				input[type="radio"] {
+					background-clip: content-box;
+					border-width: 1px;
+					border-style: solid;
+					border-radius: 50%;
+					height: 1.25rem;
+					margin-right: 0.5rem;
+					margin-left: 1px;
+					margin-top: 0;
+					overflow: visible !important;
+					padding: 3px;
+					width: 1.25rem;
+					position: static;
+					vertical-align: middle;
+
+					&:focus {
+						outline-offset: -1px;
+					}
+				}
+			}
+		}
+
+		.valid {
+			display: block;
+			width: 100%;
+			color: var(--sushigreen);
+		}
+
+		.invalid {
+			display: block;
+			width: 100%;
+			color: var(--bcgov-red-primary);
+		}
+
+	}
+}
