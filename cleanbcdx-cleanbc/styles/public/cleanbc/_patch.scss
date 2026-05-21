@@ -26,12 +26,14 @@ html:has(body.custom-cleanbc, body.cleanbc) {
 	}
 
 	@media (max-width: 1000px) {
+
 		.home-link.home-link {
 			display: none;
 		}
 	}
 
 	@media (max-width: 949px) {
+
 		.is-style-ribbon-menu.is-style-ribbon-menu {
 			padding: 2rem 0;
 		}
