@@ -1,4 +1,5 @@
 html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbuildingsbc, body.betterhomesbc) {
+
 	/* ==========================================================================
    Gravity Forms (Form ID: 2) – converted styling
    ========================================================================== */
@@ -18,7 +19,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 		list-style: none;
 		counter-reset: gf_question;
 
-		@container contact (width <=680px) {
+		@container contact (width <= 680px) {
 			padding: 0 !important;
 		}
 	}
@@ -46,7 +47,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 		margin: 0;
 		padding: 0;
 
-		@container contact (width <=680px) {
+		@container contact (width <= 680px) {
 			grid-template-columns: 100%;
 			justify-content: start;
 			align-content: start;
@@ -71,19 +72,20 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 		bottom: 0.25rem;
 		width: 3px;
 		background: transparent;
+
 		/* you can set a rail color if you want */
 		z-index: 0;
 	}
 
 	/* Space the field content so it doesn’t overlap the badge/rail */
-	#gform_2 .gfield>.gfield_label,
-	#gform_2 .gfield>.ginput_container,
-	#gform_2 .gfield>.gfield_description {
+	#gform_2 .gfield > .gfield_label,
+	#gform_2 .gfield > .ginput_container,
+	#gform_2 .gfield > .gfield_description {
 		margin-left: 2.5rem;
 		margin-top: 0;
 		width: 85%;
 
-		@container contact (width <=680px) {
+		@container contact (width <= 680px) {
 			margin: 0;
 			width: 100%;
 		}
@@ -105,7 +107,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 		text-align: right;
 		width: 100%;
 
-		@container contact (width <=680px) {
+		@container contact (width <= 680px) {
 			width: 100%;
 			text-align: left;
 			margin: 0;
@@ -114,7 +116,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 		}
 	}
 
-	#gform_2 .subscribe-gform>div:nth-child(2) {
+	#gform_2 .subscribe-gform > div:nth-child(2) {
 		display: flex;
 		align-items: center;
 		padding-block: 0;

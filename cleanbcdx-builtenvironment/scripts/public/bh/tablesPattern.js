@@ -17,7 +17,7 @@
  * - If no `.table-pattern-header-row` is present, it will try to infer headers from the first row.
  * - Optional: add `data-table-label="Your title"` on `.table-pattern` to set an aria-label.
  */
-function cleanbcdxBhTablesPattern() {
+const cleanbcdxBhTablesPattern = () => {
     const TABLE_SELECTOR = '.wp-block-group.table-pattern';
     const HEADER_CONTAINER_SELECTOR = '.table-pattern-header-row';
     const BODY_ROW_SELECTOR = '.table-pattern-row';

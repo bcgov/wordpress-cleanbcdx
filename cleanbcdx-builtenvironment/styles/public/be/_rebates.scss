@@ -1,4 +1,5 @@
 html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbuildingsbc, body.betterhomesbc) {
+
 	.single-incentives {
 
 		h1,
@@ -116,7 +117,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			color: var(--white);
 
 			&.even {
-				background-color: color-mix(in srgb, var(--bahamablue) 90%, black 10%);
+				background-color: color-mix(in srgb, var(--bahamablue) 90%, var(--black) 10%);
 				// border-left: 0.125rem solid var(--bahamablue);
 			}
 		}
@@ -159,15 +160,13 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 
 					&-item {
 						width: 100%;
-						transition:
-							all $default_transition_timing_fn $default_transition_duration;
+						transition: all $default_transition_timing_fn $default_transition_duration;
 						border-left: 0.25rem solid transparent;
 
 						&:hover,
 						&:focus {
 							border-left-color: var(--prussianblue);
-							transition:
-								all $default_transition_timing_fn $default_transition_duration;
+							transition: all $default_transition_timing_fn $default_transition_duration;
 						}
 
 						a {
@@ -323,7 +322,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			&.odd {
 
 				.image {
-					border-bottom: 0.25rem solid color-mix(in srgb, var(--bahamablue) 90%, black 10%);
+					border-bottom: 0.25rem solid color-mix(in srgb, var(--bahamablue) 90%, var(--black) 10%);
 				}
 			}
 

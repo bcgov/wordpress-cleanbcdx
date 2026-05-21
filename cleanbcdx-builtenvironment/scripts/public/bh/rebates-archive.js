@@ -1,7 +1,7 @@
 /**
  * General Better Homes DOM manipulation for rebates archive page.
  */
-function cleanbcdxBhRebatesArchiveLoader() {
+const cleanbcdxBhRebatesArchiveLoader = () => {
     /*
      * SafarIE iOS requires window.requestAnimationFrame update.
      */
