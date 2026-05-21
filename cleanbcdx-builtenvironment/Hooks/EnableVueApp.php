@@ -46,7 +46,7 @@ class EnableVueApp {
 		);
 
 		wp_enqueue_script(
-			'cleanbc-plugin/betterhomes-rebate-filter-block',
+			'cleanbcdx-plugin/betterhomes-rebate-filter-block',
 			plugin_dir_url( __DIR__ ) . 'blocks/vue-blocks/betterhomes-rebate-vue-block.js',
 			[ 'wp-blocks', 'wp-element', 'wp-editor' ],
 			$latest_version,
@@ -54,7 +54,7 @@ class EnableVueApp {
 		);
 
 		wp_enqueue_script(
-			'cleanbc-plugin/betterhomes-faqs-filter-block',
+			'cleanbcdx-plugin/betterhomes-faqs-filter-block',
 			plugin_dir_url( __DIR__ ) . 'blocks/vue-blocks/betterhomes-faqs-vue-block.js',
 			[ 'wp-blocks', 'wp-element', 'wp-editor' ],
 			$latest_version,
@@ -396,6 +396,13 @@ class EnableVueApp {
 		);
 
 		register_block_type(
+			'cleanbc-plugin/betterhomes-rebate-filter-block',
+			[
+				'render_callback' => [ $this, 'vuejs_betterhomes_rebate_filter_app_dynamic_block_plugin' ],
+			]
+		);
+
+		register_block_type(
 			'cleanbcdx-plugin/betterhomes-vnext-rebate-filter-block',
 			[
 				'render_callback' => [ $this, 'vuejs_betterhomes_vnext_rebate_filter_app_dynamic_block_plugin' ],
@@ -404,6 +411,13 @@ class EnableVueApp {
 
 		register_block_type(
 			'cleanbcdx-plugin/betterhomes-faqs-filter-block',
+			[
+				'render_callback' => [ $this, 'vuejs_betterhomes_faq_filter_app_dynamic_block_plugin' ],
+			]
+		);
+
+		register_block_type(
+			'cleanbc-plugin/betterhomes-faqs-filter-block',
 			[
 				'render_callback' => [ $this, 'vuejs_betterhomes_faq_filter_app_dynamic_block_plugin' ],
 			]

@@ -833,8 +833,10 @@ const rebateAmountClasses = (rebate_amount) => {
     // Define a reactive reference for contextual CSS classes.
     const contextual_classes = ref('');
 
+    const normalizedRebateAmount = String(rebate_amount ?? '').toLowerCase();
+
     // Determine contextual classes based on the rebate_amount value.
-    switch (rebate_amount.toLowerCase()) {
+    switch (normalizedRebateAmount) {
         case 'fully subscribed':
             contextual_classes.value = 'fully-subscribed';
             break;

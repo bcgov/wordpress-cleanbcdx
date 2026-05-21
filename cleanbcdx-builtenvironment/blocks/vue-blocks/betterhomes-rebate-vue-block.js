@@ -147,7 +147,7 @@
      * @param {Function} settings.save - Set to null – uses register_block_type in PHP to render block.
      * @returns {void}
      */
-    registerBlockType('cleanbc-plugin/betterhomes-rebate-filter-block', {
+    const settings = {
         title: 'Better Buildings Rebate Filter',
         description: `Use only once per page. It is highly recommended to set this block's parent content width to the 'Wide' alignment setting.`,
         icon: 'tag',
@@ -160,5 +160,14 @@
         },
         edit: BetterHomesRebateVueAppEditorComponent,
         save: () => null,
+    };
+
+    registerBlockType('cleanbcdx-plugin/betterhomes-rebate-filter-block', settings);
+
+    registerBlockType('cleanbc-plugin/betterhomes-rebate-filter-block', {
+        ...settings,
+        supports: {
+            inserter: false,
+        },
     });
 })();
