@@ -19,6 +19,7 @@ $breakpoint-xl: 1440px;
 $breakpoint-wp-content-wide: $breakpoint-xl;
 
 :root {
+
 	/* ==========================================================================
 	   Core colours
 	   ========================================================================== */
@@ -35,7 +36,6 @@ $breakpoint-wp-content-wide: $breakpoint-xl;
 	--porcelain: #f3f4f5;
 
 	--crimsonred: #d71d24; /* was: #e01f26 */
-	--bcgov-red-primary: --crimsonred;
 
 	/* ==========================================================================
 	   Government web colours
@@ -46,7 +46,6 @@ $breakpoint-wp-content-wide: $breakpoint-xl;
 	--generallink: #1a5a96;
 	--sanmarinoblue: #496ea7;
 	--curiousblue: #1e9dd3;
-	--highlightblue: #d3e1e8;
 	--lighthighlightblue: #f3f9fb;
 
 
