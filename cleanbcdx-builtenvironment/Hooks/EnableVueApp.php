@@ -744,7 +744,7 @@ class EnableVueApp {
 					continue;
 				}
 
-				$locations = $normalize_terms( get_the_terms( $post_id, 'prc-locations' ), true );
+				$locations = $normalize_terms( get_the_terms( $post_id, 'regions' ), true );
 				$regions   = array_values(
 					array_unique(
 						array_filter(
