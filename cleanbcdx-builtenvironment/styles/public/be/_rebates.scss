@@ -74,7 +74,6 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			width: 100%;
 			table-layout: fixed;
 			border-spacing: 0;
-			// background-color: rgba(var(--bahamablue), 7.5%);
 			background-color: var(--white);
 
 			&.block_rebate_table {
@@ -86,7 +85,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 						td {
 
 							&.even {
-								background-color: rgba(var(--dovegrey), 10%);
+								background-color: color-mix(in srgb, var(--dovegrey) 10%, transparent);
 							}
 						}
 					}
@@ -98,7 +97,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 				td {
 
 					&.even {
-						background-color: rgba(var(--dovegrey), 7.5%);
+						background-color: color-mix(in srgb, var(--dovegrey) 7.5%, transparent);
 					}
 				}
 			}
@@ -125,11 +124,11 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 		tr {
 
 			&.odd {
-				background-color: rgba(var(--dovegrey), 15%);
+				background-color: color-mix(in srgb, var(--dovegrey) 15%, transparent);
 			}
 
 			&.even {
-				background-color: rgba(var(--dovegrey), 7.5%);
+				background-color: color-mix(in srgb, var(--dovegrey) 7.5%, transparent);
 			}
 		}
 
@@ -452,8 +451,8 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&--error {
-				background-color: rgba(var(--persian-red), 0.05);
-				border: 0.125rem solid rgba(var(--persian-red), 0.25);
+				background-color: color-mix(in srgb, var(--persian-red) 5%, transparent);
+				border: 0.125rem solid color-mix(in srgb, var(--persian-red) 25%, transparent);
 
 				.icon {
 					background-image: $error_icon;
@@ -461,8 +460,8 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&--info {
-				background-color: rgba(var(--bondiblue), 0.05);
-				border: 0.125rem solid rgba(var(--bondiblue), 0.25);
+				background-color: color-mix(in srgb, var(--bondiblue) 5%, transparent);
+				border: 0.125rem solid color-mix(in srgb, var(--bondiblue) 25%, transparent);
 
 				.icon {
 					background-image: $info_icon;
@@ -470,8 +469,8 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&--success {
-				border: 0.125rem solid rgba(var(--apple), 0.25);
-				background-color: rgba(var(--apple), 0.05);
+				border: 0.125rem solid color-mix(in srgb, var(--apple) 25%, transparent);
+				background-color: color-mix(in srgb, var(--apple) 5%, transparent);
 
 				.icon {
 					background-image: $success_icon;
@@ -479,8 +478,8 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&--warning {
-				border: 0.125rem solid rgba(var(--dark-tangerine), 0.25);
-				background-color: rgba(var(--dark-tangerine), 0.05);
+				border: 0.125rem solid color-mix(in srgb, var(--dark-tangerine) 25%, transparent);
+				background-color: color-mix(in srgb, var(--dark-tangerine) 5%, transparent);
 
 				.icon {
 					background-image: $warning_icon;

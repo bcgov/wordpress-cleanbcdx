@@ -108,7 +108,7 @@ body.custom-goelectricbc {
 					}
 
 					padding: 2rem 2rem 0.5rem;
-					background-color: rgba(var(--black), 0.1);
+					background-color: color-mix(in srgb, var(--black) 10%, transparent);
 				}
 			}
 		}

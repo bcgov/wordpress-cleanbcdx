@@ -320,7 +320,7 @@
 			top: 40%;
 			transform: rotateZ(45deg);
 			transform-origin: center;
-			border-color: rgba(var(--secondary-brand-rgb), 1);
+			border-color: color-mix(in srgb, var(--secondary-brand-rgb) 100%, transparent);
 			border-bottom-style: solid;
 			border-bottom-width: #{calc(3 / 16)}rem;
 			border-right-style: solid;
@@ -650,7 +650,7 @@
 
 			label {
 				font-weight: bold;
-				background-color: rgba(var(--prussianblue), 0.15);
+				background-color: color-mix(in srgb, var(--prussianblue) 15%, transparent);
 				border-left-color: var(--prussianblue);
 			}
 		}
@@ -663,7 +663,7 @@
 
 				&:hover,
 				&:focus {
-					background-color: rgba(var(--prussianblue), 0);
+					background-color: color-mix(in srgb, var(--prussianblue) 0%, transparent);
 					border-left: 0.25rem solid transparent;
 					transition: background-color $default_transition_timing_fn $default_transition_duration;
 				}
@@ -676,7 +676,7 @@
 
 				&:hover,
 				&:focus {
-					background-color: rgba(var(--prussianblue), 0.15);
+					background-color: color-mix(in srgb, var(--prussianblue) 15%, transparent);
 					border-left-color: var(--prussianblue);
 					transition: all $default_transition_timing_fn $default_transition_duration;
 				}
@@ -695,7 +695,7 @@
 			margin-bottom: 0;
 			padding: 0.5rem 1rem;
 			cursor: pointer;
-			background-color: rgba(var(--prussianblue), 0);
+			background-color: color-mix(in srgb, var(--prussianblue) 0%, transparent);
 			border-left: 0.25rem solid transparent;
 			transition: all $default_transition_timing_fn $default_transition_duration;
 		}
@@ -1848,7 +1848,7 @@
 		align-items: stretch;
 		justify-content: flex-start;
 		padding: 0;
-		background-color: rgba(var(--prussianblue), 0.05);
+		background-color: color-mix(in srgb, var(--prussianblue) 5%, transparent);
 		border-radius: $default_border_radius;
 
 		.accordion {
@@ -1861,8 +1861,8 @@
 				padding-top: 1rem;
 				padding-bottom: 1rem;
 				font-family: BCSans, "Noto Sans", Verdana, Arial, sans-serif;
-				background-color: rgba(var(--primary-brand-rgb), 0.05);
-				border: 0.125rem solid rgba(var(--primary-brand-rgb), 0.05);
+				background-color: color-mix(in srgb, var(--primary-brand-rgb) 5%, transparent);
+				border: 0.125rem solid color-mix(in srgb, var(--primary-brand-rgb) 5%, transparent);
 
 				&:not([disabled]) {
 
@@ -1916,7 +1916,7 @@
 
 				>.inner {
 					padding: 2rem;
-					background-color: rgba(var(--gallerygray), 0.05);
+					background-color: color-mix(in srgb, var(--gallerygray) 5%, transparent);
 
 					@media (min-width: $breakpoint-md) {
 						flex-wrap: wrap;

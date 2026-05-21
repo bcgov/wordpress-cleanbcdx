@@ -511,7 +511,7 @@ body.custom-goelectricbc {
 			background-color: var(--snow);
 			border: 0;
 			border-radius: 0.66rem;
-			box-shadow: 0 0 0.75rem rgba(var(--mineshaft), 0.15);
+			box-shadow: 0 0 0.75rem color-mix(in srgb, var(--mineshaft) 15%, transparent);
 			margin: auto;
 			padding: 2rem;
 

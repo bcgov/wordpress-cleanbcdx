@@ -4963,7 +4963,7 @@ body.custom-goelectricbc.single-post body.custom-goelectricbc .post-content .ent
   top: 40%;
   transform: rotateZ(45deg);
   transform-origin: center;
-  border-color: rgba(var(--secondary-brand-rgb), 1);
+  border-color: color-mix(in srgb, var(--secondary-brand-rgb) 100%, transparent);
   border-bottom-style: solid;
   border-bottom-width: 0.1875rem;
   border-right-style: solid;
@@ -6810,8 +6810,8 @@ body.custom-goelectricbc.single-post body.custom-goelectricbc .post-content .ent
   padding-top: 1rem;
   padding-bottom: 1rem;
   font-family: BCSans, "Noto Sans", Verdana, Arial, sans-serif;
-  background-color: rgba(var(--primary-brand-rgb), 0.05);
-  border: 0.125rem solid rgba(var(--primary-brand-rgb), 0.05);
+  background-color: color-mix(in srgb, var(--wp--preset--color--primary-brand) 5%, transparent);
+  border: 0.125rem solid color-mix(in srgb, var(--wp--preset--color--primary-brand) 5%, transparent);
 }
 #faqFilterApp .faq .accordion-trigger:not([disabled]) .accordion-title {
   color: #369;

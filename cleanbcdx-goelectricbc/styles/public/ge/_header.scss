@@ -203,7 +203,7 @@ body.custom-goelectricbc {
 							&:focus {
 								outline-offset: 0;
 								outline: 0;
-								background-color: rgba(var(--headeryellow), 0.33);
+								background-color: color-mix(in srgb, var(--headeryellow) 33%, transparent);
 
 								padding: 18px 4px 14px 8px;
 							}

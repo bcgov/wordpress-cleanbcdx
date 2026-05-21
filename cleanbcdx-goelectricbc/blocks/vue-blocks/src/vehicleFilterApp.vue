@@ -746,7 +746,7 @@ $external_link_icon_dark: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4w
       }
 
       background-color: var(--snow);
-      box-shadow: 0 4px 12px rgba(var(--mineshaft), 0.25);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--mineshaft) 25%, transparent);
       border: 0;
       border-radius: 0.66rem;
 
@@ -907,7 +907,7 @@ $external_link_icon_dark: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4w
     }
 
     .vehicle-details {
-      border-top: 1px solid rgba(var(--bondiblue), 0.15);
+      border-top: 1px solid color-mix(in srgb, var(--bondiblue) 15%, transparent);
       max-width: 25%;
       width: 25%;
       --column-count: 4;
