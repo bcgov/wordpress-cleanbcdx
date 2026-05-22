@@ -17,7 +17,7 @@ html:has(body.goelectricbc) {
 			container: howitworksgrid / inline-size;
 
 			display: grid;
-			grid-template-columns: minmax(40%, 200px) 1fr;
+			grid-template-columns: minmax(40%, 130px) 1fr;
 			gap: 1rem;
 
 			&.three-up .how-it-works-diagram::after {
@@ -132,7 +132,7 @@ html:has(body.goelectricbc) {
 						width: 100%;
 
 						@container howitworksgrid (width < 640px) {
-							max-width: 200px;
+							max-width: 130px;
 							right: 0;
 							float: inline-end;
 						}
