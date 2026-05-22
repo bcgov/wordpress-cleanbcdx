@@ -1,4 +1,4 @@
-html:has(body.betterbuildingsbc, body.betterhomesbc, body.goelectricbc) {
+html:has(body.goelectricbc) {
 
 	/* -------------------------------------------------------------------------- */
 
@@ -9,7 +9,7 @@ html:has(body.betterbuildingsbc, body.betterhomesbc, body.goelectricbc) {
 	.how-it-works-ge-container {
 
 		--three-up-grid-bp: 640px;
-		--five-up-grid-bp: 800px;
+		--five-up-grid-bp: 734px;
 
 		container: howitworks / inline-size;
 
@@ -182,7 +182,7 @@ html:has(body.betterbuildingsbc, body.betterhomesbc, body.goelectricbc) {
 
 				.how-it-works-labels {
 
-					@container howitworks (width >= 800px) {
+					@container howitworks (width >= 734px) {
 						grid-template-columns: repeat(5, minmax(0, 1fr));
 
 						> * {
