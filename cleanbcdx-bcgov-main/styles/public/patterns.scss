@@ -2,17 +2,17 @@
 
 .error {
 	background-color: var(--wp--preset--color--custom-error-bg, #d23b370d);
-	border: 2px solid  var(--wp--preset--color--custom-error-border, #d23b3740);
+	border: 2px solid var(--wp--preset--color--custom-error-border, #d23b3740);
 }
 
 .info {
 	background-color: var(--wp--preset--color--custom-info-bg, #007e9e0d);
-	border: 2px solid  var(--wp--preset--color--custom-info-border, #007e9e40);
+	border: 2px solid var(--wp--preset--color--custom-info-border, #007e9e40);
 }
 
 .warning {
 	background-color: var(--wp--preset--color--custom-warning-bg, #ffc0170d);
-	border: 2px solid  var(--wp--preset--color--custom-warning-border, #ffc01740);
+	border: 2px solid var(--wp--preset--color--custom-warning-border, #ffc01740);
 }
 
 .has-icon {
@@ -47,4 +47,104 @@
 .has-icon.warning::before {
 	background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjIiIHZpZXdCb3g9IjAgMCAyNCAyMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE1LjcxOTYgMi4zNTY4N0MxNC45MzU3IDEuMDQyOSAxMy41NDU3IDAuMjM0Mzc1IDEyLjAwNDggMC4yMzQzNzVDMTAuNDYyNyAwLjIzNDM3NSA5LjA3MjY0IDEuMDE4MjMgOC4yODk5NSAyLjM1Njg3TDAuNjMyMDkgMTUuMTk1NkMtMC4yMDIxMDkgMTYuNTU5OSAtMC4yMDIxMDkgMTguMTc3IDAuNTgxNzQxIDE5LjU2N0MxLjM2NTYgMjAuOTMxMyAyLjc4MDI2IDIxLjc2NTUgNC4zNDY4NiAyMS43NjU1SDE5LjY2MjZDMjEuMjU1IDIxLjc2NTUgMjIuNjQ1IDIwLjk1NyAyMy40Mjc3IDE5LjU2N0MyNC4yMTE1IDE4LjIwMjcgMjQuMTg1OSAxNi41NjAxIDIzLjM3NzMgMTUuMTk0NkwxNS43MTk2IDIuMzU2ODdaTTEyLjAwNDggMTguNDA1QzExLjA0NDIgMTguNDA1IDEwLjI2MTQgMTcuNjIxMSAxMC4yNjE0IDE2LjY2MTZDMTAuMjYxNCAxNS43MDEgMTEuMDQ1MiAxNC45MTgyIDEyLjAwNDggMTQuOTE4MkMxMi45NjUzIDE0LjkxODIgMTMuNzQ4MiAxNS43MDIgMTMuNzQ4MiAxNi42NjE2QzEzLjc0ODIgMTcuNjIxMSAxMi45NjUzIDE4LjQwNSAxMi4wMDQ4IDE4LjQwNVpNMTMuODI0MiA2LjU3NzE1TDEzLjMxODcgMTIuMzM5NkMxMy4yOTMxIDEyLjY5MyAxMy4xMTY0IDEzLjAyMTcgMTIuODM5IDEzLjI0OThDMTIuNjExOSAxMy40NTIyIDEyLjMwNzggMTMuNTUyOCAxMS45ODAxIDEzLjU1MjhIMTEuODUzN0MxMS4yMjE5IDEzLjUwMjUgMTAuNjkwOCAxMi45OTcxIDEwLjY0MDUgMTIuMzM5NkwxMC4xMzUgNi41NzcxNUMxMC4wODQ3IDYuMDk3MzcgMTAuMjM1NyA1LjYxNjU5IDEwLjU2NDQgNS4yMzc1QzEwLjg5MzIgNC44NTg0MSAxMS4zMjI2IDQuNjMxMzYgMTEuODAyNCA0LjU4QzEyLjMwNzggNC41Mjk2NiAxMi43NjMgNC42ODA3IDEzLjE0MiA1LjAwOTQ0QzEzLjUyMTEgNS4zMTI1MSAxMy43NDgyIDUuNzY3NjEgMTMuNzk5NSA2LjI0NzM5QzEzLjg0OTkgNi4zNzQ3NCAxMy44NDk5IDYuNDc2NDIgMTMuODI0MiA2LjU3NzEyTDEzLjgyNDIgNi41NzcxNVoiIGZpbGw9IiNGRkMwMTciLz4KPC9zdmc+);
 	background-size: contain;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+/* CUSTOM CHECKLIST */
+
+/* -------------------------------------------------------------------------- */
+
+.wp-block-list.checklist {
+	padding: 0;
+	list-style-type: none;
+}
+
+.checklist li {
+	background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjNDI4MTRBIiBkPSJNMjU2IDUxMkEyNTYgMjU2IDAgMSAwIDI1NiAwYTI1NiAyNTYgMCAxIDAgMCA1MTJ6TTM2OSAyMDlMMjQxIDMzN2MtOS40IDkuNC0yNC42IDkuNC0zMy45IDBsLTY0LTY0Yy05LjQtOS40LTkuNC0yNC42IDAtMzMuOXMyNC42LTkuNCAzMy45IDBsNDcgNDdMMzM1IDE3NWM5LjQtOS40IDI0LjYtOS40IDMzLjkgMHM5LjQgMjQuNiAwIDMzLjl6Ii8+PC9zdmc+);
+	font-size: 1rem;
+	list-style-type: none;
+	margin-bottom: 0.25rem;
+	background-repeat: no-repeat;
+	background-size: 1.5rem;
+	padding-inline-start: 2rem;
+}
+
+/* -------------------------------------------------------------------------- */
+
+/* CARD WITH IMAGE */
+
+/* -------------------------------------------------------------------------- */
+
+.image-card {
+	// display: flex !important;
+	// flex-direction: column;
+	// gap: 1rem;
+	overflow: clip;
+}
+
+.image-card-content {
+	// flex-grow: 1;
+	// min-height: auto;
+}
+
+/* -------------------------------------------------------------------------- */
+
+/* CONTACT LIST */
+
+/* -------------------------------------------------------------------------- */
+
+
+ul.contact-list {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	padding-left: 0;
+
+	&.col,
+	&.column {
+		flex-direction: column;
+	}
+
+	li {
+		margin-right: 1.5rem;
+		margin-bottom: 0.5rem;
+		list-style-type: none;
+		width: fit-content;
+
+		a {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+		}
+
+		a::before {
+			content: "";
+			display: block;
+			height: 1rem;
+			width: 1rem;
+			position: relative;
+		}
+
+		&.phone a::before {
+			content: $phone_icon;
+			top: 0.25rem;
+			margin-right: 0.2rem;
+		}
+
+		&.email a::before {
+			content: $mail_icon;
+			top: 0.15rem;
+			margin-right: 0.25rem;
+			width: 1.3rem;
+		}
+
+		&.website a::before {
+			content: $site_icon;
+			top: 0.175rem;
+			margin-right: 0.45rem;
+		}
+	}
 }
