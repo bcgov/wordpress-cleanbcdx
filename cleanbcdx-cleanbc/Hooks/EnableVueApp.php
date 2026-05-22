@@ -22,7 +22,7 @@ class EnableVueApp {
 		$latest_version = $plugin_version; // Fallback to the installed version.
 
 		wp_enqueue_script(
-			'cleanbc-plugin/post-filter-block',
+			'cleanbcdx-plugin/post-filter-block',
 			plugin_dir_url( __DIR__ ) . 'blocks/vue-blocks/post-filter-vue-block.js',
 			[ 'wp-blocks', 'wp-element', 'wp-editor' ],
 			$latest_version,
@@ -59,7 +59,7 @@ class EnableVueApp {
 	 */
 	public function vuejs_app_plugin() {
 		// Check if the current page contains the block.
-		if ( has_block( 'cleanbcdx-plugin/post-filter-block' ) ) {
+		if ( has_block( 'cleanbcdx-plugin/post-filter-block' ) || has_block( 'cleanbc-plugin/post-filter-block' ) ) {
 			$plugin_dir = plugin_dir_path( __DIR__ );
 			$assets_dir = $plugin_dir . 'dist/assets/';
 
@@ -122,6 +122,13 @@ class EnableVueApp {
 	public function vuejs_app_block_init_plugin() {
 		register_block_type(
 			'cleanbcdx-plugin/post-filter-block',
+			[
+				'render_callback' => [ $this, 'vuejs_post_filter_app_dynamic_block_plugin' ],
+			]
+		);
+
+		register_block_type(
+			'cleanbc-plugin/post-filter-block',
 			[
 				'render_callback' => [ $this, 'vuejs_post_filter_app_dynamic_block_plugin' ],
 			]

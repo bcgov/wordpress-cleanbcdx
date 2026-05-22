@@ -216,7 +216,7 @@ class PostFilterVueAppEditorComponent extends wp.element.Component {
  * @param {Function} settings.save - Set to null – uses register_block_type in PHP to render block.
  * @returns {void}
  */
-registerBlockType('cleanbcdx-plugin/post-filter-block', {
+const settings = {
     title: 'CleanBC DX Post Filter',
     description: 'Use only one Post Filter block per page',
     icon: 'filter',
@@ -253,4 +253,13 @@ registerBlockType('cleanbcdx-plugin/post-filter-block', {
     },
     edit: PostFilterVueAppEditorComponent,
     save: () => null,
+};
+
+registerBlockType('cleanbcdx-plugin/post-filter-block', settings);
+
+registerBlockType('cleanbc-plugin/post-filter-block', {
+    ...settings,
+    supports: {
+        inserter: false,
+    },
 });
