@@ -159,7 +159,7 @@ class VehicleFilterVueAppEditorComponent extends wp.element.Component {
  * @param {Function} settings.save - Set to null – uses register_block_type in PHP to render block.
  * @returns {void}
  */
-registerBlockType('cleanbcdx-plugin/vehicle-filter-block', {
+const settings = {
     title: 'CleanBC DX GE Vehicle Filter',
     description: `Use only one Vehicle Filter block per page. It is highly recommended to set this block's parent content width to the 'Wide' alignment setting.`,
     icon: 'car',
@@ -176,4 +176,13 @@ registerBlockType('cleanbcdx-plugin/vehicle-filter-block', {
     },
     edit: VehicleFilterVueAppEditorComponent,
     save: () => null,
+};
+
+registerBlockType('cleanbcdx-plugin/vehicle-filter-block', settings);
+
+registerBlockType('cleanbc-plugin/vehicle-filter-block', {
+    ...settings,
+    supports: {
+        inserter: false,
+    },
 });
