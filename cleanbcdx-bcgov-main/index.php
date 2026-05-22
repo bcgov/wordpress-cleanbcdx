@@ -7,7 +7,9 @@
  * Author URI: mailto:nate.king@gov.bc.ca
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
- * Repository: https://github.com/codewisenate/BCGov-Block-Theme-Helper-Plugin
+ * Repository: https://github.com/bcgov/wordpress-cleanbcdx/
+ * Plugin URI: https://github.com/bcgov/wordpress-cleanbcdx/tree/main/cleanbcdx-bcgov-main
+ * Update URI: https://raw.githubusercontent.com/bcgov/wordpress-cleanbcdx/main/cleanbcdx-bcgov-main/index.php
  *
  * @package Bcgov\Plugin\CleanBCDX
  */

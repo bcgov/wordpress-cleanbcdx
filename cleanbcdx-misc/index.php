@@ -7,6 +7,7 @@
  * Author: CleanBC DX
  * License: GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * Repository: https://github.com/bcgov/wordpress-cleanbcdx/
  * Plugin URI: https://github.com/bcgov/wordpress-cleanbcdx/tree/main/cleanbcdx-misc
  * Update URI: https://raw.githubusercontent.com/bcgov/wordpress-cleanbcdx/main/cleanbcdx-misc/index.php
  * Requires Plugins: cleanbcdx-bcgov-main
