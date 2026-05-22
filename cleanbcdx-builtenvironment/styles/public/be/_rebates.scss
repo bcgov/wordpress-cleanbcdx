@@ -20,11 +20,6 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 		}
 
-		h2:has(:not(footer)) {
-			padding-bottom: 0.5rem;
-			border-bottom: 0.125rem solid var(--prussianblue);
-		}
-
 		h3 {
 			margin-bottom: 0.5rem;
 
