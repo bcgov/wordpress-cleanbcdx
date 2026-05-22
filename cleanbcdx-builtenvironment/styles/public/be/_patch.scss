@@ -78,14 +78,14 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 	}
 
 	.contractor-hrr {
-		grid-template-columns: 1fr !important;
+		grid-template-columns: 1fr;
 		display: grid !important;
 	}
 
 	@media (width < 600px) {
 
 		.contractor-hrr {
-			grid-template-columns: auto 33% !important;
+			grid-template-columns: auto 33%;
 		}
 	}
 
