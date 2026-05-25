@@ -261,12 +261,22 @@ class EnableVueApp {
 	}
 
 	/**
-	 * Regenerate the vehicle JSON file when a vehicle post is saved.
+	 * Regenerate the vehicle JSON file after ACF saves a vehicle post.
 	 *
-	 * @param int $post_id The post ID.
+	 * @param int|string $post_id The saved object ID.
 	 * @return void
 	 */
-	public function regenerate_vehicle_filter_json_on_save( $post_id ) {
+	public function regenerate_vehicle_filter_json_on_acf_save( $post_id ) {
+		if ( ! is_numeric( $post_id ) ) {
+			return;
+		}
+
+		$post_id = (int) $post_id;
+
+		if ( 'vehiclepost' !== get_post_type( $post_id ) ) {
+			return;
+		}
+
 		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
 			return;
 		}
@@ -275,13 +285,16 @@ class EnableVueApp {
 	}
 
 	/**
-	 * Regenerate the vehicle JSON file when a vehicle post is trashed or deleted.
+	 * Regenerate the vehicle JSON file when a vehicle post is trashed, restored, or deleted.
 	 *
-	 * @param int $post_id The post ID.
+	 * @param int                  $post_id The post ID.
+	 * @param string|\WP_Post|null $context The hook context value.
 	 * @return void
 	 */
-	public function regenerate_vehicle_filter_json_on_delete( $post_id ) {
-		if ( 'vehiclepost' !== get_post_type( $post_id ) ) {
+	public function regenerate_vehicle_filter_json_on_post_status_change( $post_id, $context = null ) {
+		$post_type = $context instanceof \WP_Post ? $context->post_type : get_post_type( $post_id );
+
+		if ( 'vehiclepost' !== $post_type ) {
 			return;
 		}
 
