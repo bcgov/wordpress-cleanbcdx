@@ -10,7 +10,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 		position: relative;
 
 		&::after {
-			content: --icon-unlinked;
+			content: var(--icon-unlinked);
 			position: absolute;
 			right: 6px;
 			top: 0;

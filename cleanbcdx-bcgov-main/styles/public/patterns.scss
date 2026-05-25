@@ -115,7 +115,7 @@
 		}
 
 		&.icon-contact::before {
-			content: --icon-contact;
+			content: var(--icon-contact);
 		}
 
 		&.icon-electrify::before {
