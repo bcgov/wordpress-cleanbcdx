@@ -2,7 +2,7 @@ html body.wp-admin .editor-styles-wrapper {
 
 	.inset-card-container {
 
-		background-image: $inset-card-bg;
+		background-image: var(--inset-card-bg);
 
 		background-size: cover;
 		background-position: center;
@@ -38,16 +38,16 @@ html body.wp-admin .editor-styles-wrapper {
 		}
 
 		&.inset-card-container.green {
-			background-image: $inset-card-bg-green;
+			background-image: var(--inset-card-bg-green);
 		}
 
 		&.inset-card-container.orange {
-			background-image: $inset-card-bg-orange;
+			background-image: var(--inset-card-bg-orange);
 
 		}
 
 		&.inset-card-container.yellow {
-			background-image: $inset-card-bg-yellow;
+			background-image: var(--inset-card-bg-yellow);
 		}
 	}
 

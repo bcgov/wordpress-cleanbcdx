@@ -145,13 +145,13 @@ body.custom-goelectricbc {
 								background-color: var(--prussianblue);
 
 								&::after {
-									content: $external-link-icon-light;
+									content: var(--external-link-icon-light);
 								}
 							}
 
 							&::after {
 								display: inline-block;
-								content: $external-link-icon-dark;
+								content: var(--external-link-icon-dark);
 								font-size: 1rem;
 							}
 
@@ -160,7 +160,7 @@ body.custom-goelectricbc {
 
 								&::after {
 									display: inline-block;
-									content: $external-link-icon-light;
+									content: var(--external-link-icon-light);
 									font-size: 1rem;
 								}
 
@@ -168,7 +168,7 @@ body.custom-goelectricbc {
 								&:focus {
 
 									&::after {
-										content: $external-link-icon-dark;
+										content: var(--external-link-icon-dark);
 									}
 								}
 							}
@@ -265,7 +265,7 @@ body.custom-goelectricbc {
 				position: relative;
 
 				.bg-overlay {
-					background-image: $feature-card-alt-overlay;
+					background-image: var(--feature-card-alt-overlay);
 					background-repeat: no-repeat;
 					background-size: contain;
 					background-position-x: -80px;

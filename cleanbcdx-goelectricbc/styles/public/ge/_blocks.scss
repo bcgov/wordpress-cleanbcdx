@@ -83,7 +83,7 @@ body.custom-goelectricbc {
 
 						&::after {
 							content: "";
-							background-image: $external-link-icon-light;
+							background-image: var(--external-link-icon-light);
 							display: block;
 							height: 1rem;
 							width: 1rem;
@@ -99,7 +99,7 @@ body.custom-goelectricbc {
 
 							&::after {
 								content: "";
-								background-image: $external-link-icon-dark;
+								background-image: var(--external-link-icon-dark);
 							}
 						}
 					}
@@ -136,7 +136,7 @@ body.custom-goelectricbc {
 						&__link {
 
 							&::after {
-								background-image: $external-link-icon-dark;
+								background-image: var(--external-link-icon-dark);
 							}
 						}
 					}
@@ -195,14 +195,14 @@ body.custom-goelectricbc {
 						&__link {
 
 							&::after {
-								background-image: $external-link-icon-dark;
+								background-image: var(--external-link-icon-dark);
 							}
 
 							&:hover,
 							&:focus {
 
 								&::after {
-									background-image: $external-link-icon-light;
+									background-image: var(--external-link-icon-light);
 								}
 							}
 						}

@@ -91,7 +91,7 @@ body:has(#dialog[open]) {
 		padding-top: 0.25rem;
 
 		&::after {
-			content: $closeIcon;
+			content: var(--closeIcon);
 			font-family: Verdana, Geneva, Tahoma, sans-serif;
 			font-size: 1rem;
 			display: inline-block;

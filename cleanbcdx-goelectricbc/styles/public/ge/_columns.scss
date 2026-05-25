@@ -134,7 +134,7 @@ body.custom-goelectricbc {
 						padding-left: 5rem;
 
 						&::after {
-							content: $detail-container-down-arrow;
+							content: var(--detail-container-down-arrow);
 							height: auto;
 							width: 1.6rem;
 							display: block;
@@ -155,7 +155,7 @@ body.custom-goelectricbc {
 						&::after {
 
 							@media (max-width: $breakpoint-sm) {
-								content: $detail-container-down-arrow;
+								content: var(--detail-container-down-arrow);
 							}
 
 							height: auto;
@@ -297,7 +297,7 @@ body.custom-goelectricbc {
 
 											&::after {
 												bottom: 47%;
-												content: $external-link-icon-dark;
+												content: var(--external-link-icon-dark);
 											}
 
 											&:hover,
@@ -306,7 +306,7 @@ body.custom-goelectricbc {
 												color: var(--snow);
 
 												&::after {
-													content: $external-link-icon-light;
+													content: var(--external-link-icon-light);
 												}
 											}
 										}

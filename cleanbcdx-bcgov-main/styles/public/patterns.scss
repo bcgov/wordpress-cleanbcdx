@@ -129,20 +129,20 @@ ul.contact-list {
 		}
 
 		&.phone a::before {
-			content: $phone_icon;
+			content: var(--phone-icon);
 			top: 0.25rem;
 			margin-right: 0.2rem;
 		}
 
 		&.email a::before {
-			content: $mail_icon;
+			content: var(--mail-icon);
 			top: 0.15rem;
 			margin-right: 0.25rem;
 			width: 1.3rem;
 		}
 
 		&.website a::before {
-			content: $site_icon;
+			content: var(--site-icon);
 			top: 0.175rem;
 			margin-right: 0.45rem;
 		}

@@ -8,7 +8,7 @@ body.custom-goelectricbc {
 		&.green-header,
 		&.orange-header,
 		&.yellow-header {
-			background-image: $header-bg-overlay;
+			background-image: var(--header-bg-overlay);
 			background-position: right center;
 			background-repeat: no-repeat;
 			background-size: 80% 100%;
@@ -135,10 +135,10 @@ body.custom-goelectricbc {
 		&.inset-card-container {
 
 
-			background-image: $inset-card-bg;
+			background-image: var(--inset-card-bg);
 
 			@media (max-width: $breakpoint-sm) {
-				background-image: $inset-card-bg-mobile;
+				background-image: var(--inset-card-bg-mobile);
 			}
 
 			background-size: cover;
@@ -201,7 +201,7 @@ body.custom-goelectricbc {
 
 						&::after {
 							display: inline-block;
-							content: $external-link-icon-dark;
+							content: var(--external-link-icon-dark);
 							font-size: 1rem;
 						}
 
@@ -212,7 +212,7 @@ body.custom-goelectricbc {
 							background-color: var(--wp--preset--color--primary-brand) !important;
 
 							&::after {
-								content: $external-link-icon-light;
+								content: var(--external-link-icon-light);
 							}
 						}
 					}
@@ -246,27 +246,27 @@ body.custom-goelectricbc {
 		}
 
 		&.inset-card-container.green {
-			background-image: $inset-card-bg-green;
+			background-image: var(--inset-card-bg-green);
 
 			@media (max-width: $breakpoint-sm) {
-				background-image: $inset-card-bg-mobile-green;
+				background-image: var(--inset-card-bg-mobile-green);
 			}
 		}
 
 		&.inset-card-container.orange {
-			background-image: $inset-card-bg-orange;
+			background-image: var(--inset-card-bg-orange);
 
 			@media (max-width: $breakpoint-sm) {
-				background-image: $inset-card-bg-mobile-orange;
+				background-image: var(--inset-card-bg-mobile-orange);
 			}
 
 		}
 
 		&.inset-card-container.yellow {
-			background-image: $inset-card-bg-yellow;
+			background-image: var(--inset-card-bg-yellow);
 
 			@media (max-width: $breakpoint-sm) {
-				background-image: $inset-card-bg-mobile-yellow;
+				background-image: var(--inset-card-bg-mobile-yellow);
 			}
 		}
 
@@ -444,7 +444,7 @@ body.custom-goelectricbc {
 				}
 
 				.bg-overlay {
-					background-image: $secondary-card-overlay;
+					background-image: var(--secondary-card-overlay);
 					background-repeat: no-repeat;
 					background-size: contain;
 

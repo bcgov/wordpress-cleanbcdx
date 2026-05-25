@@ -450,7 +450,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 				border: 0.125rem solid color-mix(in srgb, var(--persian-red) 25%, transparent);
 
 				.icon {
-					background-image: $error_icon;
+					background-image: var(--error-icon);
 				}
 			}
 
@@ -459,7 +459,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 				border: 0.125rem solid color-mix(in srgb, var(--bondiblue) 25%, transparent);
 
 				.icon {
-					background-image: $info_icon;
+					background-image: var(--info-icon);
 				}
 			}
 
@@ -468,7 +468,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 				background-color: color-mix(in srgb, var(--apple) 5%, transparent);
 
 				.icon {
-					background-image: $success_icon;
+					background-image: var(--success-icon);
 				}
 			}
 
@@ -477,7 +477,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 				background-color: color-mix(in srgb, var(--dark-tangerine) 5%, transparent);
 
 				.icon {
-					background-image: $warning_icon;
+					background-image: var(--warning-icon);
 				}
 			}
 		}
@@ -538,28 +538,28 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 				.email {
 
 					a {
-						background-image: $mail_icon;
+						background-image: var(--mail-icon);
 					}
 				}
 
 				.form {
 
 					a {
-						background-image: $form_icon;
+						background-image: var(--form-icon);
 					}
 				}
 
 				.phone {
 
 					a {
-						background-image: $phone_icon;
+						background-image: var(--phone-icon);
 					}
 				}
 
 				.site {
 
 					a {
-						background-image: $site_icon;
+						background-image: var(--site-icon);
 					}
 				}
 			}

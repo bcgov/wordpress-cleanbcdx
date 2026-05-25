@@ -60,47 +60,47 @@ body.custom-goelectricbc {
 		}
 
 		&.apply-authorized-reps::before {
-			background-image: $apply-authorized-reps;
+			background-image: var(--ge-apply-authorized-reps);
 		}
 
 		&.apply-building-owners::before {
-			background-image: $apply-building-owners;
+			background-image: var(--ge-apply-building-owners);
 		}
 
 		&.apply-businesses::before {
-			background-image: $apply-businesses;
+			background-image: var(--ge-apply-businesses);
 		}
 
 		&.apply-fleet::before {
-			background-image: $apply-fleet;
+			background-image: var(--ge-apply-fleet);
 		}
 
 		&.apply-indigenous-communities::before {
-			background-image: $apply-indigenous-communities;
+			background-image: var(--ge-apply-indigenous-communities);
 		}
 
 		&.apply-local-governments::before {
-			background-image: $apply-local-governments;
+			background-image: var(--ge-apply-local-governments);
 		}
 
 		&.apply-non-profits::before {
-			background-image: $apply-non-profits;
+			background-image: var(--ge-apply-non-profits);
 		}
 
 		&.apply-public-sector::before {
-			background-image: $apply-public-sector;
+			background-image: var(--ge-apply-public-sector);
 		}
 
 		&.apply-renters::before {
-			background-image: $apply-renters;
+			background-image: var(--ge-apply-renters);
 		}
 
 		&.apply-unit-owners::before {
-			background-image: $apply-unit-owners;
+			background-image: var(--ge-apply-unit-owners);
 		}
 
 		&.apply-workplace::before {
-			background-image: $apply-workplace;
+			background-image: var(--ge-apply-workplace);
 		}
 	}
 

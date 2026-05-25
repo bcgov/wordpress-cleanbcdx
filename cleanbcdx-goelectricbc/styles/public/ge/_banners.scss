@@ -14,7 +14,7 @@ body.custom-goelectricbc {
 
 		/* banner with overlayed texture */
 		&.with-overlay-bg .bg-overlay {
-			background-image: $header-bg-overlay;
+			background-image: var(--header-bg-overlay);
 			background-repeat: no-repeat;
 
 			background-position: center;

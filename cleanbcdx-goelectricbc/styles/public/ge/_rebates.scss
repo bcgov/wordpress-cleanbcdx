@@ -21,20 +21,20 @@ html:has(body.goelectricbc) {
 			gap: 1rem;
 
 			&.three-up .how-it-works-diagram::after {
-				content: $howitworks-bg-3up-h;
+				content: var(--howitworks-bg-3up-h);
 				display: block;
 
 				@container howitworksgrid (width < 640px) {
-					content: $howitworks-bg-3up-v;
+					content: var(--howitworks-bg-3up-v);
 				}
 			}
 
 			&.five-up .how-it-works-diagram::after {
-				content: $howitworks-bg-5up-h;
+				content: var(--howitworks-bg-5up-h);
 				display: block;
 
 				@container howitworksgrid (width < 734px) {
-					content: $howitworks-bg-5up-v;
+					content: var(--howitworks-bg-5up-v);
 				}
 			}
 
@@ -42,12 +42,12 @@ html:has(body.goelectricbc) {
 			#how-it-works-commercial {
 
 				&::before {
-					content: $howitworks-commercial-icons-3up-h;
+					content: var(--howitworks-commercial-icons-3up-h);
 					display: block;
 					position: absolute;
 
 					@container howitworksgrid (width < 640px) {
-						content: $howitworks-commercial-icons-3up-v;
+						content: var(--howitworks-commercial-icons-3up-v);
 					}
 				}
 			}
@@ -55,12 +55,12 @@ html:has(body.goelectricbc) {
 			#how-it-works-fleet-murb-work {
 
 				&::before {
-					content: $howitworks-fleet-murb-work-icons-5up-h;
+					content: var(--howitworks-fleet-murb-work-icons-5up-h);
 					display: block;
 					position: absolute;
 
 					@container howitworksgrid (width < 734px) {
-						content: $howitworks-fleet-murb-work-icons-5up-v;
+						content: var(--howitworks-fleet-murb-work-icons-5up-v);
 					}
 				}
 			}
@@ -68,12 +68,12 @@ html:has(body.goelectricbc) {
 			#how-it-works-home {
 
 				&::before {
-					content: $howitworks-home-icons-5up-h;
+					content: var(--howitworks-home-icons-5up-h);
 					display: block;
 					position: absolute;
 
 					@container howitworksgrid (width < 734px) {
-						content: $howitworks-home-icons-5up-v;
+						content: var(--howitworks-home-icons-5up-v);
 					}
 				}
 			}
@@ -81,12 +81,12 @@ html:has(body.goelectricbc) {
 			#how-it-works-lhd {
 
 				&::before {
-					content: $howitworks-lhd-icons-5up-h;
+					content: var(--howitworks-lhd-icons-5up-h);
 					display: block;
 					position: absolute;
 
 					@container howitworksgrid (width < 734px) {
-						content: $howitworks-lhd-icons-5up-v;
+						content: var(--howitworks-lhd-icons-5up-v);
 					}
 				}
 			}

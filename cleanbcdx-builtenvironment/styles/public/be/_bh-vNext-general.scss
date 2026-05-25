@@ -10,7 +10,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 		position: relative;
 
 		&::after {
-			content: $icon_unlinked;
+			content: --icon-unlinked;
 			position: absolute;
 			right: 6px;
 			top: 0;
@@ -112,20 +112,20 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.phone a::before {
-				content: $phone_icon;
+				content: var(--phone-icon);
 				top: 0.25rem;
 				margin-right: 0.2rem;
 			}
 
 			&.email a::before {
-				content: $mail_icon;
+				content: var(--mail-icon);
 				top: 0.15rem;
 				margin-right: 0.25rem;
 				width: 1.3rem;
 			}
 
 			&.website a::before {
-				content: $site_icon;
+				content: var(--site-icon);
 				top: 0.175rem;
 				margin-right: 0.45rem;
 			}
@@ -211,11 +211,11 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.icon-contact::before {
-				content: $icon_contact;
+				content: --icon-contact;
 			}
 
 			&.icon-electrify::before {
-				content: $icon_electrify;
+				content: var(--icon-electrify);
 				scale: 1.2;
 				position: relative;
 				top: 4px;
@@ -223,43 +223,43 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.icon-email::before {
-				content: $icon_email;
+				content: var(--icon-email);
 			}
 
 			&.icon-find::before {
-				content: $icon_find;
+				content: var(--icon-find);
 				scale: 1.2;
 			}
 
 			&.icon-find-filled::before {
-				content: $icon_find_filled;
+				content: var(--icon-find-filled);
 				scale: 1.2;
 			}
 
 			&.icon-find-ea::before {
-				content: $icon_find_ea;
+				content: var(--icon-find-ea);
 				scale: 1.2;
 			}
 
 			&.icon-keyboard::before {
-				content: $icon_keyboard;
+				content: var(--icon-keyboard);
 			}
 
 			&.icon-learn::before {
-				content: $icon_learn;
+				content: var(--icon-learn);
 			}
 
 			&.icon-phone::before {
-				content: $icon_phone;
+				content: var(--icon-phone);
 			}
 
 			&.icon-power::before {
-				content: $icon_power;
+				content: var(--icon-power);
 				filter: var(--blue-filter);
 			}
 
 			&.icon-understand::before {
-				content: $icon_understand;
+				content: var(--icon-understand);
 				padding-block-start: 0.5rem;
 				width: 2.25rem;
 				filter: var(--blue-filter);
@@ -275,28 +275,28 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.icon-announce::before {
-				content: $icon_announce;
+				content: var(--icon-announce);
 				height: 2rem;
 				width: 2rem;
 				rotate: -10deg;
 			}
 
 			&.icon-apply::before {
-				content: $icon_apply;
+				content: var(--icon-apply);
 				margin-right: 0;
 				top: 0;
 				width: 1.75rem;
 			}
 
 			&.icon-available::before {
-				content: $icon_available;
+				content: var(--icon-available);
 				margin-right: 0;
 				top: 0.15rem;
 				width: 1.75rem;
 			}
 
 			&.icon-contact::before {
-				content: $phone_icon;
+				content: var(--phone-icon);
 				margin-right: 0;
 				top: -0.15rem;
 				scale: 1.25;
@@ -304,20 +304,20 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.icon-eligible::before {
-				content: $icon_eligible;
+				content: var(--icon-eligible);
 				margin-right: 0;
 				top: 0.15rem;
 			}
 
 			&.icon-find-filled::before {
-				content: $icon_find_filled;
+				content: var(--icon-find-filled);
 				margin-right: 0;
 				top: 0;
 				scale: 1.1;
 			}
 
 			&.icon-info::before {
-				content: $info_icon;
+				content: var(--info-icon);
 				margin-right: 0;
 				top: 6px;
 				filter: var(--blue-filter);
@@ -333,7 +333,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.icon-qualified::before {
-				content: $icon_qualified;
+				content: var(--icon-qualified);
 				margin-right: 0;
 				top: 0;
 				scale: 1.2;
@@ -341,14 +341,14 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.icon-translate::before {
-				content: $icon_translate;
+				content: var(--icon-translate);
 				margin-right: 0;
 				top: 0;
 				width: 1.75rem;
 			}
 
 			&.icon-works::before {
-				content: $icon_how_it_works;
+				content: var(--icon-howitworks);
 				margin-right: 0;
 				top: -0.15rem;
 				scale: 1.15;
@@ -377,7 +377,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.icon-available::after {
-				content: $icon_available;
+				content: var(--icon-available);
 				margin-right: 0;
 				top: -0.15rem;
 				width: 1.5rem;
@@ -407,18 +407,18 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			}
 
 			&.heat::before {
-				content: $icon_heat;
+				content: var(--icon-heat);
 				filter: var(--vividred-filter);
 				scale: 0.9;
 			}
 
 			&.electric::before {
-				content: $icon_electricity;
+				content: var(--icon-electricity);
 				filter: var(--green-filter);
 			}
 
 			&.gas::before {
-				content: $icon_gas;
+				content: var(--icon-gas);
 				filter: var(--yellow-filter);
 				scale: 1.3;
 				top: 0.2rem;
@@ -463,11 +463,11 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			#how-it-works-personal {
 
 				&::before {
-					content: $how_it_works_personal_horizontal;
+					content: var(--howitworks-personal-horizontal);
 					display: block;
 
 					@container howitworksgrid (width < 650px) {
-						content: $how_it_works_personal_vertical;
+						content: var(--howitworks-personal-vertical);
 					}
 				}
 			}
@@ -475,11 +475,11 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 			#how-it-works-contractor {
 
 				&::before {
-					content: $how_it_works_contractor_horizontal;
+					content: var(--howitworks-contractor-horizontal);
 					display: block;
 
 					@container howitworksgrid (width < 800px) {
-						content: $how_it_works_contractor_vertical;
+						content: var(--howitworks-contractor-vertical);
 					}
 				}
 			}
