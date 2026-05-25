@@ -142,20 +142,21 @@ class EnableVueApp {
 			'post_status'    => 'publish',
 		);
 
-		$vehicles = new \WP_Query( $args );
+		$vehicles   = new \WP_Query( $args );
+		$posts_data = array();
 
 		foreach ( $vehicles->posts as $vehicle ) {
-
 			$model_year_terms = get_the_terms( $vehicle->ID, 'model_year' );
 
-			$years = [];
+			$years = array();
+
 			if ( ! is_wp_error( $model_year_terms ) && ! empty( $model_year_terms ) ) {
 				foreach ( $model_year_terms as $term ) {
 					$years[] = $term->name;
 				}
 			}
 
-			$posts_data[] = (object) array(
+			$posts_data[] = array(
 				'id'                    => $vehicle->ID,
 				'make'                  => $vehicle->make,
 				'model'                 => $vehicle->model,
@@ -174,9 +175,118 @@ class EnableVueApp {
 				'year'                  => $years,
 			);
 		}
+
+		wp_reset_postdata();
+
 		return $posts_data;
 	}
 
+	/**
+	 * Generate the vehicle JSON file if it does not already exist.
+	 *
+	 * @return void
+	 */
+	public function maybe_generate_vehicle_filter_json_file() {
+		$upload_dir = wp_upload_dir();
+
+		if ( ! empty( $upload_dir['error'] ) ) {
+			return;
+		}
+
+		$file_path = trailingslashit( $upload_dir['basedir'] ) . 'vehicle-filter-data/vehicles.json';
+
+		if ( ! file_exists( $file_path ) ) {
+			$this->generate_vehicle_filter_json_file();
+		}
+	}
+
+	/**
+	 * Generate the vehicle filter JSON file.
+	 *
+	 * @return int|false Number of bytes written, or false on failure.
+	 */
+	public function generate_vehicle_filter_json_file() {
+		$data = $this->custom_api_vehicle_filter_callback();
+
+		$upload_dir = wp_upload_dir();
+
+		if ( ! empty( $upload_dir['error'] ) ) {
+			return false;
+		}
+
+		$directory = trailingslashit( $upload_dir['basedir'] ) . 'vehicle-filter-data/';
+		$file_path = $directory . 'vehicles.json';
+
+		if ( ! file_exists( $directory ) ) {
+			wp_mkdir_p( $directory );
+		}
+
+		$json = wp_json_encode(
+			$data,
+			JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+		);
+
+		if ( false === $json ) {
+			return false;
+		}
+
+		global $wp_filesystem;
+
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		WP_Filesystem();
+
+		if ( ! $wp_filesystem ) {
+			return false;
+		}
+
+		return $wp_filesystem->put_contents(
+			$file_path,
+			$json,
+			FS_CHMOD_FILE
+		);
+	}
+
+	/**
+	 * Get the public URL for the vehicle filter JSON file.
+	 *
+	 * @return string
+	 */
+	public function get_vehicle_filter_json_file_url() {
+		$upload_dir = wp_upload_dir();
+
+		return trailingslashit( $upload_dir['baseurl'] ) . 'vehicle-filter-data/vehicles.json';
+	}
+
+	/**
+	 * Regenerate the vehicle JSON file when a vehicle post is saved.
+	 *
+	 * @param int $post_id The post ID.
+	 * @return void
+	 */
+	public function regenerate_vehicle_filter_json_on_save( $post_id ) {
+		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		$this->generate_vehicle_filter_json_file();
+	}
+
+	/**
+	 * Regenerate the vehicle JSON file when a vehicle post is trashed or deleted.
+	 *
+	 * @param int $post_id The post ID.
+	 * @return void
+	 */
+	public function regenerate_vehicle_filter_json_on_delete( $post_id ) {
+		if ( 'vehiclepost' !== get_post_type( $post_id ) ) {
+			return;
+		}
+
+		$this->generate_vehicle_filter_json_file();
+	}
 
 	/**
 	 * Sets up route and callback for custom endpoint.

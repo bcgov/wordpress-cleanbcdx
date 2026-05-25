@@ -67,7 +67,13 @@ class Setup {
         add_action( 'wp_enqueue_scripts', [ $plugin_enable_vue_app, 'vuejs_app_plugin' ] );
         add_action( 'admin_enqueue_scripts', [ $plugin_enable_vue_app, 'vuejs_app_plugin' ] );
         add_action( 'init', [ $plugin_enable_vue_app, 'vuejs_app_block_init_plugin' ] );
-        add_action( 'rest_api_init', [ $plugin_enable_vue_app, 'custom_api_posts_routes' ] );
+		add_action( 'init', [ $plugin_enable_vue_app, 'maybe_generate_vehicle_filter_json_file' ] );
+
+		add_action( 'rest_api_init', [ $plugin_enable_vue_app, 'custom_api_posts_routes' ] );
+
+		add_action( 'save_post_vehiclepost', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_on_save' ], 20, 1 );
+		add_action( 'before_delete_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_on_delete' ] );
+		add_action( 'deleted_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_on_delete' ] );
 
 		// Allow embedding the iframe from Planner.
 		add_action(
