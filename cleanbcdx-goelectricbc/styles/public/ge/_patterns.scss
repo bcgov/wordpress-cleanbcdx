@@ -47,18 +47,6 @@ body.custom-goelectricbc {
 
 	.has-icon-above {
 
-		&::before {
-			background-position: center;
-			background-repeat: no-repeat;
-			background-size: contain;
-			content: "";
-			display: block;
-			height: 90px;
-			width: 90px;
-			position: relative;
-			margin-inline: auto;
-		}
-
 		&.apply-authorized-reps::before {
 			background-image: var(--ge-apply-authorized-reps);
 		}
