@@ -23,15 +23,6 @@ html:has(body.custom-betterbuildingsbc, body.betterbuildingsbc) {
 
 html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbuildingsbc, body.betterhomesbc) {
 
-	.wp-block-columns:has(#contractorFilterApp, #pqeaFilterApp) {
-		flex-wrap: wrap !important;
-		min-width: 100%;
-	}
-
-	.wp-block-columns:has(#contractorFilterApp, #pqeaFilterApp) .wp-block-column {
-		min-width: 100%;
-	}
-
 	@media (width < 783px) {
 
 		#contractorFilterApp .has-icon {
