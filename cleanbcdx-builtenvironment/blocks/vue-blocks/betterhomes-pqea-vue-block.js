@@ -161,7 +161,7 @@
      * @param {Function} settings.save - Set to null – uses register_block_type in PHP to render block.
      * @returns {void}
      */
-    registerBlockType('cleanbcdx-plugin/betterhomes-pqea-filter-block', {
+    const settings = {
         title: 'Built Environment PQEA Filter',
         description: `Use only once per page. It is highly recommended to set this block's parent content width to the 'Wide' alignment setting.`,
         icon: 'tag',
@@ -178,5 +178,14 @@
         },
         edit: BetterHomesPQEAVueAppEditorComponent,
         save: () => null,
+    });
+
+    registerBlockType('cleanbcdx-plugin/betterhomes-pqea-filter-block', settings);
+
+    registerBlockType('cleanbc-plugin/betterhomes-pqea-filter-block', {
+        ...settings,
+        supports: {
+            inserter: false,
+        },
     });
 })();
