@@ -382,7 +382,21 @@ class EnableVueApp {
 		);
 
 		register_block_type(
+			'cleanbc-plugin/betterhomes-pqea-filter-block',
+			[
+				'render_callback' => [ $this, 'vuejs_betterhomes_pqea_filter_app_dynamic_block_plugin' ],
+			]
+		);
+
+		register_block_type(
 			'cleanbcdx-plugin/betterhomes-contractor-filter-block',
+			[
+				'render_callback' => [ $this, 'vuejs_betterhomes_contractor_filter_app_dynamic_block_plugin' ],
+			]
+		);
+
+		register_block_type(
+			'cleanbc-plugin/betterhomes-contractor-filter-block',
 			[
 				'render_callback' => [ $this, 'vuejs_betterhomes_contractor_filter_app_dynamic_block_plugin' ],
 			]
