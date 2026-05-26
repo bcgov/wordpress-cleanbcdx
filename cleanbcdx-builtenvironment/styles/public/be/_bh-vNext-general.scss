@@ -2,29 +2,6 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 
 	/* -------------------------------------------------------------------------- */
 
-	/* MISC. */
-
-	/* -------------------------------------------------------------------------- */
-
-	#post-content .wp-element-button:not([href]) {
-		position: relative;
-
-		&::after {
-			content: var(--icon-unlinked);
-			position: absolute;
-			right: 6px;
-			top: 0;
-			width: 1rem;
-			filter: var(--white-filter);
-		}
-	}
-
-	#post-content .is-style-outline .wp-element-button:not([href])::after {
-		filter: var(--blue-filter);
-	}
-
-	/* -------------------------------------------------------------------------- */
-
 	/* CUSTOM HOME FEATURES */
 
 	/* -------------------------------------------------------------------------- */

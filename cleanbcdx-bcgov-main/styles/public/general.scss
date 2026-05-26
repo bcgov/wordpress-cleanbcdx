@@ -24,7 +24,6 @@
 	gap: 1rem;
 }
 
-
 .is-mobile-only {
 	display: block !important;
 }
@@ -71,6 +70,28 @@ body:not(body.wp-admin):not(body.editor-styles-wrapper):not(body.error404) {
 	display: none;
 }
 
+/* -------------------------------------------------------------------------- */
+
+/* MISC. */
+
+/* -------------------------------------------------------------------------- */
+
+#post-content .wp-element-button:not([href]) {
+	position: relative;
+
+	&::after {
+		content: var(--icon-unlinked);
+		position: absolute;
+		right: 6px;
+		top: 0;
+		width: 1rem;
+		filter: var(--white-filter);
+	}
+}
+
+#post-content .is-style-outline .wp-element-button:not([href])::after {
+	filter: var(--blue-filter);
+}
 
 .banner-content {
 
