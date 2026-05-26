@@ -9,9 +9,43 @@
 	display: none !important;
 }
 
+
 html:has(body.custom-goelectricbc, body.goelectricbc) {
 
 	scroll-padding: 8rem !important;
+
+	.card-title-link {
+		position: relative;
+	}
+
+	.linked-card.closed::before {
+		border: 2px solid var(--white);
+		content: "Closed";
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		background-color: var(--bcds-surface-icons-danger);
+		color: var(--white);
+		padding: 0 0.5rem 0.15rem;
+		border-radius: 999px;
+		font-size: 1.25rem;
+		font-weight: bold;
+	}
+
+	.linked-card.open::before {
+		border: 2px solid var(--white);
+		content: "Open";
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		background-color: var(--bcds-surface-icons-success);
+		color: var(--white);
+		padding: 0 0.5rem 0.15rem;
+		border-radius: 999px;
+		font-size: 1.25rem;
+		font-weight: bold;
+	}
+
 
 	details p {
 		font-size: small !important;

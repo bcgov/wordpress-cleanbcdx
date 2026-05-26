@@ -266,7 +266,7 @@ class EnableVueApp {
 	 * @param int|string $post_id The saved object ID.
 	 * @return void
 	 */
-	public function regenerate_vehicle_filter_json_on_acf_save( $post_id ) {
+	public function regenerate_vehicle_filter_json_file_on_acf_save( $post_id ) {
 		if ( ! is_numeric( $post_id ) ) {
 			return;
 		}
@@ -291,7 +291,7 @@ class EnableVueApp {
 	 * @param string|\WP_Post|null $context The hook context value.
 	 * @return void
 	 */
-	public function regenerate_vehicle_filter_json_on_post_status_change( $post_id, $context = null ) {
+	public function regenerate_vehicle_filter_json_file_on_post_status_change( $post_id, $context = null ) {
 		$post_type = $context instanceof \WP_Post ? $context->post_type : get_post_type( $post_id );
 
 		if ( 'vehiclepost' !== $post_type ) {

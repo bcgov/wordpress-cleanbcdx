@@ -71,10 +71,10 @@ class Setup {
 
 		add_action( 'rest_api_init', [ $plugin_enable_vue_app, 'custom_api_posts_routes' ] );
 
-		add_action( 'acf/save_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_on_acf_save' ], 20, 1 );
-		add_action( 'trashed_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_on_post_status_change' ], 10, 2 );
-		add_action( 'untrashed_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_on_post_status_change' ], 10, 2 );
-		add_action( 'deleted_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_on_post_status_change' ], 10, 2 );
+		add_action( 'acf/save_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_file_on_acf_save' ], 20, 1 );
+		add_action( 'trashed_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_file_on_post_status_change' ], 10, 2 );
+		add_action( 'untrashed_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_file_on_post_status_change' ], 10, 2 );
+		add_action( 'deleted_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_file_on_post_status_change' ], 10, 2 );
 
 		// Allow embedding the iframe from Planner.
 		add_action(
