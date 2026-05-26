@@ -178,9 +178,12 @@
         },
         edit: BetterHomesPQEAVueAppEditorComponent,
         save: () => null,
-    });
+    };
 
-    registerBlockType('cleanbcdx-plugin/betterhomes-pqea-filter-block', settings);
+    registerBlockType(
+        'cleanbcdx-plugin/betterhomes-pqea-filter-block',
+        settings
+    );
 
     registerBlockType('cleanbc-plugin/betterhomes-pqea-filter-block', {
         ...settings,

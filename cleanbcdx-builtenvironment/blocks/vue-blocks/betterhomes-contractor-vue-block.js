@@ -163,7 +163,7 @@
      * @param {Function} settings.save - Set to null – uses register_block_type in PHP to render block.
      * @returns {void}
      */
-     const settings = {
+    const settings = {
         title: 'Built Environment Contractor Filter',
         description: `Use only once per page. It is highly recommended to set this block's parent content width to the 'Wide' alignment setting.`,
         icon: 'tag',
@@ -180,9 +180,12 @@
         },
         edit: BetterHomesContractorVueAppEditorComponent,
         save: () => null,
-    });
+    };
 
-    registerBlockType('cleanbcdx-plugin/betterhomes-contractor-filter-block', settings);
+    registerBlockType(
+        'cleanbcdx-plugin/betterhomes-contractor-filter-block',
+        settings
+    );
 
     registerBlockType('cleanbc-plugin/betterhomes-contractor-filter-block', {
         ...settings,
