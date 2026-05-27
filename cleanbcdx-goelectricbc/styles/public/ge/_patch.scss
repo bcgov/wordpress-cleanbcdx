@@ -19,7 +19,7 @@ html:has(body.custom-goelectricbc, body.goelectricbc) {
 	}
 
 	.linked-card.closed::before {
-		border: 2px solid vvar(--wp--preset--color--custom-brown-text);
+		border: 2px solid var(--wp--preset--color--custom-brown-text);
 		content: "Closed";
 		position: absolute;
 		top: 1rem;
