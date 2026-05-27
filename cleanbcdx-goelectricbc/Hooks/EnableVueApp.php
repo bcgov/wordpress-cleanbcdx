@@ -300,14 +300,37 @@ class EnableVueApp {
 			'catalogName'          => 'North America ZEV Manufacturer Model Catalog',
 			'generatedFrom'        => 'Go Electric BC website OEM manufacturers vehicle data.',
 			'manufacturers'        => $manufacturers,
-			'vehicleTypesIncluded' => array(
-				'BEV',
-				'EREV',
-				'FCEV',
-				'PHEV',
-				'broadened_prior_intake_classes',
-			),
+			'vehicleTypesIncluded' => $this->get_vehicle_catalog_types_included( $vehicles ),
 		);
+	}
+
+	/**
+	 * Build the vehicle type reference for the catalog export.
+	 *
+	 * Uses the vehicle types currently present on vehicle posts, then appends the
+	 * broadened catalog marker required by external consumers.
+	 *
+	 * @param array $vehicles Flat vehicle records.
+	 * @return array
+	 */
+	protected function get_vehicle_catalog_types_included( $vehicles ) {
+		$vehicle_types = array();
+
+		foreach ( $vehicles as $vehicle ) {
+			$type = isset( $vehicle['type'] ) ? trim( (string) $vehicle['type'] ) : '';
+
+			if ( '' === $type || in_array( $type, $vehicle_types, true ) ) {
+				continue;
+			}
+
+			$vehicle_types[] = $type;
+		}
+
+		if ( ! in_array( 'broadened_prior_intake_classes', $vehicle_types, true ) ) {
+			$vehicle_types[] = 'broadened_prior_intake_classes';
+		}
+
+		return $vehicle_types;
 	}
 
 	/**
