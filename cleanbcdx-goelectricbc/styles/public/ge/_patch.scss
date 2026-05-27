@@ -19,13 +19,13 @@ html:has(body.custom-goelectricbc, body.goelectricbc) {
 	}
 
 	.linked-card.closed::before {
-		border: 2px solid var(--white);
+		border: 2px solid vvar(--wp--preset--color--custom-brown-text);
 		content: "Closed";
 		position: absolute;
 		top: 1rem;
 		right: 1rem;
-		background-color: var(--bcds-surface-icons-danger);
-		color: var(--white);
+		background-color: var(--wp--preset--color--luminous-vivid-amber);
+		color: var(--wp--preset--color--custom-brown-text);
 		padding: 0 0.5rem 0.15rem;
 		border-radius: 999px;
 		font-size: 1.25rem;
