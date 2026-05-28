@@ -6,7 +6,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
      * SafarIE iOS requires window.requestAnimationFrame update.
      */
     window.requestAnimationFrame(() => {
-        const links = document.querySelectorAll('a:not(#postFilterApp a)');
+        const links = document.querySelectorAll('a:not(#postFilterApp a, [href*="#top"])');
 
         const definitionLinks = Array.from(links).filter((link) => {
             return link.href.includes('definitions');
