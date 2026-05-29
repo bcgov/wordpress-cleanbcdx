@@ -1,8 +1,6 @@
-import { cleanbcdxBhDefinitions } from '../definitions';
-
 const FORM_ID = 2;
 
-if (document.getElementById(`gform_${FORM_ID}`)) {
+if (document.getElementById(`gform_${FORM_ID}`) && window.bcgovBlockThemePluginDefnitions) {
     document.addEventListener(
         'submit',
         (event) => {
@@ -13,7 +11,7 @@ if (document.getElementById(`gform_${FORM_ID}`)) {
             }
 
             setTimeout(() => {
-                cleanbcdxBhDefinitions();
+                window.bcgovBlockThemePluginDefnitions();
             }, 1000);
         },
         true

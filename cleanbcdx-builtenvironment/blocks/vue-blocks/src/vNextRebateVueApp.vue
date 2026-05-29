@@ -1820,7 +1820,7 @@ async function updateRebateDetails() {
             lastChangedField.value = '';
             rerenderScrollMenu();
             nextTick(() => runOptionalGlobal('cleanbcdxBhTablesPattern'));
-            nextTick(() => runOptionalGlobal('cleanbcdxBhDefinitions'));
+            nextTick(() => runOptionalGlobal('bcgovBlockThemePluginDefnitions'));
             nextTick(() => runOptionalGlobal('cleanbcdxBhRebatesArchiveLoader'));
             nextTick(() => runOptionalGlobal('betterhomesRebatesExternalLinkCheck'));
             nextTick(() => runOptionalGlobal('cleanbcdxBhAccessibility'));
@@ -4153,7 +4153,7 @@ onMounted(async () => {
     }
 
     // load the definitions links nextTick.
-    nextTick(() => runOptionalGlobal('cleanbcdxBhDefinitions'));
+    nextTick(() => runOptionalGlobal('bcgovBlockThemePluginDefnitions'));
     nextTick(() => runOptionalGlobal('cleanbcdxBhRebatesArchiveLoader'));
 });
 

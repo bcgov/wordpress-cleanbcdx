@@ -377,6 +377,8 @@ export const bcgovBlockThemePluginDefnitions = () => {
     });
 };
 
+window.bcgovBlockThemePluginDefnitions = bcgovBlockThemePluginDefnitions;
+
 if ('complete' === document.readyState) {
     bcgovBlockThemePluginDefnitions();
 } else {
