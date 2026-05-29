@@ -20,7 +20,7 @@ html:has(body.custom-goelectricbc, body.goelectricbc) {
 
 	.linked-card.closed::before {
 		border: 2px solid var(--wp--preset--color--custom-brown-text);
-		content: "Closed";
+		content: "Intake closed";
 		position: absolute;
 		top: 1rem;
 		right: 1rem;
@@ -28,7 +28,7 @@ html:has(body.custom-goelectricbc, body.goelectricbc) {
 		color: var(--wp--preset--color--custom-brown-text);
 		padding: 0 0.5rem 0.15rem;
 		border-radius: 999px;
-		font-size: 1.25rem;
+		font-size: 1.15rem;
 		font-weight: bold;
 	}
 
@@ -42,7 +42,7 @@ html:has(body.custom-goelectricbc, body.goelectricbc) {
 		color: var(--white);
 		padding: 0 0.5rem 0.15rem;
 		border-radius: 999px;
-		font-size: 1.25rem;
+		font-size: 1.15rem;
 		font-weight: bold;
 	}
 
