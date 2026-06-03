@@ -56,8 +56,8 @@ jobs:
       
       - name: Generate backup
         run: |
-          NAMESPACE="f181a8-prod"
-          OC_ENV=prod
+          NAMESPACE="f181a8-test"
+          OC_ENV=test
           OC_SITE_NAME=${{ github.event.inputs.project-name || 'cleanbcdx-bh'}}-backup
           WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
           WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
@@ -84,13 +84,13 @@ jobs:
 
           #combine the db and files into 1 archive
           timestamp=$(date +%Y%m%d_%H%M%S)
-          CMD3_RESULTS=$(tar -cvf ${OC_SITE_NAME}_${timestamp}_backup.tar files.tar.gz db.sql.tar.gz)
+          CMD3_RESULTS=$(tar -cvf ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar files.tar.gz db.sql.tar.gz)
           echo "${CMD3_RESULTS}"
 
           rm db.sql.tar.gz
           rm files.tar.gz          
 
-          CMD4_RESULTS=$(rclone copy ${OC_SITE_NAME}_${timestamp}_backup.tar cleanbcdx:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }} " --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
+          CMD4_RESULTS=$(rclone copy ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar cleanbcdx:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }} " --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
           echo "${CMD4_RESULTS}"
 
 
