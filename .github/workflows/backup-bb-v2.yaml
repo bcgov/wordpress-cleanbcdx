@@ -82,8 +82,9 @@ jobs:
 
           #create backup of database 
           echo "::group::Create DB backup"
-          CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz)
-          echo "${CMD1_RESULTS}"
+          CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz 2>&1)
+          CMD1_EXIT_CODE=$?
+          #echo "${CMD1_RESULTS}"
           du -sh db.sql.gz
 
           LOCAL_MD5=($(md5sum ./db.sql.gz))
@@ -93,8 +94,9 @@ jobs:
 
           #create backup of files
           echo "::group::Create files backup"
-          CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- tar -czf - -C /var/www/html . > files.tar.gz)
-          echo "${CMD2_RESULTS}"
+          CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- tar -czf - -C /var/www/html . > files.tar.gz 2>&1)
+          CMD2_EXIT_CODE=$?
+          #echo "${CMD2_RESULTS}"
           du -sh files.tar.gz
           LOCAL_MD5=($(md5sum ./files.tar.gz))
           echo "-- MD5 of  files backup file: $LOCAL_MD5"
@@ -105,15 +107,17 @@ jobs:
           timestamp=$(date +%Y%m%d_%H%M%S)
           BACKUP_FILENAME=${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar
           echo "::group::Create files backup - ${BACKUP_FILENAME}"
-          CMD3_RESULTS=$(tar -cvf ${BACKUP_FILENAME} files.tar.gz db.sql.gz)
-          echo "${CMD3_RESULTS}"
+          CMD3_RESULTS=$(tar -cvf ${BACKUP_FILENAME} files.tar.gz db.sql.gz 2>&1)
+          CMD3_EXIT_CODE=$?
+          #echo "${CMD3_RESULTS}"
           echo "::endgroup::"
 
           rm db.sql.gz
           rm files.tar.gz          
 
-          CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
-          echo "${CMD4_RESULTS}"
+          CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" 2>&1)
+          CMD4_EXIT_CODE=$?
+          #echo "${CMD4_RESULTS}"
 
 
           #Generate GH Actions summary
