@@ -1,0 +1,105 @@
+# Manual+Scheduled workflow
+# This is the scheduled workflow to create site backups daily.
+name: Backup V2 BB
+on:
+  workflow_dispatch:
+    inputs:
+      project-name:
+        description: 'Project'
+        #required: true
+        type: choice
+        options:      
+        - 
+        - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
+        default: 'cleanbcdx-bb'
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron: '0 2 * * *'
+jobs:
+  #NG. Apr 21, 2025. Disable the keepalive due to the GH repo being disabled. Need to find new way of keeping the backup action running without git commit every 60 days.
+  #keepalive-job:  #From https://github.com/gautamkrishnar/keepalive-workflow, keep as seperate job for security.
+  #  name: Keepalive Workflow
+  #  runs-on: ubuntu-latest
+  #  permissions:
+  #    actions: write
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - uses: gautamkrishnar/keepalive-workflow@2a8ae70f39b79fb50659d17ccc6f372f461813b2  #release 2.0.10. pin to this specific commit to prevent action code from being turned into bad actor later.
+
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install Rclone
+        run: |
+          sudo -v ; curl https://rclone.org/install.sh | sudo bash
+
+      - name: Verify Installation
+        run: rclone version
+
+      #Not needed since base linux image being used has OC built in.
+      #- name: Install OC CLI
+      #  run: |
+      #    curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+      #    tar xvzf openshift-client-linux.tar.gz
+      #    sudo mv oc kubectl /usr/local/bin/
+
+      - name: Log in to OpenShift
+        run: |
+          oc login ${{ secrets.OPENSHIFT_SERVER }} --token=${{ secrets.OPENSHIFT_PROD_API_TOKEN }}      #--insecure-skip-tls-verify=true
+
+      
+      - name: Generate backup
+        run: |
+          NAMESPACE="f181a8-prod"
+          OC_ENV=prod
+          OC_SITE_NAME=${{ github.event.inputs.project-name || 'cleanbcdx-bh'}}-backup
+          WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
+          WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
+
+          DB_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=mariadb,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
+          DB_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $DB_POD_NAME -o jsonpath='{.spec.containers[0].name}')
+
+
+          #create backup of database 
+          CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gzip)
+          echo "${CMD1_RESULTS}"
+          echo du -sh db.sql.tar.gz
+
+          LOCAL_MD5=($(md5sum ./db.sql.tar.gz))
+          echo "-- MD5 of db backup file: $LOCAL_MD5"
+
+
+          #create backup of files
+          CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- tar -czf - -C /var/www/html . > files.tar.gz)
+          echo "${CMD2_RESULTS}"
+          echo du -sh files.tar.gz
+          LOCAL_MD5=($(md5sum ./files.tar.gz))
+          echo "-- MD5 of  files backup file: $LOCAL_MD5"
+
+          #combine the db and files into 1 archive
+          timestamp=$(date +%Y%m%d_%H%M%S)
+          CMD3_RESULTS=$(tar -cvf ${OC_SITE_NAME}_${timestamp}_backup.tar files.tar.gz db.sql.tar.gz)
+          echo "${CMD3_RESULTS}"
+
+          rm db.sql.tar.gz
+          rm files.tar.gz          
+
+          CMD4_RESULTS=$(rclone copy ${OC_SITE_NAME}_${timestamp}_backup.tar cleanbcdx:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }} " --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
+          echo "${CMD4_RESULTS}"
+
+
+          #Generate GH Actions summary
+          echo "### Created Backup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+
+          echo "### Command Results: " >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+          echo "${CMD1_RESULTS}" >> $GITHUB_STEP_SUMMARY
+          echo "${CMD2_RESULTS}" >> $GITHUB_STEP_SUMMARY
+          echo "${CMD3_RESULTS}" >> $GITHUB_STEP_SUMMARY
