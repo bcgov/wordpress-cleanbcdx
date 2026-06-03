@@ -100,6 +100,7 @@ jobs:
           echo "-- MD5 of  files backup file: $LOCAL_MD5"
           echo "::endgroup::"
 
+
           #combine the db and files into 1 archive
           echo "::group::Create files backup - ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar"
           timestamp=$(date +%Y%m%d_%H%M%S)
@@ -107,8 +108,7 @@ jobs:
           echo "${CMD3_RESULTS}"
           echo "::endgroup::"
 
-
-          rm db.sql.tar.gz
+          rm db.sql.gz
           rm files.tar.gz          
 
           CMD4_RESULTS=$(rclone copy ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar cleanbcdx:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }} " --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
