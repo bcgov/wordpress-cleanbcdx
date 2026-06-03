@@ -74,9 +74,9 @@ jobs:
           echo "::group::Create DB backup"
           CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz)
           echo "${CMD1_RESULTS}"
-          echo du -sh db.sql.tar.gz
+          echo du -sh db.sql.gz
 
-          LOCAL_MD5=($(md5sum ./db.sql.tar.gz))
+          LOCAL_MD5=($(md5sum ./db.sql.gz))
           echo "-- MD5 of db backup file: $LOCAL_MD5"
           echo "::endgroup::"
 
@@ -93,7 +93,7 @@ jobs:
           #combine the db and files into 1 archive
           echo "::group::Create files backup - ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar"
           timestamp=$(date +%Y%m%d_%H%M%S)
-          CMD3_RESULTS=$(tar -cvf ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar files.tar.gz db.sql.tar.gz)
+          CMD3_RESULTS=$(tar -cvf ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar files.tar.gz db.sql.gz)
           echo "${CMD3_RESULTS}"
           echo "::endgroup::"
 
