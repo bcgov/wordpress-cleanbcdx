@@ -102,21 +102,23 @@ jobs:
 
 
           #combine the db and files into 1 archive
-          echo "::group::Create files backup - ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar"
           timestamp=$(date +%Y%m%d_%H%M%S)
-          CMD3_RESULTS=$(tar -cvf ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar files.tar.gz db.sql.gz)
+          BACKUP_FILENAME=${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar
+          echo "::group::Create files backup - ${BACKUP_FILENAME}"
+          CMD3_RESULTS=$(tar -cvf ${BACKUP_FILENAME} files.tar.gz db.sql.gz)
           echo "${CMD3_RESULTS}"
           echo "::endgroup::"
 
           rm db.sql.gz
           rm files.tar.gz          
 
-          CMD4_RESULTS=$(rclone copy ${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar cleanbcdx:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }} " --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
+          CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }} " --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
           echo "${CMD4_RESULTS}"
 
 
           #Generate GH Actions summary
           echo "### Created Backup" >> $GITHUB_STEP_SUMMARY
+          echo "Backup File: clbcdx/oc-sites-bk/${BACKUP_FILENAME}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
 
           echo "### Command Results: " >> $GITHUB_STEP_SUMMARY
@@ -124,3 +126,4 @@ jobs:
           echo "${CMD1_RESULTS}" >> $GITHUB_STEP_SUMMARY
           echo "${CMD2_RESULTS}" >> $GITHUB_STEP_SUMMARY
           echo "${CMD3_RESULTS}" >> $GITHUB_STEP_SUMMARY
+          echo "${CMD4_RESULTS}" >> $GITHUB_STEP_SUMMARY
