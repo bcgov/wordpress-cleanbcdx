@@ -106,7 +106,7 @@ jobs:
           #combine the db and files into 1 archive
           timestamp=$(date +%Y%m%d_%H%M%S)
           BACKUP_FILENAME=${OC_SITE_NAME}_${OC_ENV}_${timestamp}_backup.tar
-          echo "::group::Create files backup - ${BACKUP_FILENAME}"
+          echo "::group::Create final backup archive - ${BACKUP_FILENAME}"
           CMD3_RESULTS=$(tar -cvf ${BACKUP_FILENAME} files.tar.gz db.sql.gz 2>&1)
           CMD3_EXIT_CODE=$?
           #echo "${CMD3_RESULTS}"
@@ -115,9 +115,10 @@ jobs:
           rm db.sql.gz
           rm files.tar.gz          
 
+          echo "Uploading backup archive to BCGov S3"
           CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 30s 2>&1)
           CMD4_EXIT_CODE=$?
-          #echo "${CMD4_RESULTS}"
+          echo "${CMD4_RESULTS}"
 
 
           #Generate GH Actions summary
@@ -127,7 +128,4 @@ jobs:
 
           echo "### Command Results: " >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
-          echo "${CMD1_RESULTS}" >> $GITHUB_STEP_SUMMARY
-          echo "${CMD2_RESULTS}" >> $GITHUB_STEP_SUMMARY
-          echo "${CMD3_RESULTS}" >> $GITHUB_STEP_SUMMARY
           echo "${CMD4_RESULTS}" >> $GITHUB_STEP_SUMMARY
