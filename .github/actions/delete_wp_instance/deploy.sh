@@ -55,7 +55,7 @@ echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
 
 # Delete existing deployment, if it exists
 echo "::group::Delete existing deployment"
-export WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
+export WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')    #role=wordpress-core,
 WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
 if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
     chmod +x site-delete-unix.sh
