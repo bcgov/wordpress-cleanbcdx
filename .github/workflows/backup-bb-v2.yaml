@@ -112,7 +112,7 @@ jobs:
           rm db.sql.gz
           rm files.tar.gz          
 
-          CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }} " --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
+          CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca")
           echo "${CMD4_RESULTS}"
 
 
