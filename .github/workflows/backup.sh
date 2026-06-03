@@ -46,8 +46,8 @@ else
 fi
 
 #Keep 3 backups at a time.
-if [ "$num_files" -lt 3 ]; then
-    echo "There are less than 3 .wpress files in $dir. Exiting..."
+if [ "$num_files" -lt 2 ]; then
+    echo "There are less than 2 .wpress files in $dir. Exiting..."
     exit 0
 fi
 
