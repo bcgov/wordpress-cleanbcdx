@@ -88,10 +88,9 @@ jobs:
           #DEV. Fake an invalid pod
           DB_POD_NAME="UNREAL_POD"
 
-          oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz
-          
+
           set +e
-          CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz 2>&1)
+          CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz) # 2>&1
           CMD1_EXIT_CODE=$?
           echo "Code: $CMD1_EXIT_CODE"
           echo "${CMD1_RESULTS}"
@@ -109,7 +108,7 @@ jobs:
             echo "Error creating database backup:"
             echo "Code: $CMD1_EXIT_CODE"
             echo "$CMD1_RESULTS"
-            exit 0
+            exit 1
           fi
 
           
