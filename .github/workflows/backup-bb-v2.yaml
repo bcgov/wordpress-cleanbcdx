@@ -85,11 +85,15 @@ jobs:
           echo "DB Pod Name: $DB_POD_NAME"
           echo "DB Container Name: $DB_CONTAINER_NAME"  
 
+          #DEV. Fake an invalid pod
+          DB_POD_NAME="UNREAL_POD"
+
+          
           set +e
           CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz 2>&1)
           CMD1_EXIT_CODE=$?
           set -e
-	        if [ CMD1_EXIT_CODE -eq 0 ]; then
+          if [ CMD1_EXIT_CODE -eq 0 ]; then
             echo "Success creating database backup"
             echo "Code: $CMD1_EXIT_CODE"
             echo "$CMD1_RESULTS"
