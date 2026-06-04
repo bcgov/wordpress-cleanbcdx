@@ -121,7 +121,7 @@ jobs:
           CMD2_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- tar -czf - -C /var/www/html . > files.tar.gz) 2>&1)
           CMD2_EXIT_CODE=$?
           set -e
-          if [ $CMD1_EXIT_CODE -eq 0 ]; then
+          if [ $CMD2_EXIT_CODE -eq 0 ]; then
             echo "Success creating files backup"
             echo "Code: $CMD2_EXIT_CODE"
             echo "$CMD2_RESULTS"
