@@ -118,10 +118,10 @@ jobs:
           echo "WP Pod Name: $WORDPRESS_POD_NAME"
           echo "WP Container Name: $WORDPRESS_CONTAINER_NAME"  
           set +e
-          CMD2_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- tar -czf --warning=no-file-changed - -C /var/www/html . > files.tar.gz) 2>&1)
+          CMD2_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- tar --warning=no-file-changed -czf  - -C /var/www/html . > files.tar.gz) 2>&1)
           CMD2_EXIT_CODE=$?
           set -e
-          if [ $CMD2_EXIT_CODE -eq 0 ]; then
+          if [[ $CMD2_EXIT_CODE -eq 0 || $CMD2_EXIT_CODE -eq 1 ]]; then   #file-changed warning will still causes an exit code of 1, so dont error.
             echo "Success creating files backup"
             echo "Code: $CMD2_EXIT_CODE"
             echo "$CMD2_RESULTS"
