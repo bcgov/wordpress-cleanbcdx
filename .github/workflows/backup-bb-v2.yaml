@@ -90,15 +90,14 @@ jobs:
 
 
           set +e
-          CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz) # 2>&1
+          CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE | gzip' > db.sql.gz) 2>&1)
           CMD1_EXIT_CODE=$?
-          echo "Code: $CMD1_EXIT_CODE"
-          echo "${CMD1_RESULTS}"
           set -e
           if [ CMD1_EXIT_CODE -eq 0 ]; then
             echo "Success creating database backup"
             echo "Code: $CMD1_EXIT_CODE"
             echo "$CMD1_RESULTS"
+
             du -sh db.sql.gz
 
             LOCAL_MD5=($(md5sum ./db.sql.gz))
@@ -110,7 +109,6 @@ jobs:
             echo "$CMD1_RESULTS"
             exit 1
           fi
-
           
           echo "::endgroup::"
 
@@ -119,12 +117,25 @@ jobs:
           echo "::group::Create files backup"
           echo "WP Pod Name: $WORDPRESS_POD_NAME"
           echo "WP Container Name: $WORDPRESS_CONTAINER_NAME"  
-          CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- tar -czf - -C /var/www/html . > files.tar.gz 2>&1)
+          set +e
+          CMD2_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- tar -czf - -C /var/www/html . > files.tar.gz) 2>&1)
           CMD2_EXIT_CODE=$?
-          #echo "${CMD2_RESULTS}"
-          du -sh files.tar.gz
-          LOCAL_MD5=($(md5sum ./files.tar.gz))
-          echo "-- MD5 of  files backup file: $LOCAL_MD5"
+          set -e
+          if [ CMD1_EXIT_CODE -eq 0 ]; then
+            echo "Success creating files backup"
+            echo "Code: $CMD2_EXIT_CODE"
+            echo "$CMD2_RESULTS"
+
+            du -sh files.tar.gz
+            LOCAL_MD5=($(md5sum ./files.tar.gz))
+            echo "-- MD5 of  files backup file: $LOCAL_MD5"
+
+          else
+            echo "Error creating files backup:"
+            echo "Code: $CMD2_EXIT_CODE"
+            echo "$CMD2_RESULTS"
+            exit 1
+          fi
           echo "::endgroup::"
 
 
