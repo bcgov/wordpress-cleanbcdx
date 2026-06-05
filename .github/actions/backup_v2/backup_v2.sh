@@ -35,9 +35,9 @@ oc login $OPENSHIFT_SERVER --token=$token           #--insecure-skip-tls-verify=
 echo "::endgroup::"
 
 
-NAMESPACE="f181a8-${{ github.event.inputs.environment || 'prod'}}"
+NAMESPACE="f181a8-$ENVIRONMENT"
 OC_ENV=test
-OC_SITE_NAME=${{ github.event.inputs.project-name || 'cleanbcdx-bb'}}-${{ github.event.inputs.site-name || 'prod'}}
+OC_SITE_NAME=$PROJECT_NAME-$SITE_NAME
 
 
 WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
