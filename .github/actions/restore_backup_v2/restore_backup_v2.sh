@@ -21,7 +21,7 @@ echo "::endgroup::"
 
 #copy down the backup file from s3
 echo "Grabbing the backup filename"
-CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-$SITE_NAME-$ENVIRONMENT" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s | head -n $BACKUP_NUMBER | tail -n $BACKUP_NUMBER)
+CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-prod_prod_*_backup.tar" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  | head -n $BACKUP_NUMBER | tail -n $BACKUP_NUMBER)
 
 S3_FILENAME=$CMD_RESULTS
 
