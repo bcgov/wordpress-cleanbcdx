@@ -21,7 +21,7 @@ echo "::endgroup::"
 
 #copy down the backup file from s3
 echo "Grabbing the backup filename"
-CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-prod_prod_*_backup.tar" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  | head -n $BACKUP_NUMBER | tail -n $BACKUP_NUMBER)
+CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-prod_prod_*_backup.tar" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  | tail -n $BACKUP_NUMBER | head -n $BACKUP_NUMBER )
 
 S3_FILENAME=$CMD_RESULTS
 
@@ -110,7 +110,8 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
     #move the destination wp-content to wp-content-bk
     echo "Moving wp-content to wp-content-bk"
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mv /var/www/html/wp-content /var/www/html/wp-content-bk
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mkdir /var/www/html/wp-content-bk
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mv /var/www/html/wp-content/* /var/www/html/wp-content-bk
 
 
     echo "::group::Restore DB backup"
