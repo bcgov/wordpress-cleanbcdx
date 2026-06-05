@@ -11,6 +11,7 @@ OPENSHIFT_SERVER=$4
 DEV_TOKEN=$5
 TEST_TOKEN=$6
 PROD_TOKEN=$7
+S3_TOKEN=$8
 
 
 echo "Backing up from environment $ENVIRONMENT"
@@ -119,7 +120,7 @@ rm db.sql.gz
 rm files.tar.gz          
 
 echo "Uploading backup archive to BCGov S3"
-CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 30s 2>&1)
+CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 30s 2>&1)
 CMD4_EXIT_CODE=$?
 echo "${CMD4_RESULTS}"
 
