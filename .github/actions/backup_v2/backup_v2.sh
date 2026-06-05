@@ -14,7 +14,7 @@ PROD_TOKEN=$7
 S3_TOKEN=$8
 
 
-echo "Backing up from environment $ENVIRONMENT"
+echo "Backing up from environment: $ENVIRONMENT"
 case "$ENVIRONMENT" in
     "dev")
     token=$DEV_TOKEN
@@ -62,20 +62,20 @@ CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh 
 CMD1_EXIT_CODE=$?
 set -e
 if [ $CMD1_EXIT_CODE -eq 0 ]; then
-echo "Success creating database backup"
-echo "Code: $CMD1_EXIT_CODE"
-echo "$CMD1_RESULTS"
+	echo "Success creating database backup"
+	echo "Code: $CMD1_EXIT_CODE"
+	echo "$CMD1_RESULTS"
 
-du -sh db.sql.gz
+	du -sh db.sql.gz
 
-LOCAL_MD5=($(md5sum ./db.sql.gz))
-echo "-- MD5 of db backup file: $LOCAL_MD5"
+	LOCAL_MD5=($(md5sum ./db.sql.gz))
+	echo "-- MD5 of db backup file: $LOCAL_MD5"
 
 else
-echo "Error creating database backup:"
-echo "Code: $CMD1_EXIT_CODE"
-echo "$CMD1_RESULTS"
-exit 99
+	echo "Error creating database backup:"
+	echo "Code: $CMD1_EXIT_CODE"
+	echo "$CMD1_RESULTS"
+	exit 99
 fi
 
 echo "::endgroup::"
@@ -90,19 +90,19 @@ CMD2_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_P
 CMD2_EXIT_CODE=$?
 set -e
 if [[ $CMD2_EXIT_CODE -eq 0 || $CMD2_EXIT_CODE -eq 1 ]]; then   #file-changed warning will still causes an exit code of 1, so dont error.
-echo "Success creating files backup"
-echo "Code: $CMD2_EXIT_CODE"
-echo "$CMD2_RESULTS"
+	echo "Success creating files backup"
+	echo "Code: $CMD2_EXIT_CODE"
+	echo "$CMD2_RESULTS"
 
-du -sh files.tar.gz
-LOCAL_MD5=($(md5sum ./files.tar.gz))
-echo "-- MD5 of  files backup file: $LOCAL_MD5"
+	du -sh files.tar.gz
+	LOCAL_MD5=($(md5sum ./files.tar.gz))
+	echo "-- MD5 of  files backup file: $LOCAL_MD5"
 
 else
-echo "Error creating files backup:"
-echo "Code: $CMD2_EXIT_CODE"
-echo "$CMD2_RESULTS"
-exit 99
+	echo "Error creating files backup:"
+	echo "Code: $CMD2_EXIT_CODE"
+	echo "$CMD2_RESULTS"
+	exit 99
 fi
 echo "::endgroup::"
 
