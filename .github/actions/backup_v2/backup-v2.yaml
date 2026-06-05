@@ -1,0 +1,51 @@
+# Manual Action Doing the heavy lifting
+name: Backup V2 
+inputs:
+  environment:
+    description: 'Deployment environment'
+    required: true
+    default: 'prod'
+  project-name:
+    description: 'Project name'
+    required: true
+    default: 'cleanbcdx-bb'
+  site-name:
+    description: 'Site name'
+    required: true
+    default: 'prod'
+  openshift-server:
+    description: 'OpenShift server'
+    required: true
+  dev-token:
+    description: 'Dev token'
+    required: true
+  test-token:
+    description: 'Test token'
+    required: true
+  prod-token:
+    description: 'Prod token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Rclone
+      run: |
+        sudo -v ; curl https://rclone.org/install.sh | sudo bash
+
+    - name: Verify Installation
+      run: rclone version
+
+    #Not needed since base linux image being used has OC built in.
+    #- name: Install OC CLI
+    #  run: |
+    #    curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+    #    tar xvzf openshift-client-linux.tar.gz
+    #    sudo mv oc kubectl /usr/local/bin/
+
+    - name: Perform the backup and push to S3
+      run: |
+        chmod +x ./.github/actions/backup_v2/backup_v2.sh
+        ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}"
+      shell: bash
+          
