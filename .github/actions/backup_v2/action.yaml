@@ -32,9 +32,11 @@ runs:
     - name: Install Rclone
       run: |
         sudo -v ; curl https://rclone.org/install.sh | sudo bash
+      shell: bash
 
     - name: Verify Installation
       run: rclone version
+      shell: bash
 
     #Not needed since base linux image being used has OC built in.
     #- name: Install OC CLI
