@@ -32,12 +32,33 @@ case "$ENVIRONMENT" in
 esac
 
 echo "::group::Login to OC"
-oc login $OPENSHIFT_SERVER --token=$token           #--insecure-skip-tls-verify=true
+
+#Sometimes oc login will fail to connect, so lets re-try on failure.
+set +e
+oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
+ret=$?
+set -e
+if [ $ret -eq 0 ]; then
+    # The command was successful
+    echo "Login successful"
+
+else
+    echo "Re-trying oc-login in 5s..."
+
+    sleep 5
+
+    # The command was not successful, lets try again
+    oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
+
+fi
+
 echo "::endgroup::"
 
 
+
+
 NAMESPACE="f181a8-$ENVIRONMENT"
-OC_ENV=test
+OC_ENV=$ENVIRONMENT
 OC_SITE_NAME=$PROJECT_NAME-$SITE_NAME
 
 
@@ -120,7 +141,7 @@ rm db.sql.gz
 rm files.tar.gz          
 
 echo "Uploading backup archive to BCGov S3"
-CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 30s 2>&1)
+CMD4_RESULTS=$(rclone copy ${BACKUP_FILENAME} :s3:clbcdx/oc-sites-bk/ --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s 2>&1)
 CMD4_EXIT_CODE=$?
 echo "${CMD4_RESULTS}"
 
