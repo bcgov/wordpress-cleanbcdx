@@ -32,7 +32,7 @@ echo "${CMD1_EXIT_CODE}"
 echo "${CMD1_RESULTS}"
 
     
-if [["$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then 
+if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then 
     case "$ENVIRONMENT" in
         "dev")
         token=$DEV_TOKEN
