@@ -51,3 +51,4 @@ jobs:
           dev-token: ${{ secrets.OPENSHIFT_DEV_API_TOKEN }}
           test-token: ${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
           prod-token: ${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
+          s3-token: "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}"

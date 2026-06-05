@@ -25,6 +25,9 @@ inputs:
   prod-token:
     description: 'Prod token'
     required: true
+  s3-token:
+    description: 'BCGov S3 token'
+    required: true
 
 runs:
   using: 'composite'
@@ -48,6 +51,6 @@ runs:
     - name: Perform the backup and push to S3
       run: |
         chmod +x ./.github/actions/backup_v2/backup_v2.sh
-        ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}"
+        ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}" 
       shell: bash
           
