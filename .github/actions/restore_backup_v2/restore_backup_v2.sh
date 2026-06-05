@@ -70,6 +70,9 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
     WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
 
+    DB_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=mariadb,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
+    DB_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $DB_POD_NAME -o jsonpath='{.spec.containers[0].name}')
+
     if [ -z "$WORDPRESS_CONTAINER_NAME" ]; then
         echo "::error::Unknown site name: ${SITE_NAME}"
 
@@ -100,15 +103,44 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     echo " Container Name: ${WORDPRESS_CONTAINER_NAME}"
     echo " Pod Name: ${WORDPRESS_POD_NAME}"
     
-    #TODO mv the destination wp-content to wp-content-bk
-    #TODO restore db
+
+    tar -xvf $S3_FILENAME
+    #should end up with db.sql.gz and files.tar.gz
+
+
+    #move the destination wp-content to wp-content-bk
+    echo "Moving wp-content to wp-content-bk"
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mv /var/www/html/wp-content /var/www/html/wp-content-bk
+
+
+    echo "::group::Restore DB backup"
+    set +e
+    CMD1_RESULTS=$( (gunzip < db.sql.gz | oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE' ) 2>&1)
+    CMD1_EXIT_CODE=$?
+    set -e
+    if [ $CMD1_EXIT_CODE -eq 0 ]; then
+        echo "Success restoring database backup"
+        echo "Code: $CMD1_EXIT_CODE"
+        echo "$CMD1_RESULTS"
+
+    else
+        echo "Error restoring database backup:"
+        echo "Code: $CMD1_EXIT_CODE"
+        echo "$CMD1_RESULTS"
+        exit 99
+    fi
+
+    echo "::endgroup::"
+
+
+    echo "::group::Restore Files backup"
     #TODO restore files. only wp-content
+    echo "::endgroup::"
 
     
     #Disable site indexing
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option set blog_public 0
 
-    echo "::endgroup::"
 
     echo "Restore backup finished"
 
