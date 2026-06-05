@@ -1,0 +1,54 @@
+# Manual+Scheduled workflow
+# This is the scheduled workflow to create site backups daily.
+name: Backup V2 BH
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+        - dev
+        - test
+        - prod
+
+      project-name:
+        description: 'Project'
+        required: true
+        type: choice
+        options:      
+        - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
+        default: 'cleanbcdx-bh'
+
+      site-name:
+        description: 'Site name'
+        required: true
+        default: 'prod'
+
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron: '8 2 * * *'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        
+      - name: Create the Backup
+        uses: ./.github/actions/backup_v2
+        with:
+          environment: ${{ github.event.inputs.environment || 'prod' }}
+          project-name: ${{ github.event.inputs.project-name || 'cleanbcdx-bh' }}
+          site-name: ${{ github.event.inputs.site-name || 'prod' }}
+          openshift-server: ${{ secrets.OPENSHIFT_SERVER }}
+          dev-token: ${{ secrets.OPENSHIFT_DEV_API_TOKEN }}
+          test-token: ${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
+          prod-token: ${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
+          s3-token: "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}"
