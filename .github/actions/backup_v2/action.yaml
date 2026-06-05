@@ -52,34 +52,30 @@ runs:
         chmod +x ./.github/actions/backup_v2/backup_v2.sh
 
         set +e
-        CMD_RESULTS=$( ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}")
+        ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}"
         CMD_EXIT_CODE=$?
         set -e
 
         if [[ $CMD_EXIT_CODE -eq 0 ]]; then
           echo "Success creating backup"
-          echo "$CMD_RESULTS"
 
         else
           #try a 2nd time
           echo "Error creating backup 1st time, "
           echo "Code: $CMD_EXIT_CODE"
-          echo "$CMD_RESULTS"
 
           echo "Retrying..."
           set +e
-          CMD_RESULTS=$( ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}")
+          ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}"
           CMD_EXIT_CODE=$?
           set -e
 
           if [[ $CMD_EXIT_CODE -eq 0 ]]; then
             echo "Success creating backup on 2nd try."
-            echo "$CMD_RESULTS"
 
           else
             echo "Error creating backup 2nd time, "
             echo "Code: $CMD_EXIT_CODE"
-            echo "$CMD_RESULTS"
 
             exit $CMD_EXIT_CODE
           fi
