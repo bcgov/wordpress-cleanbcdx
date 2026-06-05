@@ -28,10 +28,11 @@ S3_FILENAME=$CMD_RESULTS
 echo "Grabbing backup file: $S3_FILENAME"
 CMD1_RESULTS=$(rclone copy :s3:clbcdx/oc-sites-bk/$S3_FILENAME . --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s 2>&1)
 CMD1_EXIT_CODE=$?
+echo "${CMD1_EXIT_CODE}"
 echo "${CMD1_RESULTS}"
 
     
-if [[ -n "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then 
+if [["$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then 
     case "$ENVIRONMENT" in
         "dev")
         token=$DEV_TOKEN
