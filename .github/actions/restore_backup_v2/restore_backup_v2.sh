@@ -161,7 +161,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
 
     echo "::group::Restore Files backup"
-    #TODO restore files. only wp-content
+    #restore files. only wp-content
     mkdir extracted-files
     tar -xzf files.tar.gz -C extracted-files
     oc cp extracted-files/wp-content  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html
@@ -174,6 +174,10 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     #Update the site urls
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
+
+
+    #erase the old wp-content files
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rmdir /var/www/html/wp-content-bk
 
     echo "Restore backup finished"
 
