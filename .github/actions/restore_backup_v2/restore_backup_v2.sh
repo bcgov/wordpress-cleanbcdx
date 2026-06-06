@@ -111,7 +111,16 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     #move the destination wp-content to wp-content-bk
     echo "Moving wp-content to wp-content-bk"
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mkdir -p /var/www/html/wp-content-bk
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'mv /var/www/html/wp-content/* /var/www/html/wp-content-bk'
+
+    #only move the files if the folder has files
+    set +e
+    CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'ls /var/www/html/wp-content/*'))
+    CMD1_EXIT_CODE=$?
+    set -e
+
+    if [ $CMD1_EXIT_CODE -eq 0 ]; then
+        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'mv /var/www/html/wp-content/* /var/www/html/wp-content-bk'
+    fi
 
 
     echo "::group::Restore DB backup"
