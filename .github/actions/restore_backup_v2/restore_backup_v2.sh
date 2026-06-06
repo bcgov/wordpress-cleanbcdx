@@ -115,8 +115,11 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
 
     echo "::group::Restore DB backup"
+    #TODO this restore doesnt work. may need to copy the file then do restore.
+    oc cp db.sql.gz -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME:/tmp/db.sql.gz
+    
     set +e
-    CMD1_RESULTS=$( (gunzip < db.sql.gz | oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE ) 2>&1)
+    CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'gunzip < db.sql.gz | mariadb-dump  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE' ) 2>&1)
     CMD1_EXIT_CODE=$?
     set -e
     if [ $CMD1_EXIT_CODE -eq 0 ]; then

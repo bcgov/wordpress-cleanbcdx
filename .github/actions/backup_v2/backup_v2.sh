@@ -43,9 +43,9 @@ if [ $ret -eq 0 ]; then
     echo "Login successful"
 
 else
-    echo "Re-trying oc-login in 5s..."
+    echo "Re-trying oc-login in 10s..."
 
-    sleep 5
+    sleep 10
 
     # The command was not successful, lets try again
     oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
