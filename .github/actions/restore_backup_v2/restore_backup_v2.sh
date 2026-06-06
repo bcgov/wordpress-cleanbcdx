@@ -104,6 +104,17 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     echo " Pod Name: ${WORDPRESS_POD_NAME}"
     
 
+    # Download wp-cli in the GitHub Actions workspace
+    echo "Getting and copying WP CLI phar"
+    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x wp-cli.phar
+
+    # Copy wp-cli to the WordPress instance and install wordpress
+    oc cp --no-preserve wp-cli.phar $NAMESPACE/$WORDPRESS_POD_NAME:/tmp/wp-cli.phar -c $WORDPRESS_CONTAINER_NAME
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- chmod +x /tmp/wp-cli.phar
+
+
+
     tar -xvf $S3_FILENAME
     #should end up with db.sql.gz and files.tar.gz
 
@@ -158,6 +169,9 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     #Disable site indexing
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option set blog_public 0
 
+
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
 
     echo "Restore backup finished"
 
