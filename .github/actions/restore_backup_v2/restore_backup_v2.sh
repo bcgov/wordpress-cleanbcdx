@@ -144,7 +144,6 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     set -e
 
     oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- rm /tmp/db.sql.gz
-    #oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- rm /tmp/db.sql
 
     if [ $CMD1_EXIT_CODE -eq 0 ]; then
         echo "Success restoring database backup"
@@ -172,7 +171,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     #Disable site indexing
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option set blog_public 0
 
-
+    #Update the site urls
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
 
