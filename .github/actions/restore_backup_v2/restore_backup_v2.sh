@@ -13,6 +13,17 @@ PROD_TOKEN=$7
 BACKUP_NUMBER=$8
 S3_TOKEN=$9
 
+
+
+#only allow restore on prod to the -backup instances
+if [ $ENVIRONMENT = "prod" ]; then
+    if [ $SITE_NAME != "backup" ]; then 
+        echo "Only allowed to restore to the backup instances on prod!"
+        exit 99
+    fi
+fi
+
+
 # Log in to OpenShift
 echo "::group::Login to Production OC"
 oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN              #--insecure-skip-tls-verify=true

@@ -60,11 +60,17 @@ runs:
           echo "Success creating backup"
 
         else
+
+          echo "::endgroup::" #close the group started in backup_v2.sh
+
           #try a 2nd time
           echo "Error creating backup 1st time, "
           echo "Code: $CMD_EXIT_CODE"
 
-          echo "Retrying..."
+          echo "Retrying in 5s..."
+
+          sleep 5
+          
           set +e
           ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}"
           CMD_EXIT_CODE=$?
@@ -74,6 +80,8 @@ runs:
             echo "Success creating backup on 2nd try."
 
           else
+            echo "::endgroup::" #close the group started in backup_v2.sh
+
             echo "Error creating backup 2nd time, "
             echo "Code: $CMD_EXIT_CODE"
 
