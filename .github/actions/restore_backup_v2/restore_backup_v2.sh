@@ -89,7 +89,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     if [ -z "$WORDPRESS_CONTAINER_NAME" ]; then
         echo "::error::Unknown site name: ${SITE_NAME}"
 
-        exit 1
+        exit 98
     fi 
 
     
@@ -180,13 +180,29 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     oc cp extracted-files/wp-content  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html
     echo "::endgroup::"
 
+
+
+    #update the url in the database content
+    #get the siteurl of the backed up site
+    CMD1_RESULTS = $( oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option get siteurl )
+    if [ -z "$CMD1_RESULTS" ]; then
+        echo "::error::Unknown siteurl: ${CMD1_RESULTS}"
+
+        exit 97
+    fi 
+
+    NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
+
+    echo "Changing database url from $CMD1_RESULTS to $NEW_SITE_URL"
+    
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "$CMD1_RESULTS" "$NEW_SITE_URL" --all-tables
     
     #Disable site indexing
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option set blog_public 0
 
     #Update the site urls
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "$NEW_SITE_URL"
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "$NEW_SITE_URL"
 
 
     #erase the old wp-content files
