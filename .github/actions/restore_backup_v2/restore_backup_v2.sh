@@ -148,7 +148,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
 
     echo "::group::Restore DB backup"
-    #TODO this restore doesnt work. may need to copy the file then do restore.
+    #need to copy the file then do restore.
     oc cp db.sql.gz -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME:/tmp/db.sql.gz
     
     set +e

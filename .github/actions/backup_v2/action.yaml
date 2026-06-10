@@ -33,7 +33,7 @@ runs:
   using: 'composite'
   steps:
     - name: Install Rclone
-      run: sudo -v ; curl https://rclone.org/install.sh | sudo bash
+      run: sudo -v ; curl https://rclone.org/install.sh | sudo bash ; rclone config touch
       shell: bash
 
     - name: Verify Installation
