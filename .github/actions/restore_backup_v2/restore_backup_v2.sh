@@ -32,7 +32,7 @@ echo "::endgroup::"
 
 #copy down the backup file from s3
 echo "Grabbing the backup filename for backup #$BACKUP_NUMBER"
-CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-prod_prod_*_backup.tar" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  | tail -n $BACKUP_NUMBER | head -n 1 )
+CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-prod_prod_*_backup.tar" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  | | sed -n '$BACKUP_NUMBERp')
 
 S3_FILENAME=$CMD_RESULTS
 
@@ -182,9 +182,10 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
 
 
+    echo "::group::Update WP Settings and Database"
     #update the url in the database content
     #get the siteurl of the backed up site
-    CMD1_RESULTS = $( oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option get siteurl )
+    CMD1_RESULTS=$( oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option get siteurl )
     if [ -z "$CMD1_RESULTS" ]; then
         echo "::error::Unknown siteurl: ${CMD1_RESULTS}"
 
@@ -194,7 +195,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
 
     echo "Changing database url from $CMD1_RESULTS to $NEW_SITE_URL"
-    
+
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "$CMD1_RESULTS" "$NEW_SITE_URL" --all-tables
     
     #Disable site indexing
@@ -203,6 +204,8 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     #Update the site urls
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "$NEW_SITE_URL"
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "$NEW_SITE_URL"
+    
+    echo "::endgroup::"
 
 
     #erase the old wp-content files
