@@ -32,13 +32,15 @@ echo "::endgroup::"
 
 #copy down the backup file from s3
 echo "Grabbing the backup filename for backup #$BACKUP_NUMBER"
-CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-prod_prod_*_backup.tar" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  | tail -n $BACKUP_NUMBER | head -n $BACKUP_NUMBER )
+CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-prod_prod_*_backup.tar" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  | tail -n $BACKUP_NUMBER | head -n 1 )
 
 S3_FILENAME=$CMD_RESULTS
 
 echo "Grabbing backup file: $S3_FILENAME"
+set +e
 CMD1_RESULTS=$(rclone copy :s3:clbcdx/oc-sites-bk/$S3_FILENAME . --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s 2>&1)
 CMD1_EXIT_CODE=$?
+set -e
 echo "${CMD1_EXIT_CODE}"
 echo "${CMD1_RESULTS}"
 
