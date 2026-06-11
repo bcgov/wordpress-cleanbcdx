@@ -1,3 +1,6 @@
+## 1.0.1 June 10, 2026
+– Style updates for rebate icons in headlines
+
 ## 1.0.0 – May 2026
 – New plugin for CleanBC specific WordPress upgrades – based on efforts from original CleanBC plugin
 

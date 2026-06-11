@@ -236,6 +236,23 @@
 			}
 		}
 
+		&.icon-overview::before {
+			content: var(--icon-overview);
+			margin-right: 0;
+			left: 2px;
+			top: -4px;
+			scale: 1.2;
+			filter: var(--blue-filter);
+		}
+
+		&.icon-pause::before {
+			content: var(--icon-pause);
+			margin-right: 0;
+			top: 3px;
+			width: 1.75rem;
+			filter: var(--blue-filter);
+		}
+
 		&.icon-qualified::before {
 			content: var(--icon-qualified);
 			margin-right: 0;
@@ -257,6 +274,16 @@
 			top: -0.15rem;
 			scale: 1.15;
 		}
+
+		&.icon-works-ev-truck::before {
+			content: var(--icon-truck);
+			margin-right: 0.25rem;
+			top: -0.25rem;
+			scale: 1.2;
+			left: 3px;
+			filter: var(--blue-filter);
+		}
+
 	}
 
 	&.has-icon-after {
