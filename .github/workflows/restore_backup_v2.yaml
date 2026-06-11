@@ -36,7 +36,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Replicate Backup V2
+      - name: Restore Backup V2
         uses: ./.github/actions/restore_backup_v2
         with:
           environment: ${{ github.event.inputs.environment }}
