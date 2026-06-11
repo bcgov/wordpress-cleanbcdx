@@ -10,8 +10,8 @@ on:
         options:
         - dev
         - test
-        #for safety reasons dont run this on production
-        #- prod
+        #will only allow running on -backup instance on prod.
+        - prod
       project-name:
         description: 'Project'
         required: true
@@ -22,7 +22,7 @@ on:
         - cleanbcdx-bb
         - cleanbc
       site-name:
-        description: 'Site name ("prod" for prod)'
+        description: 'Site name ("backup" for prod)'
         required: true
         default: 'test'
       backup-number:
