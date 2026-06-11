@@ -1,3 +1,6 @@
+## 1.0.2 June 11, 2026
+– Added commercial 5 up variant icons
+
 ## 1.0.1 June 10, 2026
 – Style updates for rebate icons in headlines
 

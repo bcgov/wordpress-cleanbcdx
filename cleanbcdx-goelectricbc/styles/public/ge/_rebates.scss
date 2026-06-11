@@ -42,12 +42,12 @@ html:has(body.goelectricbc) {
 			#how-it-works-commercial {
 
 				&::before {
-					content: var(--howitworks-commercial-icons-3up-h);
+					content: var(--howitworks-commercial-icons-5up-h);
 					display: block;
 					position: absolute;
 
 					@container howitworksgrid (width < 640px) {
-						content: var(--howitworks-commercial-icons-3up-v);
+						content: var(--howitworks-commercial-icons-5up-v);
 					}
 				}
 			}
