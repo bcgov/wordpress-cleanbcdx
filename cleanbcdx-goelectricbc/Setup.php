@@ -3,8 +3,9 @@
 namespace Bcgov\Plugin\CleanBCDXGE;
 
 use Bcgov\Plugin\CleanBCDXGE\Hooks\{
-    EnqueueAndInject,
-    EnableVueApp
+	EnqueueAndInject,
+	EnableVueApp,
+	MediaLibrary
 };
 
 /**
@@ -51,14 +52,17 @@ class Setup {
     public function __construct() {
 		self::$plugin_dir = plugin_dir_path( self::$plugin_file );
 
-        $plugin_enqueue_and_inject = new EnqueueAndInject();
-        $plugin_enable_vue_app     = new EnableVueApp();
+		$plugin_enqueue_and_inject = new EnqueueAndInject();
+		$plugin_enable_vue_app     = new EnableVueApp();
+		$media_library             = new MediaLibrary();
 
-        // Filters.
-        add_filter( 'wp_theme_json_data_theme', [ $plugin_enqueue_and_inject, 'filter_theme_json_theme_plugin' ] );
-        add_filter( 'block_categories_all', [ $plugin_enable_vue_app, 'custom_block_categories' ], 10, 2 );
-        add_filter( 'body_class', [ $plugin_enqueue_and_inject, 'add_cleanbc_class_to_body' ] );
-        add_filter( 'wp_script_attributes', [ $plugin_enable_vue_app, 'add_script_type_attribute' ], 10, 2 );
+		// Filters.
+		add_filter( 'wp_theme_json_data_theme', [ $plugin_enqueue_and_inject, 'filter_theme_json_theme_plugin' ] );
+		add_filter( 'block_categories_all', [ $plugin_enable_vue_app, 'custom_block_categories' ], 10, 2 );
+		add_filter( 'body_class', [ $plugin_enqueue_and_inject, 'add_cleanbc_class_to_body' ] );
+		add_filter( 'wp_script_attributes', [ $plugin_enable_vue_app, 'add_script_type_attribute' ], 10, 2 );
+		add_filter( 'upload_mimes', [ $media_library, 'allow_json_uploads' ] );
+		add_filter( 'wp_check_filetype_and_ext', [ $media_library, 'fix_json_filetype' ], 10, 3 );
 
         // Actions.
         add_action( 'wp_enqueue_scripts', [ $plugin_enqueue_and_inject, 'bcgov_plugin_enqueue_scripts' ] );
