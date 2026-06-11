@@ -174,6 +174,12 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         echo "Error restoring database backup:"
         echo "Code: $CMD1_EXIT_CODE"
         echo "$CMD1_RESULTS"
+
+        #update the filename of the backup to mark it as such
+        echo "Renaming the backup file to mark it as problematic"
+        rclone moveto :s3:clbcdx/oc-sites-bk/$S3_FILENAME :s3:clbcdx/oc-sites-bk/$S3_FILENAME.problem  --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s
+
+
         exit 99
     fi
 
