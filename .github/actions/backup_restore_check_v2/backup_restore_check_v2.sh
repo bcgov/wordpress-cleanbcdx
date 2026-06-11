@@ -18,9 +18,9 @@ echo "Checking the site $NEW_SITE_URL."
 
 #Perform query to check for status 200
 echo "Checking for 200 status"
-CMD_RESULTS=$(curl -s -o /dev/null -w "%{http_code}")
+CMD_RESULTS=$(curl -s -o /dev/null -w "%{http_code}" ${NEW_SITE_URL})
 
-if [[ "$CMD_RESULTS" != 200 ]]; then
+if [ "$CMD_RESULTS" -ne 200 ]; then
     echo "::error::Incorrect http status returned, ${CMD_RESULTS}"
 
     exit 99
