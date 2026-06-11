@@ -51,6 +51,8 @@ runs:
           echo "Error checking restore, "
           echo "Code: $CMD_EXIT_CODE"
 
+          exit $CMD_EXIT_CODE
+
         fi
 
         
