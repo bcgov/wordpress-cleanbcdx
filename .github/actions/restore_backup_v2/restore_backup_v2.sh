@@ -43,6 +43,11 @@ fi
 
 S3_FILENAME=$CMD_RESULTS
 
+if [[ "$S3_FILENAME" == *".problem"* ]]; then
+    echo "# Restoring from a possible problematic backup. ${S3_FILENAME}" >> $GITHUB_STEP_SUMMARY
+fi
+
+
 echo "Grabbing backup file: $S3_FILENAME"
 set +e
 CMD1_RESULTS=$(rclone copy :s3:clbcdx/oc-sites-bk/$S3_FILENAME . --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s 2>&1)
@@ -175,10 +180,11 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         echo "Code: $CMD1_EXIT_CODE"
         echo "$CMD1_RESULTS"
 
-        #update the filename of the backup to mark it as such
-        echo "Renaming the backup file to mark it as problematic"
-        rclone moveto :s3:clbcdx/oc-sites-bk/$S3_FILENAME :s3:clbcdx/oc-sites-bk/$S3_FILENAME.problem  --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s
-
+        if [[ "$S3_FILENAME" != *".problem"* ]]; then
+            #update the filename of the backup to mark it as such
+            echo "Renaming the backup file to mark it as problematic"
+            rclone moveto :s3:clbcdx/oc-sites-bk/$S3_FILENAME :s3:clbcdx/oc-sites-bk/$S3_FILENAME.problem  --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s
+        fi
 
         exit 99
     fi
