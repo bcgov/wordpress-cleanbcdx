@@ -39,7 +39,7 @@ runs:
         set -e
 
         if [[ $CMD_EXIT_CODE -eq 0 ]]; then
-          echo "Success checking on restore."
+          echo "Checking on restore completed."
 
         else
 
