@@ -24,10 +24,6 @@ if [ $ENVIRONMENT = "prod" ]; then
 fi
 
 
-# Log in to OpenShift
-echo "::group::Login to Production OC"
-oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN              #--insecure-skip-tls-verify=true
-echo "::endgroup::"
 
 
 #copy down the backup file from s3
@@ -87,7 +83,25 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
     # Log in to OpenShift
     echo "::group::Login to target OC"
-    oc login $OPENSHIFT_SERVER --token=$token                   #--insecure-skip-tls-verify=true
+    #Sometimes oc login will fail to connect, so lets re-try on failure.
+    set +e
+    oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
+    ret=$?
+    set -e
+    if [ $ret -eq 0 ]; then
+        # The command was successful
+        echo "Login successful"
+
+    else
+        echo "Re-trying oc-login in 10s..."
+
+        sleep 10
+
+        # The command was not successful, lets try again
+        oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
+
+    fi
+
     echo "::endgroup::"
 
 
