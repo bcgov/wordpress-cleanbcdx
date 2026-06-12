@@ -16,6 +16,15 @@ NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
 echo "Checking the site $NEW_SITE_URL."
 
 
+if [ $ENVIRONMENT != "prod" ]; then
+    if [ $SITE_NAME != "backup" ]; then 
+        echo "Can only check production-backup, ip block prevents checking other sites."
+        exit 0
+    fi
+fi
+
+
+
 #Perform query to check for status 200
 echo "Checking for 200 status"
 CMD_RESULTS=$(curl -s -o /dev/null -w "%{http_code}" ${NEW_SITE_URL})

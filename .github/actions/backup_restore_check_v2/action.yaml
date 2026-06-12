@@ -29,8 +29,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-   
-
     - name: Perform the checks
       run: |
         chmod +x ./.github/actions/backup_restore_check_v2/backup_restore_check_v2.sh
