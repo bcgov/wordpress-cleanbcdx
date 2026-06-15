@@ -58,55 +58,55 @@ runs:
     #    tar xvzf openshift-client-linux.tar.gz
     #    sudo mv oc kubectl /usr/local/bin/
 
-    - name: Perform the backup and push to S3
-      run: |
-        chmod +x ./.github/actions/backup_v2/backup_v2.sh
+    # - name: Perform the backup and push to S3
+    #   run: |
+    #     chmod +x ./.github/actions/backup_v2/backup_v2.sh
 
-        set +e
-        ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}"
-        CMD_EXIT_CODE=$?
-        set -e
+    #     set +e
+    #     ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}"
+    #     CMD_EXIT_CODE=$?
+    #     set -e
 
-        if [[ $CMD_EXIT_CODE -eq 0 ]]; then
-          echo "Success creating backup"
+    #     if [[ $CMD_EXIT_CODE -eq 0 ]]; then
+    #       echo "Success creating backup"
 
-        else
+    #     else
 
-          echo "::endgroup::" #close the group started in backup_v2.sh
+    #       echo "::endgroup::" #close the group started in backup_v2.sh
 
-          #try a 2nd time
-          echo "Error creating backup 1st time, "
-          echo "Code: $CMD_EXIT_CODE"
+    #       #try a 2nd time
+    #       echo "Error creating backup 1st time, "
+    #       echo "Code: $CMD_EXIT_CODE"
 
-          echo "Retrying in 5s..."
+    #       echo "Retrying in 5s..."
 
-          sleep 5
+    #       sleep 5
           
-          set +e
-          ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}"
-          CMD_EXIT_CODE=$?
-          set -e
+    #       set +e
+    #       ./.github/actions/backup_v2/backup_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}"
+    #       CMD_EXIT_CODE=$?
+    #       set -e
 
-          if [[ $CMD_EXIT_CODE -eq 0 ]]; then
-            echo "Success creating backup on 2nd try."
+    #       if [[ $CMD_EXIT_CODE -eq 0 ]]; then
+    #         echo "Success creating backup on 2nd try."
 
-          else
-            echo "::endgroup::" #close the group started in backup_v2.sh
+    #       else
+    #         echo "::endgroup::" #close the group started in backup_v2.sh
 
-            echo "Error creating backup 2nd time, "
-            echo "Code: $CMD_EXIT_CODE"
+    #         echo "Error creating backup 2nd time, "
+    #         echo "Code: $CMD_EXIT_CODE"
 
-            exit $CMD_EXIT_CODE
-          fi
-        fi
+    #         exit $CMD_EXIT_CODE
+    #       fi
+    #     fi
 
         
 
-      shell: bash
+    #   shell: bash
           
 
     - name: Restore Backup V2
-      if: inputs.restore-check == true
+      if: inputs.restore-check == true || inputs.restore-check == 1
       uses: ./.github/actions/restore_backup_v2
       with:
         environment: ${{ github.event.inputs.environment }}
@@ -120,7 +120,7 @@ runs:
         s3-token: "${{ inputs.s3-token }}"
 
     - name: Backup Restore Check V2
-      if: inputs.restore-check == true 
+      if: inputs.restore-check == true || inputs.restore-check == 1
       uses: ./.github/actions/backup_restore_check_v2
       with:
         environment: ${{ github.event.inputs.environment }}
