@@ -98,9 +98,23 @@ runs:
 
       shell: bash
           
-    
-    #restore check will silently exist if restore-check is false. To allow for manual backup without restore check.
+
+    - name: Restore Backup V2
+      if: ${{ inputs.restore-check == true }}
+      uses: ./.github/actions/restore_backup_v2
+      with:
+        environment: ${{ github.event.inputs.environment }}
+        project-name: ${{ github.event.inputs.project-name }}
+        site-name: ${{ github.event.inputs.site-name }}
+        openshift-server: ${{ inputs.openshift-server }}
+        dev-token: ${{ inputs.dev-token }}
+        test-token: ${{ inputs.test-token }}
+        prod-token: ${{ inputs.prod-token }}
+        backup-number: 1
+        s3-token: "${{ inputs.s3-token }}"
+
     - name: Backup Restore Check V2
+      if: ${{ inputs.restore-check == true }}
       uses: ./.github/actions/backup_restore_check_v2
       with:
         environment: ${{ github.event.inputs.environment }}
@@ -110,4 +124,3 @@ runs:
         dev-token: ${{ inputs.dev-token }}
         test-token: ${{ inputs.test-token }}
         prod-token: ${{ inputs.prod-token }}
-        restore-check: ${{ github.event.inputs.restore-check }}
