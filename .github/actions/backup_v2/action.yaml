@@ -32,6 +32,7 @@ inputs:
     description: 'Check backup via restore'
     required: true
     type: boolean
+    default: true
 
 runs:
   using: 'composite'

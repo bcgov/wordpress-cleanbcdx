@@ -34,6 +34,7 @@ on:
         description: 'Check backup via restore'
         required: true
         type: boolean
+        default: true
 
   schedule:
     # * is a special character in YAML so you have to quote this string
