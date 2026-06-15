@@ -30,6 +30,12 @@ on:
         required: true
         default: 'prod'
 
+      restore-check:
+        description: 'Check backup via restore'
+        required: true
+        type: boolean
+        default: true
+
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron: '8 2 * * *'
@@ -52,3 +58,4 @@ jobs:
           test-token: ${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
           prod-token: ${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
           s3-token: "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}"
+          restore-check: ${{ github.event.inputs.restore-check || true }}
