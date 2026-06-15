@@ -63,6 +63,8 @@ class Setup {
 		add_filter( 'wp_script_attributes', [ $plugin_enable_vue_app, 'add_script_type_attribute' ], 10, 2 );
 		add_filter( 'upload_mimes', [ $media_library, 'allow_json_uploads' ] );
 		add_filter( 'wp_check_filetype_and_ext', [ $media_library, 'fix_json_filetype' ], 10, 3 );
+		add_filter( 'attachment_fields_to_edit', [ $media_library, 'add_unity_feed_attachment_field' ], 10, 2 );
+		add_filter( 'attachment_fields_to_save', [ $media_library, 'save_unity_feed_attachment_field' ], 10, 2 );
 
         // Actions.
         add_action( 'wp_enqueue_scripts', [ $plugin_enqueue_and_inject, 'bcgov_plugin_enqueue_scripts' ] );
@@ -74,6 +76,7 @@ class Setup {
 		add_action( 'init', [ $plugin_enable_vue_app, 'maybe_generate_vehicle_filter_json_file' ] );
 
 		add_action( 'rest_api_init', [ $plugin_enable_vue_app, 'custom_api_posts_routes' ] );
+		add_action( 'rest_api_init', [ $media_library, 'register_unity_feed_routes' ] );
 
 		add_action( 'acf/save_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_file_on_acf_save' ], 20, 1 );
 		add_action( 'trashed_post', [ $plugin_enable_vue_app, 'regenerate_vehicle_filter_json_file_on_post_status_change' ], 10, 2 );

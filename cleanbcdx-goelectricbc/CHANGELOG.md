@@ -1,3 +1,6 @@
+## 1.0.4 June 15, 2026
+– Media uploaded JSON output as API endpoint for Unity
+
 ## 1.0.3 June 11, 2026
 – Added commercial 5 up variant icons
 
