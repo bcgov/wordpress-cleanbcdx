@@ -25,12 +25,24 @@ inputs:
   prod-token:
     description: 'Prod token'
     required: true
+  restore-check:
+    description: 'Check backup via restore'
+    required: true
+    type: boolean
+    default: true
 
 runs:
   using: 'composite'
   steps:
     - name: Perform the checks
       run: |
+
+        #To allow for manual backup without restore check.
+        if [[ ${{ github.event.inputs.restore-check }} -eq 0 ]]; then
+          exit 0
+        fi
+
+
         chmod +x ./.github/actions/backup_restore_check_v2/backup_restore_check_v2.sh
 
         set +e
