@@ -53,10 +53,10 @@ runs:
 
     # Not needed since base linux image being used has OC built in.
     - name: Install OC CLI
-     run: |
-       curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
-       tar xvzf openshift-client-linux.tar.gz
-       sudo mv oc kubectl /usr/local/bin/
+      run: |
+        curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+        tar xvzf openshift-client-linux.tar.gz
+        sudo mv oc kubectl /usr/local/bin/
 
     - name: Perform the backup and push to S3
       run: |
