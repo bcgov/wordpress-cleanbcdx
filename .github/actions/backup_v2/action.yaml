@@ -100,8 +100,6 @@ runs:
     #       fi
     #     fi
 
-        
-
     #   shell: bash
           
 
@@ -110,7 +108,7 @@ runs:
       uses: ./.github/actions/restore_backup_v2
       with:
         environment: ${{ github.event.inputs.environment }}
-        project-name: ${{ github.event.inputs.project-name }}
+        project-name: ${{ github.event.inputs.project-name }}-backup
         site-name: ${{ github.event.inputs.site-name }}
         openshift-server: ${{ inputs.openshift-server }}
         dev-token: ${{ inputs.dev-token }}
