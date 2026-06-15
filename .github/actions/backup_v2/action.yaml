@@ -108,8 +108,8 @@ runs:
       uses: ./.github/actions/restore_backup_v2
       with:
         environment: ${{ github.event.inputs.environment }}
-        project-name: ${{ github.event.inputs.project-name }}-backup
-        site-name: ${{ github.event.inputs.site-name }}
+        project-name: ${{ github.event.inputs.project-name }}
+        site-name: ${{ github.event.inputs.site-name }}-backup
         openshift-server: ${{ inputs.openshift-server }}
         dev-token: ${{ inputs.dev-token }}
         test-token: ${{ inputs.test-token }}
@@ -122,8 +122,8 @@ runs:
       uses: ./.github/actions/backup_restore_check_v2
       with:
         environment: ${{ github.event.inputs.environment }}
-        project-name: ${{ github.event.inputs.project-name }}-backup
-        site-name: ${{ github.event.inputs.site-name }}
+        project-name: ${{ github.event.inputs.project-name }}
+        site-name: ${{ github.event.inputs.site-name }}-backup
         openshift-server: ${{ inputs.openshift-server }}
         dev-token: ${{ inputs.dev-token }}
         test-token: ${{ inputs.test-token }}
