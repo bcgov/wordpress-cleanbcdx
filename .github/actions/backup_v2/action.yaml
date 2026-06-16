@@ -107,8 +107,8 @@ runs:
       if: inputs.restore-check == 'true'
       uses: ./.github/actions/restore_backup_v2
       with:
-        environment: ${{ github.event.inputs.environment }}
-        project-name: ${{ github.event.inputs.project-name }}
+        environment: ${{ inputs.environment }}
+        project-name: ${{ inputs.project-name }}
         site-name: backup
         openshift-server: ${{ inputs.openshift-server }}
         dev-token: ${{ inputs.dev-token }}
@@ -121,8 +121,8 @@ runs:
       if: inputs.restore-check == 'true' 
       uses: ./.github/actions/backup_restore_check_v2
       with:
-        environment: ${{ github.event.inputs.environment }}
-        project-name: ${{ github.event.inputs.project-name }}
+        environment: ${{ inputs.environment }}
+        project-name: ${{ inputs.project-name }}
         site-name: backup
         openshift-server: ${{ inputs.openshift-server }}
         dev-token: ${{ inputs.dev-token }}
