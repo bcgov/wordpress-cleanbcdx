@@ -1,3 +1,6 @@
+## 1.0.5 June 18, 2026
+– Second JSON feed endpoint option for 'retroactive' and 'oem' feeds
+
 ## 1.0.4 June 15, 2026
 – Media uploaded JSON output as API endpoint for Unity
 

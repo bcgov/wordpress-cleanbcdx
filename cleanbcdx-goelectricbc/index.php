@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CleanBC DX Supplemental: Go Electric BC
  * Description: A plugin to load custom blocks enabling Vue-based vehicle filtering, scripts, styles and settings to augment the Go Electric BC website.
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Nate King | CleanBC DX
  * Author URI: mailto:nate.king@gov.bc.ca
  * License: GPL-2.0+
