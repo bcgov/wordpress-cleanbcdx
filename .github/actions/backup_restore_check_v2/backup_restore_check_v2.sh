@@ -12,8 +12,8 @@ TEST_TOKEN=$6
 PROD_TOKEN=$7
 
 
-NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
-echo "Checking the site $NEW_SITE_URL."
+NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca/"
+echo "Checking the site $NEW_SITE_URL"
 
 
 if [ $ENVIRONMENT != "prod" ]; then
