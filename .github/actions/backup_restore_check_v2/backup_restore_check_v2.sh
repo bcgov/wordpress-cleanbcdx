@@ -92,6 +92,11 @@ if [ $CMD_EXIT_CODE -ne 0 ]; then
 fi
 
 
+
+if [ $CMD_RESULTS -eq 200 ]; then
+    echo "Success, restored site responded with http 200 - $NEW_SITE_URL"
+fi
+
 if [ "$CMD_RESULTS" -ne 200 ]; then
     echo "::error::Incorrect http status returned, ${CMD_RESULTS}"
 
