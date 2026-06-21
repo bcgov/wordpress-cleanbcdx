@@ -26,7 +26,7 @@ if [ $ENVIRONMENT != "prod" ]; then
 fi
 
 
-RUNNER_IP=$(curl -s https://ipify.org)
+RUNNER_IP=$(curl -s https://api.ipify.org)
 echo "The runner's public IP is: $RUNNER_IP"
 echo "ip=$RUNNER_IP" >> $GITHUB_OUTPUT
 
@@ -62,6 +62,8 @@ else
 fi
 
 NGINX_ROUTE_NAME=$(oc get routes -n $NAMESPACE -l app=wordpress,role=nginx,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
+echo "Route Name: $NGINX_ROUTE_NAME"
+
 NGINX_ROUTE_IP_WHITELIST=$(oc get route $NGINX_ROUTE_NAME -o jsonpath='{.metadata.annotations.haproxy\.router\.openshift\.io/ip_whitelist}')
 
 echo "Adding runner IP to route temporarily"
