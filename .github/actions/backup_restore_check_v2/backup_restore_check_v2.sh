@@ -70,11 +70,27 @@ echo "Adding runner IP to route temporarily"
 echo "Existing whitelist: $NGINX_ROUTE_IP_WHITELIST"
 oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST $RUNNER_IP"
 
+echo "Waiting 10s for the route to update...."
+sleep 10
 
 
 #Perform query to check for status 200
 echo "Checking for 200 status"
+set +e
 CMD_RESULTS=$(curl -s -o /dev/null -w "%{http_code}" ${NEW_SITE_URL})
+CMD_EXIT_CODE=$?
+set -e
+
+if [ $CMD_EXIT_CODE -ne 0 ]; then
+    echo "::error::Error trying to check remote url, ${CMD_RESULTS}"
+
+    echo "Restoring pod ip whitelist"
+    oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
+
+
+    exit $CMD_EXIT_CODE
+fi
+
 
 if [ "$CMD_RESULTS" -ne 200 ]; then
     echo "::error::Incorrect http status returned, ${CMD_RESULTS}"
