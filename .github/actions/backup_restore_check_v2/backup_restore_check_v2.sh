@@ -64,11 +64,11 @@ fi
 NGINX_ROUTE_NAME=$(oc get routes -n $NAMESPACE -l app=wordpress,role=nginx,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
 echo "Route Name: $NGINX_ROUTE_NAME"
 
-NGINX_ROUTE_IP_WHITELIST=$(oc get route $NGINX_ROUTE_NAME -o jsonpath='{.metadata.annotations.haproxy\.router\.openshift\.io/ip_whitelist}')
+NGINX_ROUTE_IP_WHITELIST=$(oc get route -n $NAMESPACE $NGINX_ROUTE_NAME -o jsonpath='{.metadata.annotations.haproxy\.router\.openshift\.io/ip_whitelist}')
 
 echo "Adding runner IP to route temporarily"
 echo "Existing whitelist: $NGINX_ROUTE_IP_WHITELIST"
-oc annotate route $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST $RUNNER_IP"
+oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST $RUNNER_IP"
 
 
 
@@ -81,7 +81,7 @@ if [ "$CMD_RESULTS" -ne 200 ]; then
 
 
     echo "Restoring pod ip whitelist"
-    oc annotate route $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
+    oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
 
 
     exit 99
@@ -89,7 +89,7 @@ fi
 
 
 echo "Restoring pod ip whitelist"
-oc annotate route $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
+oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
 
 
 echo "### Checked Restored Site" >> $GITHUB_STEP_SUMMARY
