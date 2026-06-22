@@ -164,7 +164,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
     #only move the files if the folder has files
     set +e
-    CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'ls /var/www/html/wp-content/*'))
+    CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'ls /var/www/html/wp-content/*'))
     CMD1_EXIT_CODE=$?
     set -e
 
