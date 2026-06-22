@@ -153,7 +153,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- chmod +x /tmp/wp-cli.phar
 
 
-
+    echo "Expanding backup archive on runner"
     tar -xvf $S3_FILENAME
     #should end up with db.sql.gz and files.tar.gz
 
@@ -169,6 +169,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     set -e
 
     if [ $CMD1_EXIT_CODE -eq 0 ]; then
+        echo "Moved files"
         oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'mv /var/www/html/wp-content/* /var/www/html/wp-content-bk'
     fi
 
@@ -242,7 +243,9 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
 
     #erase the old wp-content files
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rmdir /var/www/html/wp-content-bk
+    echo "Removing wp-content-bk folder"
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm -rf /var/www/html/wp-content-bk
+
 
     echo "Restore backup finished"
 
