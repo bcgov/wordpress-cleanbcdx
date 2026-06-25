@@ -5,6 +5,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
   plugins: [ vue() ],
+  base: '/wp-content/plugins/cleanbcdx-builtenvironment/dist/',
   resolve: {
       alias: {
         '@': fileURLToPath(new URL('blocks/vue-blocks/src', import.meta.url))

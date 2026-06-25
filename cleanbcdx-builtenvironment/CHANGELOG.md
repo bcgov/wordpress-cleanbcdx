@@ -1,3 +1,6 @@
+## 1.0.1 June 25, 2026
+– Added the ECAP block to the vNext rebates questionnaire results.
+
 ## 1.0.0 – May 2026
 – New plugin for Built Environment specific WordPress upgrades – based on efforts from original pprevious Better Homes BC supplimental plugin.
 

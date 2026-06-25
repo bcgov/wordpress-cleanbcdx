@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CleanBC DX Supplemental: Built Environment
  * Description: A plugin to load custom blocks enabling Vue-based custom posts (rebates, contractors, EAs, faqs, etc.) filtering, scripts, styles and settings to augment the Built Environemnt websites – both Better Homes BC and Better Buildings BC – managed by the CleanBC DX team.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Nate King | CleanBC DX
  * Author URI: mailto:nate.king@gov.bc.ca
  * License: GPL-2.0+

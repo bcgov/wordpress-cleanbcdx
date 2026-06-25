@@ -1226,6 +1226,36 @@
                                 displayGridOrList ? 'grid-view' : 'list-view'
                             "
                         >
+                            <article v-if='"ESP-1" === espTier' class="rebate-card">
+                                <a href="/ecap" style="position: relative" aria-label="Energy Conservation Assistance Program page">
+                                    <div class="card-meta">
+                                        <figure class="wp-block-image size-full">
+                                            <img
+                                                decoding="async"
+                                                width="1024"
+                                                height="515"
+                                                data-print-width="25"
+                                                :src="ecapCardImage"
+                                                alt=""
+                                                title=""
+                                                style="object-position: 34%;"
+                                            />
+                                        </figure>
+                                    </div>
+                                    <div class="rebate-details-container">
+                                        <header>
+                                            <h3 class="rebate-title">
+                                                <div>Energy Conservation Assistance Program</div>
+                                            </h3>
+                                        </header>
+                                        <div class="rebate-details">
+                                            <div class="rebate-description">
+                                                <div>Free heat pumps, insulation and other upgrades for income qualified households.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </article>
                             <template
                                 v-for="(item, index) in filteredResults"
                                 :key="item.id"
@@ -1469,6 +1499,7 @@ import {
     shouldValidateWaterHeatingField,
 } from './singleModeEligibility';
 import { getRestoredBuildingTypeSlug } from './buildingTypeSelection';
+import ecapCardImage from './assets/ecap-feature.jpg';
 
 /** Public domain fallback */
 const publicDomain = ref('https://www.betterhomesbc.ca');
