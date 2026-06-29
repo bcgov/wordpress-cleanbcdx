@@ -22,6 +22,10 @@
             "type": "string",
             "default": "h2"
         },
+        "accessExpiresIn": {
+            "type": "string",
+            "default": "day"
+        },
         "promptWidth": {
             "type": "string",
             "default": ""

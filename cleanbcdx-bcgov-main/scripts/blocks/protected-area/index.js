@@ -22,6 +22,11 @@ const HEADING_LEVEL_OPTIONS = [
   { label: 'H5', value: 'h5' },
   { label: 'H6', value: 'h6' },
 ]
+const ACCESS_EXPIRY_OPTIONS = [
+  { label: '24 hours', value: 'day' },
+  { label: 'One week', value: 'week' },
+  { label: 'One month', value: 'month' },
+]
 
 const createInstanceId = () => {
   if (window.crypto?.randomUUID) {
@@ -60,6 +65,7 @@ registerBlockType(BLOCK_NAME, {
       promptMessage = 'Enter the password to view this content.',
       promptHeading = 'Protected content',
       promptHeadingLevel = 'h2',
+      accessExpiresIn = 'day',
       promptWidth = '',
       promptJustification = 'left',
       showBorder = true,
@@ -173,6 +179,13 @@ registerBlockType(BLOCK_NAME, {
               value={passwordDraft}
               help="Save the password here. Clear the field or use the button below to remove protection."
               onChange={handlePasswordChange}
+            />
+            <SelectControl
+              label="Access expires in"
+              value={accessExpiresIn}
+              help="Controls how long unlocked access is remembered for this protected area. Shared unlocks use the shorter of the unlocking block and the current block."
+              options={ACCESS_EXPIRY_OPTIONS}
+              onChange={(value) => setAttributes({ accessExpiresIn: value || 'day' })}
             />
             <ToggleControl
               label="Allow unlock from other protected areas on this page"

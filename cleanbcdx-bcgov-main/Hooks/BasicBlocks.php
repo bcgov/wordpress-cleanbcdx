@@ -280,9 +280,12 @@ class BasicBlocks {
 			return;
 		}
 
-		$password_map = $this->get_protected_area_password_map( $post_id );
-		$entry        = $password_map[ $instance_id ] ?? [];
-		$hash         = is_array( $entry ) && isset( $entry['hash'] ) && is_string( $entry['hash'] ) ? $entry['hash'] : '';
+		$password_map              = $this->get_protected_area_password_map( $post_id );
+		$entry                     = $password_map[ $instance_id ] ?? [];
+		$hash                      = is_array( $entry ) && isset( $entry['hash'] ) && is_string( $entry['hash'] ) ? $entry['hash'] : '';
+		$block_attributes          = $this->get_protected_area_block_attributes( $post_id, $instance_id );
+		$access_expires_in         = $this->sanitize_protected_area_access_expiry( $block_attributes['accessExpiresIn'] ?? 'day' );
+		$access_expires_in_seconds = $this->get_protected_area_access_expiry_seconds( $access_expires_in );
 
 		if ( '' === $hash || '' === trim( $password ) || ! wp_check_password( $password, $hash ) ) {
 			$this->protected_area_unlock_errors[ $post_id ][ $instance_id ] = __( 'Incorrect password. Enter the correct password and try again.', 'bcgov-plugin-cleanbc' );
@@ -292,14 +295,14 @@ class BasicBlocks {
 		$cookie_name  = $this->get_protected_area_cookie_name( $post_id, $instance_id );
 		$cookie_value = $this->get_protected_area_cookie_value( $post_id, $instance_id, $hash );
 
-		$this->set_protected_area_cookie( $cookie_name, $cookie_value );
+		$this->set_protected_area_cookie( $cookie_name, $cookie_value, $access_expires_in_seconds );
 
 		$_COOKIE[ $cookie_name ] = $cookie_value;
 
 		$page_cookie_name  = $this->get_protected_area_page_cookie_name( $post_id );
-		$page_cookie_value = $this->get_protected_area_page_cookie_value( $post_id, $password_map );
+		$page_cookie_value = $this->get_protected_area_page_cookie_value( $post_id, $password_map, $access_expires_in_seconds );
 
-		$this->set_protected_area_cookie( $page_cookie_name, $page_cookie_value );
+		$this->set_protected_area_cookie( $page_cookie_name, $page_cookie_value, $access_expires_in_seconds );
 
 		$_COOKIE[ $page_cookie_name ] = $page_cookie_value;
 
@@ -628,7 +631,11 @@ class BasicBlocks {
 			return sprintf( '<div %1$s>%2$s</div>', $wrapper_attributes, $content );
 		}
 
-		if ( $allow_page_unlock && $this->is_protected_area_page_unlocked( $post_id, $password_map ) ) {
+		$access_expires_in_seconds = $this->get_protected_area_access_expiry_seconds(
+			$this->sanitize_protected_area_access_expiry( $attributes['accessExpiresIn'] ?? 'day' )
+		);
+
+		if ( $allow_page_unlock && $this->is_protected_area_page_unlocked( $post_id, $password_map, $access_expires_in_seconds ) ) {
 			return sprintf( '<div %1$s>%2$s</div>', $wrapper_attributes, $content );
 		}
 
@@ -803,11 +810,33 @@ class BasicBlocks {
 	/**
 	 * Build the signed cookie value used to remember a page-level unlock.
 	 *
-	 * @param int   $post_id      Post ID.
-	 * @param array $password_map Stored password map.
+	 * @param int   $post_id                  Post ID.
+	 * @param array $password_map             Stored password map.
+	 * @param int   $access_expires_in_seconds Duration of the unlocking block.
 	 * @return string
 	 */
-	private function get_protected_area_page_cookie_value( int $post_id, array $password_map ): string {
+	private function get_protected_area_page_cookie_value( int $post_id, array $password_map, int $access_expires_in_seconds ): string {
+		$issued_at = time();
+
+		return sprintf(
+			'%1$d|%2$d|%3$s',
+			$issued_at,
+			$access_expires_in_seconds,
+			$this->get_protected_area_page_cookie_signature( $post_id, $password_map, $issued_at, $access_expires_in_seconds )
+		);
+	}
+
+
+	/**
+	 * Build the signature used to validate a page-level unlock cookie.
+	 *
+	 * @param int   $post_id                  Post ID.
+	 * @param array $password_map             Stored password map.
+	 * @param int   $issued_at                Unix timestamp when the unlock was created.
+	 * @param int   $access_expires_in_seconds Duration of the unlocking block.
+	 * @return string
+	 */
+	private function get_protected_area_page_cookie_signature( int $post_id, array $password_map, int $issued_at, int $access_expires_in_seconds ): string {
 		$hashes = [];
 
 		foreach ( $password_map as $instance_id => $entry ) {
@@ -820,23 +849,24 @@ class BasicBlocks {
 
 		ksort( $hashes );
 
-		return hash_hmac( 'sha256', $post_id . '|' . wp_json_encode( $hashes ), wp_salt( 'auth' ) );
+		return hash_hmac( 'sha256', $post_id . '|' . wp_json_encode( $hashes ) . '|' . $issued_at . '|' . $access_expires_in_seconds, wp_salt( 'auth' ) );
 	}
 
 
 	/**
 	 * Persist a protected-area cookie with the standard options for this plugin.
 	 *
-	 * @param string $cookie_name  Cookie name.
-	 * @param string $cookie_value Cookie value.
+	 * @param string $cookie_name                Cookie name.
+	 * @param string $cookie_value               Cookie value.
+	 * @param int    $access_expires_in_seconds  Duration in seconds.
 	 * @return void
 	 */
-	private function set_protected_area_cookie( string $cookie_name, string $cookie_value ): void {
+	private function set_protected_area_cookie( string $cookie_name, string $cookie_value, int $access_expires_in_seconds ): void {
 		setcookie(
 			$cookie_name,
 			$cookie_value,
 			[
-				'expires'  => time() + DAY_IN_SECONDS,
+				'expires'  => time() + $access_expires_in_seconds,
 				'path'     => defined( 'COOKIEPATH' ) && COOKIEPATH ? COOKIEPATH : '/',
 				'domain'   => defined( 'COOKIE_DOMAIN' ) ? COOKIE_DOMAIN : '',
 				'secure'   => is_ssl(),
@@ -873,11 +903,12 @@ class BasicBlocks {
 	/**
 	 * Determine whether the current visitor has unlocked any protected area on the page.
 	 *
-	 * @param int   $post_id      Post ID.
-	 * @param array $password_map Stored password map.
+	 * @param int   $post_id                  Post ID.
+	 * @param array $password_map             Stored password map.
+	 * @param int   $access_expires_in_seconds Duration configured for the current block.
 	 * @return bool
 	 */
-	private function is_protected_area_page_unlocked( int $post_id, array $password_map ): bool {
+	private function is_protected_area_page_unlocked( int $post_id, array $password_map, int $access_expires_in_seconds ): bool {
 		$cookie_name = $this->get_protected_area_page_cookie_name( $post_id );
 
 		if ( empty( $_COOKIE[ $cookie_name ] ) ) {
@@ -886,9 +917,85 @@ class BasicBlocks {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Cookie is only used to remember an unlocked content area for the current visitor.
 		$cookie_value = sanitize_text_field( wp_unslash( $_COOKIE[ $cookie_name ] ) );
-		$expected     = $this->get_protected_area_page_cookie_value( $post_id, $password_map );
+		$cookie_parts = explode( '|', $cookie_value, 3 );
 
-		return hash_equals( $expected, $cookie_value );
+		if ( 3 !== count( $cookie_parts ) ) {
+			return false;
+		}
+
+		$issued_at               = absint( $cookie_parts[0] );
+		$unlock_duration_seconds = absint( $cookie_parts[1] );
+		$cookie_signature        = sanitize_text_field( $cookie_parts[2] );
+
+		if ( ! in_array( $unlock_duration_seconds, [ DAY_IN_SECONDS, WEEK_IN_SECONDS, MONTH_IN_SECONDS ], true ) ) {
+			return false;
+		}
+
+		if ( time() > $issued_at + min( $access_expires_in_seconds, $unlock_duration_seconds ) ) {
+			return false;
+		}
+
+		$expected = $this->get_protected_area_page_cookie_signature( $post_id, $password_map, $issued_at, $unlock_duration_seconds );
+
+		return hash_equals( $expected, $cookie_signature );
+	}
+
+
+	/**
+	 * Get saved block attributes for a protected-area instance.
+	 *
+	 * @param int    $post_id     Post ID.
+	 * @param string $instance_id Block instance ID.
+	 * @return array<string, mixed>
+	 */
+	private function get_protected_area_block_attributes( int $post_id, string $instance_id ): array {
+		$post = get_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post ) {
+			return [];
+		}
+
+		$matched_block = $this->find_protected_area_block_by_instance_id( parse_blocks( $post->post_content ), $instance_id );
+
+		if ( empty( $matched_block['attrs'] ) || ! is_array( $matched_block['attrs'] ) ) {
+			return [];
+		}
+
+		return $matched_block['attrs'];
+	}
+
+
+	/**
+	 * Recursively find a protected-area block by instance ID.
+	 *
+	 * @param array  $blocks      Parsed blocks.
+	 * @param string $instance_id Block instance ID.
+	 * @return array<string, mixed>
+	 */
+	private function find_protected_area_block_by_instance_id( array $blocks, string $instance_id ): array {
+		foreach ( $blocks as $block ) {
+			$block_name        = isset( $block['blockName'] ) && is_string( $block['blockName'] ) ? $block['blockName'] : '';
+			$attrs             = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : [];
+			$block_instance_id = isset( $attrs['instanceId'] ) && is_string( $attrs['instanceId'] ) ? $attrs['instanceId'] : '';
+
+			if ( 'bcgovcleanbc/protected-area' === $block_name && $block_instance_id === $instance_id ) {
+				return $block;
+			}
+
+			$inner_blocks = isset( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ? $block['innerBlocks'] : [];
+
+			if ( empty( $inner_blocks ) ) {
+				continue;
+			}
+
+			$matched_block = $this->find_protected_area_block_by_instance_id( $inner_blocks, $instance_id );
+
+			if ( ! empty( $matched_block ) ) {
+				return $matched_block;
+			}
+		}
+
+		return [];
 	}
 
 
@@ -978,6 +1085,48 @@ class BasicBlocks {
 		}
 
 		return 'h2';
+	}
+
+
+	/**
+	 * Sanitize a protected-area access expiry option.
+	 *
+	 * @param mixed $access_expiry Access expiry attribute value.
+	 * @return string
+	 */
+	private function sanitize_protected_area_access_expiry( $access_expiry ): string {
+		if ( ! is_string( $access_expiry ) ) {
+			return 'day';
+		}
+
+		$access_expiry = sanitize_key( $access_expiry );
+
+		if ( in_array( $access_expiry, [ 'day', 'week', 'month' ], true ) ) {
+			return $access_expiry;
+		}
+
+		return 'day';
+	}
+
+
+	/**
+	 * Map a protected-area access expiry option to seconds.
+	 *
+	 * @param string $access_expiry Access expiry option.
+	 * @return int
+	 */
+	private function get_protected_area_access_expiry_seconds( string $access_expiry ): int {
+		switch ( $access_expiry ) {
+			case 'week':
+				return WEEK_IN_SECONDS;
+
+			case 'month':
+				return MONTH_IN_SECONDS;
+
+			case 'day':
+			default:
+				return DAY_IN_SECONDS;
+		}
 	}
 
 
