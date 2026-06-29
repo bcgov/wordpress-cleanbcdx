@@ -7,7 +7,8 @@ use Bcgov\Plugin\CleanBCDX\Hooks\{
     SearchContext,
     Accessibility,
     RebateQueryTool,
-    GravityForms
+    GravityForms,
+    BasicBlocks
 };
 
 /**
@@ -59,6 +60,7 @@ class Setup {
         $accessibility             = new Accessibility();
         $rebate_query_tool         = new RebateQueryTool();
         $gravity_forms             = new GravityForms();
+        $basic_blocks              = new BasicBlocks();
 
         // Filters.
         add_filter( 'wp_theme_json_data_theme', [ $plugin_enqueue_and_inject, 'filter_theme_json_theme_plugin' ] );

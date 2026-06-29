@@ -1,0 +1,50 @@
+{
+    "apiVersion": 2,
+    "name": "bcgovcleanbc/protected-area",
+    "title": "CleanBC DX Protected Area",
+    "category": "design",
+    "icon": "lock",
+    "description": "Hide this block's inner content behind a password prompt without affecting the rest of the page.",
+    "attributes": {
+        "instanceId": {
+            "type": "string",
+            "default": ""
+        },
+        "promptMessage": {
+            "type": "string",
+            "default": "Enter the password to view this content."
+        },
+        "promptHeading": {
+            "type": "string",
+            "default": "Protected content"
+        },
+        "promptHeadingLevel": {
+            "type": "string",
+            "default": "h2"
+        },
+        "promptWidth": {
+            "type": "string",
+            "default": ""
+        },
+        "promptJustification": {
+            "type": "string",
+            "default": "left"
+        },
+        "showBorder": {
+            "type": "boolean",
+            "default": true
+        },
+        "allowPageUnlock": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "supports": {
+        "anchor": true,
+        "html": false,
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    }
+}

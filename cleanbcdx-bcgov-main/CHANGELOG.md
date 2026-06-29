@@ -1,3 +1,6 @@
+## 1.0.3 June 29, 2026
+– Protected area block feature added
+
 ## 1.0.2 June 11, 2026
 – Added commercial 5 up variant icons
 
