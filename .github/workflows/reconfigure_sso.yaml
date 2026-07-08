@@ -52,7 +52,8 @@ jobs:
                 
 
           #echo "::set-output name=CLIENT_KEYCLOAK_SECRET_NAME::${CLIENT_KEYCLOAK_SECRET_NAME}";
-          echo "CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME}" >> $GITHUB_ENV
+          #echo "CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME}" >> $GITHUB_ENV
+          echo "CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME}" >> "$GITHUB_OUTPUT"
 
           echo "Secret Name"
           echo "$CLIENT_KEYCLOAK_SECRET_NAME"
@@ -62,8 +63,8 @@ jobs:
             exit 1
           fi
 
-    #outputs:
-    #  CLIENT_KEYCLOAK_SECRET_NAME: ${{ steps.prepare-step.outputs.CLIENT_KEYCLOAK_SECRET_NAME }}
+    outputs:
+      CLIENT_KEYCLOAK_SECRET_NAME: ${{ steps.prepare-step.outputs.CLIENT_KEYCLOAK_SECRET_NAME }}
 
 
   deploy:
@@ -83,8 +84,8 @@ jobs:
 
 
     - name: Rename Miniorange plugin variables and settings
-      #env:
-      #  CLIENT_KEYCLOAK_SECRET_NAME: ${{ needs.prepare.outputs.CLIENT_KEYCLOAK_SECRET_NAME }}
+      env:
+        CLIENT_KEYCLOAK_SECRET_NAME: ${{ needs.prepare.outputs.CLIENT_KEYCLOAK_SECRET_NAME }}
       run: |
         ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT }}
         echo "Deploying to the OC environment $ENVIRONMENT"
