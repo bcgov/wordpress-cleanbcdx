@@ -97,4 +97,4 @@ jobs:
           echo "### Backups List:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
           echo "Starting at backup #1 and increasing down the list." >> $GITHUB_STEP_SUMMARY
-          echo "${CMD_RESULTS}" >> $GITHUB_STEP_SUMMARY
+          echo "${BACKUP_LIST}" >> $GITHUB_STEP_SUMMARY
