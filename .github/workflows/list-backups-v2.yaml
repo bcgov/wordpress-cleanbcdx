@@ -81,7 +81,7 @@ jobs:
           echo "::endgroup::"
 
           
-          CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "${PROJECT_NAME}-${SITE_NAME}_${ENVIRONMENT}_*_backup.tar*" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  --contimeout "15s" --retries 3 | sort | tail -n 20)
+          CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "${PROJECT_NAME}-${SITE_NAME}_${ENVIRONMENT}_*_backup.tar*" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  --contimeout "15s" --retries 3 | sort | tail -n 20 )
 
           echo "$CMD_RESULTS"
           
@@ -91,7 +91,7 @@ jobs:
               exit 96
           fi 
 
-          BACKUP_LIST=$(sort -r $CMD_RESULTS | nl)
+          BACKUP_LIST=$(sort -r <<< $CMD_RESULTS | nl)
 
           #Generate GH Actions summary
           echo "### Backups List:" >> $GITHUB_STEP_SUMMARY
