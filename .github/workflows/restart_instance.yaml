@@ -42,6 +42,7 @@ jobs:
     - name: Restart instance
       run: |
         ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT }}
+        PROJECT_NAME=${{ github.event.inputs.project-name }}
         SITE_NAME=${{ github.event.inputs.site-name }}
         OC_SITE_NAME=${{ github.event.inputs.project-name }}-${{ github.event.inputs.site-name }}
         case "$ENVIRONMENT" in
@@ -75,6 +76,9 @@ jobs:
         CMD1_RESULTS=$(oc rollout restart -n $NAMESPACE deployment/$DEPLOYMENT)
         echo "${CMD1_RESULTS}"
 
+        CMD2_RESULTS=$(oc rollout restart -n $NAMESPACE deployment/$DEPLOYMENT-mariadb)
+        echo "${CMD2_RESULTS}"
+
 
         #Generate GH Actions summary
         echo "### Restarted Deployment/Instance" >> $GITHUB_STEP_SUMMARY
@@ -86,3 +90,4 @@ jobs:
         echo "### Command 1 Results: " >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
         echo "${CMD1_RESULTS}" >> $GITHUB_STEP_SUMMARY
+        echo "${CMD2_RESULTS}" >> $GITHUB_STEP_SUMMARY
