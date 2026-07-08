@@ -1,0 +1,54 @@
+name: List Backups V2
+on:
+  workflow_dispatch:
+    inputs:
+      project-name:
+        description: 'Project'
+        required: true
+        type: choice
+        options:      
+        - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
+        default: 'cleanbcdx-bb'
+
+      site-name:
+        description: 'Site name'
+        required: true
+        default: 'prod'
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install OC CLI
+        run: |
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+          tar xvzf openshift-client-linux.tar.gz
+          sudo mv oc kubectl /usr/local/bin/
+
+      - name: Get list of backups
+        run: |
+          ENVIRONMENT=prod
+          oc login ${{ secrets.OPENSHIFT_SERVER }} --token=${{ secrets.OPENSHIFT_TOOLS_API_TOKEN  }}
+          NAMESPACE="f181a8-$ENVIRONMENT"
+
+          
+          CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-${{ github.event.inputs.site-name }}_$ENVIRONMENT_*_backup.tar*" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  --contimeout "15s" --retries 3 | sort | tail -n 20)
+
+          if [ -z "$CMD_RESULTS" ]; then
+              echo "::error::Unknown backup file name: ${CMD_RESULTS}"
+
+              exit 96
+          fi 
+
+
+          #Generate GH Actions summary
+          echo "### Backups List:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
+          echo "Starting at backup #1 and increasing down the list." >> $GITHUB_STEP_SUMMARY
+          echo "${CMD_RESULTS}" >> $GITHUB_STEP_SUMMARY
