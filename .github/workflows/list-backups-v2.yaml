@@ -53,8 +53,8 @@ jobs:
           NAMESPACE="f181a8-$ENVIRONMENT"
 
 
-          echo "Getting list of backups for $PROJECT_NAME"
-          echo "Searching for: $PROJECT_NAME-$SITE_NAME_$ENVIRONMENT_*_backup.tar*"
+          echo "Getting list of backups for ${PROJECT_NAME}"
+          echo "Searching for: ${PROJECT_NAME}-${SITE_NAME}_${ENVIRONMENT}_*_backup.tar*"
 
           
           # Log in to OpenShift
@@ -81,7 +81,7 @@ jobs:
           echo "::endgroup::"
 
           
-          CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-$SITE_NAME_$ENVIRONMENT_*_backup.tar*" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  --contimeout "15s" --retries 3 | sort | tail -n 20)
+          CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "${PROJECT_NAME}-${SITE_NAME}_${ENVIRONMENT}_*_backup.tar*" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  --contimeout "15s" --retries 3 | sort | tail -n 20)
 
           if [ -z "$CMD_RESULTS" ]; then
               echo "::error::Unknown backup file name: ${CMD_RESULTS}"
