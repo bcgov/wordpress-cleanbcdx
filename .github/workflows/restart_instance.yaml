@@ -66,6 +66,7 @@ jobs:
         oc login ${{ secrets.OPENSHIFT_SERVER }} --token=$token             #--insecure-skip-tls-verify=true
         NAMESPACE="f181a8-$ENVIRONMENT"
         OC_ENV=$ENVIRONMENT
+        echo "oc get deployment -n $NAMESPACE -l app=wordpress,site=$OC_SITE_NAME"
         DEPLOYMENT=$(oc get deployment -n $NAMESPACE -l app=wordpress,site=$OC_SITE_NAME -o jsonpath='{.items[0].metadata.name}')
 
         #run command to restart the deployment
