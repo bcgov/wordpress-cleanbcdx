@@ -62,15 +62,16 @@ jobs:
             exit 1
             ;;
         esac
+        
         echo "Restarting the site $OC_SITE_NAME in $ENVIRONMENT"
-        oc login ${{ secrets.OPENSHIFT_SERVER }} --token=$token             #--insecure-skip-tls-verify=true
         NAMESPACE="f181a8-$ENVIRONMENT"
         OC_ENV=$ENVIRONMENT
-        echo "oc get deployment -n $NAMESPACE -l app=wordpress,site=$OC_SITE_NAME"
+
+        oc login ${{ secrets.OPENSHIFT_SERVER }} -n $NAMESPACE --token=$token             #--insecure-skip-tls-verify=true
         DEPLOYMENT=$(oc get deployment -n $NAMESPACE -l app=wordpress,site=$OC_SITE_NAME -o jsonpath='{.items[0].metadata.name}')
 
         #run command to restart the deployment
-        CMD1_RESULTS=$(oc rollout restart deployment/$DEPLOYMENT)
+        CMD1_RESULTS=$(oc rollout restart -n $NAMESPACE deployment/$DEPLOYMENT)
         echo "${CMD1_RESULTS}"
 
 
