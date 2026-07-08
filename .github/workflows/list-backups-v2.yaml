@@ -53,7 +53,8 @@ jobs:
           NAMESPACE="f181a8-$ENVIRONMENT"
 
 
-          echo "Getting list of backups for $PROJECT_NAME" 
+          echo "Getting list of backups for $PROJECT_NAME"
+          echo "Searching for: $PROJECT_NAME-$SITE_NAME_$ENVIRONMENT_*_backup.tar*"
 
           
           # Log in to OpenShift
