@@ -52,7 +52,6 @@ jobs:
                 
 
           #echo "::set-output name=CLIENT_KEYCLOAK_SECRET_NAME::${CLIENT_KEYCLOAK_SECRET_NAME}";
-          #echo "CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME}" >> $GITHUB_ENV
           echo "CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME}" >> "$GITHUB_OUTPUT"
 
           echo "Secret Name"
