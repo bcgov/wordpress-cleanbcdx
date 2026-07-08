@@ -91,7 +91,7 @@ jobs:
               exit 96
           fi 
 
-          BACKUP_LIST=$CMD_RESULTS | sort -r | nl
+          BACKUP_LIST=$(sort -r $CMD_RESULTS | nl)
 
           #Generate GH Actions summary
           echo "### Backups List:" >> $GITHUB_STEP_SUMMARY
