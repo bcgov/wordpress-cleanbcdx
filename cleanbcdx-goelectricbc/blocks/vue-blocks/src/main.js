@@ -1,42 +1,120 @@
 import './assets/shared.css';
 import { createApp } from 'vue';
 import VehicleFilterApp from './vehicleFilterApp.vue';
+import EligibleCommercialVehiclesApp from './eligibleCommercialVehiclesApp.vue';
 
 /**
- * Initialize a Vue.js application for a specific component and element.
+ * Initialize a Vue.js application for a specific component and selector.
  *
- * @param {object} component - The Vue component to be initialized.
- * @param {string} selector - The CSS selector of the element to mount the app.
- * @param {object} [props={}] - Optional props to pass to the Vue app.
+ * @param {object} component Vue component.
+ * @param {string} selector CSS selector for mount points.
+ * @param {Function} getProps Returns props for each matching element.
  */
-function initVueApp(component, selector, props = {}) {
-    const element = document.querySelector(selector);
-    if (element) {
-        const app = createApp(component, props);
+function initVueApp(component, selector, getProps = () => ({})) {
+    const elements = document.querySelectorAll(selector);
+
+    elements.forEach((element, index) => {
+        if (element.dataset.vueMounted === 'true') {
+            return;
+        }
+
+        const app = createApp(component, getProps(element, index));
         app.mount(element);
-    }
+        element.dataset.vueMounted = 'true';
+    });
 }
 
 /**
  * Main initialization function to set up all Vue apps.
  */
 function initializeApps() {
-    // List of all apps with their selectors and optional props
     const apps = [
-        { component: VehicleFilterApp, selector: '#vehicleFilterApp', props: { appProp: 'Vehicle Data' } },
+        {
+            component: VehicleFilterApp,
+            selector: '#vehicleFilterApp',
+            getProps: () => ({ appProp: 'Vehicle Data' }),
+        },
+        {
+            component: EligibleCommercialVehiclesApp,
+            selector: '[data-vue-app="eligible-commercial-vehicles"]',
+            getProps: (element) => ({
+                endpoint: element.dataset.endpoint || '',
+                appId: element.id || 'eligible-commercial-vehicles-app',
+            }),
+        },
     ];
 
-    // Dynamically initialize only apps with existing DOM elements
-    apps.forEach(({ component, selector, props }) => {
+    apps.forEach(({ component, selector, getProps }) => {
         const element = document.querySelector(selector);
+
         if (element) {
-            initVueApp(component, selector, props);
+            initVueApp(component, selector, getProps);
         }
+    });
+}
+
+let initializeAppsScheduled = false;
+
+/**
+ * Schedule app initialization once per animation frame.
+ */
+function scheduleInitializeApps() {
+    if (initializeAppsScheduled) {
+        return;
+    }
+
+    initializeAppsScheduled = true;
+
+    window.requestAnimationFrame(() => {
+        initializeAppsScheduled = false;
+        initializeApps();
+    });
+}
+
+/**
+ * Observe DOM mutations so content injected into modals can mount apps.
+ */
+function observeDynamicAppMounts() {
+    if (!document.body || 'undefined' === typeof MutationObserver) {
+        return;
+    }
+
+    const appSelector =
+        '#vehicleFilterApp, [data-vue-app="eligible-commercial-vehicles"]';
+
+    const observer = new MutationObserver((mutations) => {
+        const hasRelevantAddition = mutations.some((mutation) => {
+            return Array.from(mutation.addedNodes).some((node) => {
+                if (!node || Node.ELEMENT_NODE !== node.nodeType) {
+                    return false;
+                }
+
+                if (node.matches?.(appSelector)) {
+                    return true;
+                }
+
+                return !!node.querySelector?.(appSelector);
+            });
+        });
+
+        if (hasRelevantAddition) {
+            scheduleInitializeApps();
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
     });
 }
 
 /**
  * Add a safe event listener to ensure compatibility with the target.
+ *
+ * @param {EventTarget} el Event target.
+ * @param {string} event Event name.
+ * @param {Function} handler Event handler.
+ * @param {object} options Listener options.
  */
 function addSafeEventListener(el, event, handler, options) {
     if (el && typeof el.addEventListener === 'function') {
@@ -48,9 +126,12 @@ function addSafeEventListener(el, event, handler, options) {
     }
 }
 
-// Run initialization when DOM is ready
-if (document.readyState === 'complete') {
+if ('loading' !== document.readyState) {
     initializeApps();
+    observeDynamicAppMounts();
 } else {
-    addSafeEventListener(document, 'DOMContentLoaded', initializeApps);
+    addSafeEventListener(document, 'DOMContentLoaded', () => {
+        initializeApps();
+        observeDynamicAppMounts();
+    });
 }

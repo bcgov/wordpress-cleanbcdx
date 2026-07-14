@@ -61,8 +61,8 @@ class Setup {
 		add_filter( 'block_categories_all', [ $plugin_enable_vue_app, 'custom_block_categories' ], 10, 2 );
 		add_filter( 'body_class', [ $plugin_enqueue_and_inject, 'add_cleanbc_class_to_body' ] );
 		add_filter( 'wp_script_attributes', [ $plugin_enable_vue_app, 'add_script_type_attribute' ], 10, 2 );
-		add_filter( 'upload_mimes', [ $media_library, 'allow_json_uploads' ] );
-		add_filter( 'wp_check_filetype_and_ext', [ $media_library, 'fix_json_filetype' ], 10, 3 );
+		add_filter( 'upload_mimes', [ $media_library, 'allow_feed_uploads' ] );
+		add_filter( 'wp_check_filetype_and_ext', [ $media_library, 'fix_feed_filetype' ], 10, 3 );
 		add_filter( 'attachment_fields_to_edit', [ $media_library, 'add_unity_feed_attachment_field' ], 10, 2 );
 		add_filter( 'attachment_fields_to_save', [ $media_library, 'save_unity_feed_attachment_field' ], 10, 2 );
 

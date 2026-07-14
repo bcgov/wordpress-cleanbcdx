@@ -16,16 +16,27 @@ class EnableVueApp {
 	 */
 	public function vuejs_wordpress_block_plugin() {
 
-		$plugin_dir     = plugin_dir_path( __DIR__ );
-		$plugin_data    = get_plugin_data( $plugin_dir . 'index.php' );
-		$plugin_version = $plugin_data['Version'];
-		$latest_version = $plugin_version; // Fallback to the installed version.
+		$plugin_dir                    = plugin_dir_path( __DIR__ );
+		$vehicle_filter_script_path    = $plugin_dir . 'blocks/vue-blocks/vehicle-filter-vue-block.js';
+		$eligible_vehicles_script_path = $plugin_dir . 'blocks/vue-blocks/eligible-commercial-vehicles-vue-block.js';
+		$plugin_data                   = get_plugin_data( $plugin_dir . 'index.php' );
+		$plugin_version                = $plugin_data['Version'];
+		$vehicle_filter_version        = file_exists( $vehicle_filter_script_path ) ? (string) filemtime( $vehicle_filter_script_path ) : $plugin_version;
+		$eligible_vehicles_version     = file_exists( $eligible_vehicles_script_path ) ? (string) filemtime( $eligible_vehicles_script_path ) : $plugin_version;
 
 		wp_enqueue_script(
 			'cleanbcdx-plugin/vehicle-filter-block',
 			plugin_dir_url( __DIR__ ) . 'blocks/vue-blocks/vehicle-filter-vue-block.js',
-			[ 'wp-blocks', 'wp-element', 'wp-editor' ],
-			$latest_version,
+			[ 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components' ],
+			$vehicle_filter_version,
+			true
+		);
+
+		wp_enqueue_script(
+			'cleanbcdx-plugin/eligible-commercial-vehicles-block',
+			plugin_dir_url( __DIR__ ) . 'blocks/vue-blocks/eligible-commercial-vehicles-vue-block.js',
+			[ 'wp-blocks', 'wp-element' ],
+			$eligible_vehicles_version,
 			true
 		);
 	}
@@ -59,7 +70,7 @@ class EnableVueApp {
 	 */
 	public function vuejs_app_plugin() {
 		// Check if the current page contains the block.
-		if ( has_block( 'cleanbcdx-plugin/vehicle-filter-block' ) || has_block( 'cleanbc-plugin/vehicle-filter-block' ) ) {
+		if ( $this->page_has_vue_app_block() ) {
 			$plugin_dir = plugin_dir_path( __DIR__ );
 			$assets_dir = $plugin_dir . 'dist/assets/';
 
@@ -83,25 +94,7 @@ class EnableVueApp {
 	 */
 	public function vuejs_vehicle_filter_app_dynamic_block_plugin( $attributes ) {
 
-		$plugin_dir = plugin_dir_path( __DIR__ );
-		$assets_dir = $plugin_dir . 'dist/assets/';
-
-		$plugin_data    = get_plugin_data( $plugin_dir . 'index.php' );
-		$plugin_version = $plugin_data['Version'];
-		$latest_version = $plugin_version; // Fallback to the installed version.
-
-		$public_css_files = glob( $assets_dir . 'vue*.css' );
-		$public_js_files  = glob( $assets_dir . 'vue*.js' );
-
-		foreach ( $public_css_files as $file ) {
-			$file_url = plugins_url( str_replace( $plugin_dir, '', $file ), __DIR__ );
-			wp_enqueue_style( 'vue-app-' . basename( $file, '.css' ), $file_url, [], $latest_version );
-		}
-
-		foreach ( $public_js_files as $file ) {
-			$file_url = plugins_url( str_replace( $plugin_dir, '', $file ), __DIR__ );
-			wp_enqueue_script( 'vue-app-' . basename( $file, '.js' ), $file_url, [ 'bcgov-block-theme-public' ], $latest_version, true ); // Sets the dependency to Block Theme to enqueue after.
-		}
+		$this->enqueue_vue_app_assets();
 
 		// Set up the attributes passed to the Vue frontend, with defaults.
 		$class_name           = isset( $attributes['className'] ) ? $attributes['className'] : '';
@@ -109,6 +102,28 @@ class EnableVueApp {
 
 		// Return the Vehicle Filter App's container with appropriate class names.
 		return '<div id="vehicleFilterApp" class="' . esc_attr( $class_name ) . '" data-show-federal-rebates="' . esc_attr( $hide_federal_rebates ) . '">Loading...</div>';
+	}
+
+	/**
+	 * Load VueJS assets and return the Eligible Commercial Vehicles app mount point.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string
+	 */
+	public function vuejs_eligible_commercial_vehicles_dynamic_block_plugin( $attributes ) {
+
+		$this->enqueue_vue_app_assets();
+
+		$class_name = isset( $attributes['className'] ) ? $attributes['className'] : '';
+		$app_id     = wp_unique_id( 'eligible-commercial-vehicles-app-' );
+		$endpoint   = rest_url( MediaLibrary::UNITY_FEED_NAMESPACE . MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_ROUTE );
+
+		return sprintf(
+			'<div id="%1$s" class="%2$s" data-vue-app="eligible-commercial-vehicles" data-endpoint="%3$s">Loading eligible commercial vehicles...</div>',
+			esc_attr( $app_id ),
+			esc_attr( $class_name ),
+			esc_url( $endpoint )
+		);
 	}
 
 	/**
@@ -128,6 +143,69 @@ class EnableVueApp {
 				'render_callback' => [ $this, 'vuejs_vehicle_filter_app_dynamic_block_plugin' ],
 			]
 		);
+
+		register_block_type(
+			'cleanbcdx-plugin/eligible-commercial-vehicles-block',
+			[
+				'render_callback' => [ $this, 'vuejs_eligible_commercial_vehicles_dynamic_block_plugin' ],
+			]
+		);
+
+		register_block_type(
+			'cleanbc-plugin/eligible-commercial-vehicles-block',
+			[
+				'render_callback' => [ $this, 'vuejs_eligible_commercial_vehicles_dynamic_block_plugin' ],
+			]
+		);
+	}
+
+	/**
+	 * Determine whether the current page contains one of the Vue-powered blocks.
+	 *
+	 * @return bool
+	 */
+	protected function page_has_vue_app_block() {
+		$block_names = array(
+			'cleanbcdx-plugin/vehicle-filter-block',
+			'cleanbc-plugin/vehicle-filter-block',
+			'cleanbcdx-plugin/eligible-commercial-vehicles-block',
+			'cleanbc-plugin/eligible-commercial-vehicles-block',
+		);
+
+		foreach ( $block_names as $block_name ) {
+			if ( has_block( $block_name ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Enqueue the compiled Vue app assets for frontend rendering.
+	 *
+	 * @return void
+	 */
+	protected function enqueue_vue_app_assets() {
+		$plugin_dir = plugin_dir_path( __DIR__ );
+		$assets_dir = $plugin_dir . 'dist/assets/';
+
+		$plugin_data    = get_plugin_data( $plugin_dir . 'index.php' );
+		$plugin_version = $plugin_data['Version'];
+		$latest_version = $plugin_version; // Fallback to the installed version.
+
+		$public_css_files = glob( $assets_dir . 'vue*.css' );
+		$public_js_files  = glob( $assets_dir . 'vue*.js' );
+
+		foreach ( $public_css_files as $file ) {
+			$file_url = plugins_url( str_replace( $plugin_dir, '', $file ), __DIR__ );
+			wp_enqueue_style( 'vue-app-' . basename( $file, '.css' ), $file_url, [], $latest_version );
+		}
+
+		foreach ( $public_js_files as $file ) {
+			$file_url = plugins_url( str_replace( $plugin_dir, '', $file ), __DIR__ );
+			wp_enqueue_script( 'vue-app-' . basename( $file, '.js' ), $file_url, [ 'bcgov-block-theme-public' ], $latest_version, true ); // Sets the dependency to Block Theme to enqueue after.
+		}
 	}
 
 	/**

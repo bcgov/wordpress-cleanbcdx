@@ -1,3 +1,9 @@
+## 1.0.7 July 14, 2026
+– Eligible commercial vehicles block and related output
+
+## 1.0.6 July 11, 2026
+– CSV-to-JSON OEM handling of csv file upload to media library
+
 ## 1.0.5 June 18, 2026
 – Second JSON feed endpoint option for 'retroactive' and 'oem' feeds
 
