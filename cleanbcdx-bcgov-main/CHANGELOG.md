@@ -1,3 +1,6 @@
+## 1.0.4 July 14, 2026
+– Updated defintions and protected area block to work together and with custom post types
+
 ## 1.0.3 June 29, 2026
 – Protected area block feature added
 

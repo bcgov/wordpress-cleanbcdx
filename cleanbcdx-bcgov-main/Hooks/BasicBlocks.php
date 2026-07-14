@@ -33,6 +33,13 @@ class BasicBlocks {
 	 */
 	private $protected_area_unlock_errors = [];
 
+	/**
+	 * Post types already configured for protected-area meta support.
+	 *
+	 * @var array<string, bool>
+	 */
+	private $protected_area_meta_post_types = [];
+
 
     /**
      * Constructor.
@@ -47,7 +54,8 @@ class BasicBlocks {
      * @return void
      */
     public function init() {
-        add_action( 'init', [ $this, 'register_protected_area_post_meta' ] );
+		add_action( 'init', [ $this, 'register_protected_area_post_meta' ], 100 );
+		add_action( 'registered_post_type', [ $this, 'register_protected_area_post_meta_for_post_type' ], 10, 1 );
         add_action( 'init', [ $this, 'handle_protected_area_unlock_submission' ], 20 );
         add_action( 'init', [ $this, 'register_blocks' ] );
         add_action( 'wp_loaded', [ $this, 'register_custom_incentive_page_pattern' ] );
@@ -161,13 +169,36 @@ class BasicBlocks {
 
 
 	/**
-	 * Register post meta used to store protected area password data.
+	 * Register protected-area post meta for every currently registered block-editor post type.
 	 *
 	 * @return void
 	 */
 	public function register_protected_area_post_meta(): void {
-		register_meta(
-			'post',
+		foreach ( get_post_types( [], 'names' ) as $post_type ) {
+			$this->register_protected_area_post_meta_for_post_type( $post_type );
+		}
+	}
+
+
+	/**
+	 * Register protected-area post meta for one block-editor post type.
+	 *
+	 * @param string $post_type Post type slug.
+	 * @return void
+	 */
+	public function register_protected_area_post_meta_for_post_type( string $post_type ): void {
+		$post_type = sanitize_key( $post_type );
+
+		if ( '' === $post_type || isset( $this->protected_area_meta_post_types[ $post_type ] ) || ! $this->is_protected_area_meta_supported_post_type( $post_type ) ) {
+			return;
+		}
+
+		if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
+			add_post_type_support( $post_type, 'custom-fields' );
+		}
+
+		register_post_meta(
+			$post_type,
 			self::PROTECTED_AREA_META_KEY,
 			[
 				'type'              => 'string',
@@ -184,6 +215,29 @@ class BasicBlocks {
 				],
 			]
 		);
+
+		$this->protected_area_meta_post_types[ $post_type ] = true;
+	}
+
+
+	/**
+	 * Determine whether a post type can persist protected-area passwords through the block editor.
+	 *
+	 * @param string $post_type Post type slug.
+	 * @return bool
+	 */
+	private function is_protected_area_meta_supported_post_type( string $post_type ): bool {
+		if ( ! post_type_exists( $post_type ) ) {
+			return false;
+		}
+
+		if ( function_exists( 'use_block_editor_for_post_type' ) ) {
+			return use_block_editor_for_post_type( $post_type );
+		}
+
+		$post_type_object = get_post_type_object( $post_type );
+
+		return $post_type_object instanceof \WP_Post_Type && $post_type_object->show_in_rest && post_type_supports( $post_type, 'editor' );
 	}
 
 
