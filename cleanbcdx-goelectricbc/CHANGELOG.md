@@ -1,3 +1,6 @@
+## 1.0.8 July 15, 2026
+– Patched ECV block styles
+
 ## 1.0.7 July 14, 2026
 – Eligible commercial vehicles block and related output
 

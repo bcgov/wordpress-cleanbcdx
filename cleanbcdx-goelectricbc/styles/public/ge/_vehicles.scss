@@ -1,5 +1,25 @@
 /* stylelint-disable no-descending-specificity */
 
+.eligible-commercial-vehicles {
+
+	.wp-block-table.is-style-stripes {
+		background-color: initial;
+		border-bottom: 1px solid #f0f0f0;
+		border-collapse: inherit;
+		border-spacing: 0;
+	}
+
+	.wp-block-table.is-style-stripes tbody tr:nth-child(2n+1) {
+		background-color: #f0f0f0;
+	}
+
+	.wp-block-table.is-style-stripes tbody tr:nth-child(2n+2) {
+		background-color: #fff;
+	}
+
+}
+
+
 #vehicleFilterApp {
 	color: var(--mineshaft);
 	width: 100%;
