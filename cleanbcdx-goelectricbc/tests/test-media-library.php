@@ -210,8 +210,8 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$csv = implode(
 			"\n",
 			array(
-				'make,model_name,configuration_name,year,vehicle_class_name,vehicle_type_name,battery_size,lower_battery_range,upper_battery_range,battery_size_range,decision_date',
-				'BYD,Explore,XL,2028,Class 4,Coach,70,,,70 kWh,6/12/2026',
+				'make,model,configuration,model_year,vehicle_type,vehicle_class,battery_size_range,decision_date,battery_size,lower_battery_range,upper_battery_range',
+				'BYD,Explore,XL,2028,Coach,Class 4,70 kWh,6/12/2026,70,,',
 			)
 		);
 
@@ -269,13 +269,13 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		return implode(
 			"\n",
 			array(
-				"\xEF\xBB\xBFmake,model_name,configuration_name,year,vehicle_class_name,vehicle_type_name,fuel_type_name,battery_size,lower_battery_range,upper_battery_range,battery_size_range,decision_date",
-				'BYD,Explore,XL,2028,Class 4,Coach,BEV,70,,,70 kWh,6/12/2026',
-				'BYD,Explore,XL,2028,Class 4,Coach,BEV,,200,300,200 kWh - 300 kWh,6/13/2026',
-				'BYD,Discover,6 Feet,2027,Class 7,Coach,BEV,500,,,500 kWh,6/14/2026',
+				"\xEF\xBB\xBFmake,model,configuration,model_year,vehicle_type,vehicle_class,fuel_type,battery_size_range,decision_date,battery_size,lower_battery_range,upper_battery_range",
+				'BYD,Explore,XL,2028,Coach,Class 4,BEV,70 kWh,6/12/2026,70,,',
+				'BYD,Explore,XL,2028,Coach,Class 4,BEV,200 kWh - 300 kWh,6/13/2026,,200,300',
+				'BYD,Discover,6 Feet,2027,Coach,Class 7,BEV,500 kWh,6/14/2026,500,,',
 				'',
-				'Ford,F150 Lightning,Not specified,2026,Class 3,Truck,BEV,70,,,70 kWh,6/15/2026',
-				'Ford,F150 Lightning,Not specified,2026,Class 3,Truck,FCEV,,100,200,100 kWh - 200kwh,6/15/2026 ',
+				'Ford,F150 Lightning,Not specified,2026,Truck,Class 3,BEV,70 kWh,6/15/2026,70,,',
+				'Ford,F150 Lightning,Not specified,2026,Truck,Class 3,FCEV,100 kWh - 200kwh,6/15/2026 , ,100,200',
 			)
 		);
 	}
