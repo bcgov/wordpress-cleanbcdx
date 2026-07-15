@@ -69,19 +69,24 @@ class EnableVueApp {
 	 * Load VueJS app assets onto the client.
 	 */
 	public function vuejs_app_plugin() {
-		// Check if the current page contains the block.
+		if ( ! is_admin() ) {
+			// Definition modal content injects Vue mount nodes after the initial page render,
+			// so the shared frontend bundle needs to be available on the host page first.
+			$this->enqueue_vue_app_assets();
+			return;
+		}
+
+		// Check if the current editor page contains the block.
 		if ( $this->page_has_vue_app_block() ) {
 			$plugin_dir = plugin_dir_path( __DIR__ );
 			$assets_dir = $plugin_dir . 'dist/assets/';
 
 			$public_css_files = glob( $assets_dir . 'vue*.css' );
 
-			if ( is_admin() ) {
-				foreach ( $public_css_files as $file ) {
-					$version  = filemtime( $file );
-					$file_url = plugins_url( str_replace( $plugin_dir, '', $file ), __DIR__ );
-					wp_enqueue_style( 'vue-app-' . basename( $file, '.css' ), $file_url, [], $version );
-				}
+			foreach ( $public_css_files as $file ) {
+				$version  = filemtime( $file );
+				$file_url = plugins_url( str_replace( $plugin_dir, '', $file ), __DIR__ );
+				wp_enqueue_style( 'vue-app-' . basename( $file, '.css' ), $file_url, [], $version );
 			}
 		}
 	}
