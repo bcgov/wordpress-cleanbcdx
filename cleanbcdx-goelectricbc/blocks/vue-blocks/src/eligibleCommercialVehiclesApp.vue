@@ -298,7 +298,7 @@ const columns = [
     },
     {
         key: 'decisionDate',
-        label: 'Decision Date',
+        label: 'Approved since',
     },
 ];
 
