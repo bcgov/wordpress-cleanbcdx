@@ -1,3 +1,6 @@
+## 1.0.5 July 15, 2026
+– Pin to top feature for definitions modal based on class 'pin-to-top'
+
 ## 1.0.4 July 14, 2026
 – Updated defintions and protected area block to work together and with custom post types
 

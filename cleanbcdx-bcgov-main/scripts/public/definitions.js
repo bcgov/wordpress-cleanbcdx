@@ -148,6 +148,17 @@ export const bcgovBlockThemePluginDefnitions = () => {
             setDialogWidth(isWide);
         };
 
+        const setDialogPinToTopState = (isPinned) => {
+            const dialog = document.getElementById('dialog');
+
+            if (!dialog) {
+                return;
+            }
+
+            dialog.dataset.definitionPinned = isPinned ? 'true' : 'false';
+            setDialogPinned(isPinned);
+        };
+
         /**
          * Adds event listeners for click and keypress events to the specified element.
          *
@@ -186,6 +197,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
             ) {
                 event.preventDefault();
                 setDialogWideState(shouldUseWideDialog(event.currentTarget));
+                setDialogPinToTopState(shouldPinToTopDialog(event.currentTarget));
                 const url = getDefinitionUrl(event.currentTarget);
 
                 if (!url) {
@@ -255,6 +267,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
 
             dialog.dataset.definitionUrl = definitionUrl;
             setDialogWidth('true' === dialog.dataset.definitionWide);
+            setDialogPinned('true' === dialog.dataset.definitionPinned);
             dialogContent.innerHTML =
                 '<h2 tabindex="0">' + title + '</h2>' + content;
 
@@ -320,6 +333,9 @@ export const bcgovBlockThemePluginDefnitions = () => {
             event.preventDefault();
             form.setAttribute('action', definitionUrl);
             dialog.dataset.definitionWide = dialog.classList.contains('wide')
+                ? 'true'
+                : 'false';
+            dialog.dataset.definitionPinned = dialog.classList.contains('pin-to-top')
                 ? 'true'
                 : 'false';
 
@@ -401,6 +417,16 @@ export const bcgovBlockThemePluginDefnitions = () => {
             dialog.classList.toggle('wide', isWide);
         };
 
+        const setDialogPinned = (isPinned) => {
+            const dialog = document.getElementById('dialog');
+
+            if (!dialog) {
+                return;
+            }
+
+            dialog.classList.toggle('pin-to-top', isPinned);
+        };
+
         const closeDialogOnBackdropClick = (event) => {
             const dialog = event.currentTarget;
 
@@ -432,6 +458,18 @@ export const bcgovBlockThemePluginDefnitions = () => {
             return Boolean(triggerElement.closest('.wide'));
         };
 
+        const shouldPinToTopDialog = (triggerElement) => {
+            if (!triggerElement) {
+                return false;
+            }
+
+            if (triggerElement.classList.contains('pin-to-top')) {
+                return true;
+            }
+
+            return Boolean(triggerElement.closest('.pin-to-top'));
+        };
+
         if (definitionLinks.length > 0) {
             let dialog = document.getElementById('dialog');
             const needsDialog = !dialog;
@@ -452,10 +490,12 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 closeDialogButton.addEventListener('click', () => {
                     dialog.close();
                     setDialogWideState(false);
+                    setDialogPinToTopState(false);
                 });
 
                 dialog.addEventListener('close', () => {
                     setDialogWideState(false);
+                    setDialogPinToTopState(false);
                     setBodyScrollLock(false);
                 });
 

@@ -50,6 +50,11 @@ body:has(#dialog[open]) {
 		max-width: 1220px;
 	}
 
+	&.pin-to-top {
+		margin-block-start: 1rem;
+	}
+
+
 	&::backdrop {
 		background-color: rgba(0 0 0 / 0.5);
 		backdrop-filter: blur(2px);
