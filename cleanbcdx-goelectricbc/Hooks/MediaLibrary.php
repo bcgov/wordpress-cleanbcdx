@@ -789,7 +789,7 @@ class MediaLibrary {
 		);
 
 		if ( ! empty( $csv_options['include_decision_date'] ) ) {
-			$entry['decision_date'] = $this->get_unity_vehicle_required_csv_text( $record, 'decision_date', $line_number, $error_code_prefix, $feed_label );
+			$entry['decision_date'] = $this->get_unity_vehicle_optional_csv_text( $record, 'decision_date' );
 		}
 
 		foreach ( $entry as $value ) {
@@ -829,6 +829,17 @@ class MediaLibrary {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Return an optional CSV text value.
+	 *
+	 * @param array  $record CSV row indexed by header.
+	 * @param string $field  Field name.
+	 * @return string
+	 */
+	protected function get_unity_vehicle_optional_csv_text( $record, $field ) {
+		return trim( (string) $record[ $field ] );
 	}
 
 	/**

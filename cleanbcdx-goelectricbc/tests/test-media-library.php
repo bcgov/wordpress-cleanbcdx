@@ -202,6 +202,38 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Eligible vehicles route should allow blank decision date cells in CSV rows.
+	 *
+	 * @return void
+	 */
+	public function test_eligible_vehicles_route_allows_blank_decision_date_cells() {
+		$csv = implode(
+			"\n",
+			array(
+				"\xEF\xBB\xBFmake,model,configuration,model_year,vehicle_type,vehicle_class,fuel_type,battery_size_range,decision_date,battery_size,lower_battery_range,upper_battery_range",
+				'BYD,Explore,XL,2028,Coach,Class 4,BEV,70 kWh,,70,,',
+				'BYD,Explore,XL,2028,Coach,Class 4,BEV,200 kWh - 300 kWh,6/13/2026,,200,300',
+				'BYD,Discover,6 Feet,2027,Coach,Class 7,BEV,500 kWh,6/14/2026,500,,',
+				'Ford,F150 Lightning,Not specified,2026,Truck,Class 3,BEV,70 kWh,6/15/2026,70,,',
+				'Ford,F150 Lightning,Not specified,2026,Truck,Class 3,FCEV,100 kWh - 200kwh,6/15/2026, ,100,200',
+			)
+		);
+
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-feed-blank-date.csv', $csv, 'text/csv' );
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, '1' );
+
+		$response = $this->media_library->get_unity_eligible_vehicles_feed_response();
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+
+		$expected = $this->get_expected_eligible_vehicles_csv_response();
+		$expected[0]['models'][0]['configuration'][0]['model_years'][0]['vehicle_class'][0]['vehicle_type'][0]['fuel_type'][0]['battery'][0]['decision_date'] = '';
+
+		$this->assertSame( $expected, $response->get_data() );
+	}
+
+	/**
 	 * OEM route should reject malformed CSV uploads.
 	 *
 	 * @return void

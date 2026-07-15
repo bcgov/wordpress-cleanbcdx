@@ -3,6 +3,7 @@
 – Fixed Vue bundle injection for defintions modal use
 – Updated decision date table label to "Approved since"
 – Updated CSV column keys for validation
+– Added optional field data for decision date content
 
 ## 1.0.7 July 14, 2026
 – Eligible commercial vehicles block and related output
