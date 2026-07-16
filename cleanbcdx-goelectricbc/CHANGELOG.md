@@ -1,3 +1,6 @@
+## 1.0.9 July 16, 2026
+– Modified data attributes for eligible vehicles management and keys
+
 ## 1.0.8 July 15, 2026
 – Patched ECV block styles
 – Fixed Vue bundle injection for defintions modal use

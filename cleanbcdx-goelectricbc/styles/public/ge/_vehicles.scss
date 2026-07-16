@@ -1,5 +1,29 @@
 /* stylelint-disable no-descending-specificity */
 
+
+.bev-key,
+.erev-key,
+.fcev-key,
+.phev-key {
+	display: block;
+}
+
+#dialog:not(:has(option[data-type="BEV"])) .bev-key {
+	display: none;
+}
+
+#dialog:not(:has(option[data-type="EREV"])) .erev-key {
+	display: none;
+}
+
+#dialog:not(:has(option[data-type="FCEV"])) .fcev-key {
+	display: none;
+}
+
+#dialog:not(:has(option[data-type="PHEV"])) .phev-key {
+	display: none;
+}
+
 .eligible-commercial-vehicles {
 
 	.wp-block-table.is-style-stripes {

@@ -33,6 +33,7 @@
                         v-for="fuelType in fuelTypeOptions"
                         :key="fuelType"
                         :value="fuelType"
+                        :data-type="fuelType"
                     >
                         {{ fuelType }}
                     </option>
@@ -202,6 +203,7 @@
                                         <td
                                             class="has-text-align-left"
                                             data-align="left"
+                                            :data-content='row.configurationDisplay'
                                         >
                                             {{ row.configurationDisplay }}
                                         </td>
@@ -1157,4 +1159,15 @@ onMounted(async () => {
         width: 100%;
     }
 }
+
+td[data-content="Not available"] {
+    font-size: 0;
+
+    /* &::before {
+      content: "n/a";
+      display: inline-block;
+      font-size: initial;
+    } */
+}
+
 </style>
