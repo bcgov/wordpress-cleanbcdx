@@ -6,6 +6,8 @@
 .fcev-key,
 .phev-key {
 	display: block;
+	margin: 0;
+	padding: 0;
 }
 
 #dialog:not(:has(option[data-type="BEV"])) .bev-key {
