@@ -758,6 +758,26 @@ class BasicBlocks {
 			esc_html( $prompt_heading )
 		);
 
+		$prompt_message_markup = nl2br(
+			wp_kses(
+				$prompt_message,
+				[
+					'a'      => [
+						'href'       => true,
+						'target'     => true,
+						'rel'        => true,
+						'title'      => true,
+						'aria-label' => true,
+					],
+					'br'     => [],
+					'strong' => [],
+					'b'      => [],
+					'em'     => [],
+					'i'      => [],
+				]
+			)
+		);
+
 		$form_markup = sprintf(
 			'<form class="cleanbcdx-protected-area__form" method="post" aria-labelledby="%10$s"%9$s>'
 			. '%11$s'
@@ -771,7 +791,7 @@ class BasicBlocks {
 			. '<input name="cleanbcdx_protected_area_redirect_to" type="hidden" value="%7$s" />'
 			. '<button class="cleanbcdx-protected-area__submit" type="submit">%8$s</button>'
 			. '</form>',
-			nl2br( esc_html( $prompt_message ) ),
+			$prompt_message_markup,
 			$error_markup,
 			esc_attr( $input_id ),
 			esc_html__( 'Enter password', 'bcgov-plugin-cleanbc' ),

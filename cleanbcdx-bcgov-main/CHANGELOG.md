@@ -1,3 +1,6 @@
+## 1.0.6 July 17, 2026
+– Protected area prompt message html allowances
+
 ## 1.0.5 July 15, 2026
 – Pin to top feature for definitions modal based on class 'pin-to-top'
 

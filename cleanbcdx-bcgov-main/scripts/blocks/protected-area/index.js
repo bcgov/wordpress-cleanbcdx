@@ -221,6 +221,9 @@ registerBlockType(BLOCK_NAME, {
             <TextareaControl
               label="Prompt message"
               value={promptMessage}
+              help={
+                'Supports basic inline HTML such as <a href="https://cleanbc.ca">links</a>. Line breaks are preserved.'
+              }
               onChange={(value) => setAttributes({ promptMessage: value })}
             />
             <UnitControl
