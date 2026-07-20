@@ -1,3 +1,6 @@
+## 1.0.7 July 20, 2026
+– Minor style update for quick link SVG
+
 ## 1.0.6 July 17, 2026
 – Protected area prompt message html allowances
 

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CleanBC DX BCGov Block Theme Plugin
  * Description: A plugin to load custom blocks, scripts, styles and theme settings to augment the default BCGov Block Theme capabilities on the CleanBC DX websites. Forked from the BCGov Block Theme Supplemental: CleanBC plugin and moved into the Wordpress-CleanBCDX repo for DX Team management.
- * Version: 1.0.6
+ * Version: 1.0.7
  * Author: Nate King | CleanBC DX
  * Author URI: mailto:nate.king@gov.bc.ca
  * License: GPL-2.0+
