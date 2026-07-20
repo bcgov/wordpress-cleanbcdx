@@ -1046,7 +1046,7 @@ onMounted(async () => {
     margin-block-end: 8px;
     max-width: 100%;
     
-    @media (width <= 780px) {
+    @media (width <= 850px) {
         overflow-x: auto;
         /* overflow-y: hidden; */
     }
