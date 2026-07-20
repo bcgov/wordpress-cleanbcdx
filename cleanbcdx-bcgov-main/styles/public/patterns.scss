@@ -261,6 +261,15 @@
 			filter: var(--blue-filter);
 		}
 
+		&.icon-quick-links::before {
+			content: var(--icon-quick-links);
+			margin-right: 0.25rem;
+			top: -0.25rem;
+			scale: 1.2;
+			left: 3px;
+			filter: var(--blue-filter);
+		}
+
 		&.icon-translate::before {
 			content: var(--icon-translate);
 			margin-right: 0;
