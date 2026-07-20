@@ -1,3 +1,6 @@
+## 1.0.10 July 20, 2026
+– Sticky eligible vehicle table headers for desktop and mobile
+
 ## 1.0.9 July 16, 2026
 – Modified data attributes for eligible vehicles management and keys
 

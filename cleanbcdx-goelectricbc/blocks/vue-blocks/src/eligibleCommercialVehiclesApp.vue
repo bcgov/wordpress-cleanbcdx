@@ -998,7 +998,6 @@ onMounted(async () => {
     border-radius: 0 0 0.66rem 0.66rem;
     max-width: 100%;
     min-width: 0;
-    overflow: hidden;
 }
 
 .eligible-commercial-vehicles__group:nth-of-type(3n + 1) {
@@ -1046,8 +1045,8 @@ onMounted(async () => {
 .eligible-commercial-vehicles__table-shell .wp-block-table {
     margin-block-end: 8px;
     max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+    /* overflow-x: auto;
+    overflow-y: hidden; */
 
     :is(table) {
         border-width: 0;
@@ -1057,7 +1056,7 @@ onMounted(async () => {
         @media (width > 600px) {
             thead {
                 position: sticky;
-                top: 0; /* 8.75rem; */
+                top: -1.25rem; /* 8.75rem; */
                 z-index: 99;
             }
         }
