@@ -1045,8 +1045,11 @@ onMounted(async () => {
 .eligible-commercial-vehicles__table-shell .wp-block-table {
     margin-block-end: 8px;
     max-width: 100%;
-    /* overflow-x: auto;
-    overflow-y: hidden; */
+    
+    @media (width <= 780px) {
+        overflow-x: auto;
+        /* overflow-y: hidden; */
+    }
 
     :is(table) {
         border-width: 0;
