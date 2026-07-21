@@ -137,6 +137,8 @@
                 >
                     <h3
                         class="wp-block-heading is-style-default cz5-contrast has-extra-small-font-size eligible-commercial-vehicles__heading"
+                        :data-intake="group.intakeStatus || null"
+                        :aria-label="group.intakeAriaLabel || null"
                     >
                         {{ group.className }}
                     </h3>
@@ -203,7 +205,9 @@
                                         <td
                                             class="has-text-align-left"
                                             data-align="left"
-                                            :data-content='row.configurationDisplay'
+                                            :data-content="
+                                                row.configurationDisplay
+                                            "
                                         >
                                             {{ row.configurationDisplay }}
                                         </td>
@@ -305,6 +309,8 @@ const columns = [
 ];
 
 const rows = ref([]);
+const intakeStatuses = ref({});
+const hasLoadedIntakeStatuses = ref(false);
 const isLoading = ref(true);
 const errorMessage = ref('');
 const searchTerm = ref('');
@@ -413,6 +419,8 @@ const groupedRows = computed(() => {
         })
         .map(([className, groupRows]) => ({
             className,
+            intakeStatus: getGroupIntakeStatus(className),
+            intakeAriaLabel: getGroupHeadingAriaLabel(className),
             rows: groupRows,
         }));
 });
@@ -538,6 +546,35 @@ function extractFirstNumber(value) {
     }
 
     return Number.parseInt(match[1], 10);
+}
+
+function getIntakeStatusEndpoint(endpoint) {
+    const normalizedEndpoint = normalizeTextValue(endpoint);
+
+    if (!normalizedEndpoint) {
+        return '';
+    }
+
+    try {
+        const url = new URL(normalizedEndpoint, window.location.origin);
+        const intakePathname = url.pathname.replace(
+            /unity-eligible-vehicles-feed(?:\.json)?\/?$/,
+            (matchedPathname) =>
+                matchedPathname.includes('.json')
+                    ? 'unity-intake-class-status-feed.json'
+                    : 'unity-intake-class-status-feed'
+        );
+
+        if (intakePathname === url.pathname) {
+            return '';
+        }
+
+        url.pathname = intakePathname;
+
+        return url.toString();
+    } catch {
+        return '';
+    }
 }
 
 function normalizeConfiguration(configurationName) {
@@ -668,6 +705,20 @@ function normalizeTextValue(value) {
     return String(value || '').trim();
 }
 
+function normalizeLookupKey(value) {
+    return normalizeTextValue(value).toLowerCase();
+}
+
+function normalizeIntakeStatus(value) {
+    const normalizedStatus = normalizeLookupKey(value);
+
+    if ('open' !== normalizedStatus && 'closed' !== normalizedStatus) {
+        return '';
+    }
+
+    return normalizedStatus;
+}
+
 function normalizeNumberValue(value) {
     const parsedValue = Number.parseFloat(value);
 
@@ -704,6 +755,39 @@ function doesBatteryRangeMatchSearch(row, searchValue) {
 
 function toArray(value) {
     return Array.isArray(value) ? value : [];
+}
+
+function buildIntakeStatusLookup(intakeClasses) {
+    return toArray(intakeClasses).reduce((lookup, intakeClass) => {
+        const classNameKey = normalizeLookupKey(intakeClass?.value);
+        const intakeStatus = normalizeIntakeStatus(intakeClass?.intake);
+
+        if (classNameKey && intakeStatus) {
+            lookup[classNameKey] = intakeStatus;
+        }
+
+        return lookup;
+    }, {});
+}
+
+function getGroupIntakeStatus(className) {
+    const intakeStatus = intakeStatuses.value[normalizeLookupKey(className)];
+
+    if (intakeStatus) {
+        return intakeStatus;
+    }
+
+    return hasLoadedIntakeStatuses.value ? 'closed' : '';
+}
+
+function getGroupHeadingAriaLabel(className) {
+    const intakeStatus = getGroupIntakeStatus(className);
+
+    if (!intakeStatus) {
+        return '';
+    }
+
+    return `${className}. Intake ${intakeStatus}.`;
 }
 
 function buildSearchContent(row) {
@@ -852,15 +936,13 @@ function flattenEligibleVehiclesFeed(manufacturers) {
     return flattenedRows;
 }
 
-async function fetchFeed(endpoint) {
+async function fetchFeed(endpoint, unavailableMessage) {
     if (!feedCache.has(endpoint)) {
         feedCache.set(
             endpoint,
             fetch(endpoint, { cache: 'no-store' }).then(async (response) => {
                 if (!response.ok) {
-                    throw new Error(
-                        'Unable to load eligible commercial vehicles.'
-                    );
+                    throw new Error(unavailableMessage);
                 }
 
                 return response.json();
@@ -869,6 +951,30 @@ async function fetchFeed(endpoint) {
     }
 
     return feedCache.get(endpoint);
+}
+
+async function loadIntakeStatuses(endpoint) {
+    const intakeEndpoint = getIntakeStatusEndpoint(endpoint);
+
+    if (!intakeEndpoint) {
+        return;
+    }
+
+    try {
+        const responseData = await fetchFeed(
+            intakeEndpoint,
+            'Unable to load eligible commercial vehicle intake statuses.'
+        );
+
+        if (!Array.isArray(responseData)) {
+            return;
+        }
+
+        intakeStatuses.value = buildIntakeStatusLookup(responseData);
+        hasLoadedIntakeStatuses.value = true;
+    } catch {
+        // Intake statuses are optional and should not block the table UI.
+    }
 }
 
 onMounted(async () => {
@@ -880,7 +986,10 @@ onMounted(async () => {
     }
 
     try {
-        const responseData = await fetchFeed(props.endpoint);
+        const responseData = await fetchFeed(
+            props.endpoint,
+            'Unable to load eligible commercial vehicles.'
+        );
 
         if (!Array.isArray(responseData)) {
             throw new Error(
@@ -889,6 +998,7 @@ onMounted(async () => {
         }
 
         rows.value = flattenEligibleVehiclesFeed(responseData);
+        void loadIntakeStatuses(props.endpoint);
     } catch (error) {
         errorMessage.value =
             error instanceof Error
@@ -988,10 +1098,40 @@ onMounted(async () => {
 }
 
 .eligible-commercial-vehicles__heading {
+    align-items: center;
     border-top-right-radius: 1rem;
     color: var(--wp--preset--color--white);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
     margin: 0;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1rem 0.35rem;
+}
+
+.eligible-commercial-vehicles__heading[data-intake]::after {
+    align-items: center;
+    background: var(--wp--preset--color--white, #fff);
+    border: 2px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+}
+
+.eligible-commercial-vehicles__heading[data-intake='open']::after {
+    background-color: var(--wp--preset--color--septenary, #2e8540);
+    color: currentColor;
+    content: 'Intake open';
+}
+
+.eligible-commercial-vehicles__heading[data-intake='closed']::after {
+    background-color: var(--wp--preset--color--luminous-vivid-amber);
+    border: 2px solid var(--wp--preset--color--custom-brown-text);
+    color: var(--wp--preset--color--custom-brown-text);
+    content: 'Intake closed';
 }
 
 .eligible-commercial-vehicles__table-shell {
@@ -1000,7 +1140,7 @@ onMounted(async () => {
     min-width: 0;
 }
 
-.eligible-commercial-vehicles__group:nth-of-type(3n + 1) {
+.eligible-commercial-vehicles__group:nth-of-type(2n + 1) {
     .eligible-commercial-vehicles__heading {
         background-color: var(--wp--preset--color--primary-brand, #003366);
     }
@@ -1014,7 +1154,7 @@ onMounted(async () => {
     }
 }
 
-.eligible-commercial-vehicles__group:nth-of-type(3n + 2) {
+.eligible-commercial-vehicles__group:nth-of-type(2n + 2) {
     .eligible-commercial-vehicles__heading {
         background-color: var(--wp--preset--color--tertiary, #0055a4);
     }
@@ -1028,7 +1168,7 @@ onMounted(async () => {
     }
 }
 
-.eligible-commercial-vehicles__group:nth-of-type(3n + 3) {
+/* .eligible-commercial-vehicles__group:nth-of-type(3n + 3) {
     .eligible-commercial-vehicles__heading {
         background-color: var(--wp--preset--color--septenary, #2e8540);
     }
@@ -1040,12 +1180,12 @@ onMounted(async () => {
     .wp-block-table thead th {
         border-top: 2px solid var(--wp--preset--color--septenary, #2e8540);
     }
-}
+} */
 
 .eligible-commercial-vehicles__table-shell .wp-block-table {
     margin-block-end: 8px;
     max-width: 100%;
-    
+
     @media (width <= 850px) {
         overflow-x: auto;
         /* overflow-y: hidden; */
@@ -1162,7 +1302,7 @@ onMounted(async () => {
     }
 }
 
-td[data-content="Not available"] {
+td[data-content='Not available'] {
     font-size: 0;
 
     /* &::before {
@@ -1171,5 +1311,4 @@ td[data-content="Not available"] {
       font-size: initial;
     } */
 }
-
 </style>

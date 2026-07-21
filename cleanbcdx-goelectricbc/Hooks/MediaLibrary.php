@@ -27,6 +27,11 @@ class MediaLibrary {
 	const UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY = '_cleanbcdx_ge_unity_eligible_vehicles_feed_active';
 
 	/**
+	 * Attachment meta key used to flag intake class status feed uploads for the public unity intake class status feed.
+	 */
+	const UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY = '_cleanbcdx_ge_unity_intake_class_status_feed_active';
+
+	/**
 	 * REST namespace for the public unity feeds.
 	 */
 	const UNITY_FEED_NAMESPACE = 'custom/v1';
@@ -60,6 +65,16 @@ class MediaLibrary {
 	 * REST route alias for eligible vehicles feed clients that expect a .json suffix.
 	 */
 	const UNITY_ELIGIBLE_VEHICLES_FEED_JSON_ROUTE = '/unity-eligible-vehicles-feed.json';
+
+	/**
+	 * REST route for the public unity intake class status feed.
+	 */
+	const UNITY_INTAKE_CLASS_STATUS_FEED_ROUTE = '/unity-intake-class-status-feed';
+
+	/**
+	 * REST route alias for intake class status feed clients that expect a .json suffix.
+	 */
+	const UNITY_INTAKE_CLASS_STATUS_FEED_JSON_ROUTE = '/unity-intake-class-status-feed.json';
 
 	/**
 	 * Allow feed files to be uploaded via the Media Library.
@@ -136,15 +151,28 @@ class MediaLibrary {
 		$field_html .= sprintf(
 			'<label for="attachments-%1$d-cleanbcdx-ge-unity-oem-feed-active">' .
 			'<input type="checkbox" id="attachments-%1$d-cleanbcdx-ge-unity-oem-feed-active" name="attachments[%1$d][cleanbcdx_ge_unity_oem_feed_active]" value="1" %2$s /> %3$s' .
-			'</label><br />' .
-			'<label for="attachments-%1$d-cleanbcdx-ge-unity-eligible-vehicles-feed-active">' .
-			'<input type="checkbox" id="attachments-%1$d-cleanbcdx-ge-unity-eligible-vehicles-feed-active" name="attachments[%1$d][cleanbcdx_ge_unity_eligible_vehicles_feed_active]" value="1" %4$s /> %5$s' .
-			'</label></fieldset>',
+			'</label><br />',
 			(int) $post->ID,
 			\checked( '1', \get_post_meta( $post->ID, self::UNITY_OEM_FEED_META_KEY, true ), false ),
-			\esc_html__( 'OEM feed – custom/v1/unity-oem-feed(.json)', 'plugin' ),
+			\esc_html__( 'OEM feed – custom/v1/unity-oem-feed(.json)', 'plugin' )
+		);
+
+		$field_html .= sprintf(
+			'<label for="attachments-%1$d-cleanbcdx-ge-unity-eligible-vehicles-feed-active">' .
+			'<input type="checkbox" id="attachments-%1$d-cleanbcdx-ge-unity-eligible-vehicles-feed-active" name="attachments[%1$d][cleanbcdx_ge_unity_eligible_vehicles_feed_active]" value="1" %2$s /> %3$s' .
+			'</label><br />',
+			(int) $post->ID,
 			\checked( '1', \get_post_meta( $post->ID, self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, true ), false ),
 			\esc_html__( 'Eligible Commercial Vehicles – custom/v1/unity-eligible-vehicles-feed(.json)', 'plugin' )
+		);
+
+		$field_html .= sprintf(
+			'<label for="attachments-%1$d-cleanbcdx-ge-unity-intake-class-status-feed-active">' .
+			'<input type="checkbox" id="attachments-%1$d-cleanbcdx-ge-unity-intake-class-status-feed-active" name="attachments[%1$d][cleanbcdx_ge_unity_intake_class_status_feed_active]" value="1" %2$s /> %3$s' .
+			'</label></fieldset>',
+			(int) $post->ID,
+			\checked( '1', \get_post_meta( $post->ID, self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, true ), false ),
+			\esc_html__( 'Intake Class Status – custom/v1/unity-intake-class-status-feed(.json)', 'plugin' )
 		);
 
 		$form_fields['cleanbcdx_ge_unity_feed_settings'] = array(
@@ -152,8 +180,8 @@ class MediaLibrary {
 			'input' => 'html',
 			'html'  => $field_html,
 			'helps' => $is_csv_attachment
-				? \__( 'Expose the selected CSV file at the public Unity OEM and/or Eligible Commercial Vehicles feed endpoints. The CSV will be transformed into the public JSON response. If multiple compatible files are marked active for the same feed, the newest upload is served.', 'plugin' )
-				: \__( 'Expose the selected JSON file at the public Unity Retroactive, OEM, and/or Eligible Commercial Vehicles feed endpoints. If multiple compatible files are marked active for the same feed, the newest upload is served.', 'plugin' ),
+				? \__( 'Expose the selected CSV file at the public Unity OEM, Eligible Commercial Vehicles, and/or Intake Class Status feed endpoints. The CSV will be transformed into the public JSON response. If multiple compatible files are marked active for the same feed, the newest upload is served.', 'plugin' )
+				: \__( 'Expose the selected JSON file at the public Unity Retroactive, OEM, Eligible Commercial Vehicles, and/or Intake Class Status feed endpoints. If multiple compatible files are marked active for the same feed, the newest upload is served.', 'plugin' ),
 		);
 
 		return $form_fields;
@@ -180,6 +208,7 @@ class MediaLibrary {
 			\delete_post_meta( $post_id, self::UNITY_RETROACTIVE_FEED_META_KEY );
 			\delete_post_meta( $post_id, self::UNITY_OEM_FEED_META_KEY );
 			\delete_post_meta( $post_id, self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY );
+			\delete_post_meta( $post_id, self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY );
 
 			return $post;
 		}
@@ -200,6 +229,12 @@ class MediaLibrary {
 			$post_id,
 			self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY,
 			( $is_json_attachment || $is_csv_attachment ) && ! empty( $attachment['cleanbcdx_ge_unity_eligible_vehicles_feed_active'] )
+		);
+
+		$this->update_unity_feed_attachment_flag(
+			$post_id,
+			self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY,
+			( $is_json_attachment || $is_csv_attachment ) && ! empty( $attachment['cleanbcdx_ge_unity_intake_class_status_feed_active'] )
 		);
 
 		return $post;
@@ -246,6 +281,16 @@ class MediaLibrary {
 			self::UNITY_ELIGIBLE_VEHICLES_FEED_JSON_ROUTE,
 			array_merge( $route_args, array( 'callback' => array( $this, 'get_unity_eligible_vehicles_feed_response' ) ) )
 		);
+		\register_rest_route(
+			self::UNITY_FEED_NAMESPACE,
+			self::UNITY_INTAKE_CLASS_STATUS_FEED_ROUTE,
+			array_merge( $route_args, array( 'callback' => array( $this, 'get_unity_intake_class_status_feed_response' ) ) )
+		);
+		\register_rest_route(
+			self::UNITY_FEED_NAMESPACE,
+			self::UNITY_INTAKE_CLASS_STATUS_FEED_JSON_ROUTE,
+			array_merge( $route_args, array( 'callback' => array( $this, 'get_unity_intake_class_status_feed_response' ) ) )
+		);
 	}
 
 	/**
@@ -289,6 +334,45 @@ class MediaLibrary {
 	}
 
 	/**
+	 * Return the currently active unity intake class status feed attachment as a public API response.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_unity_intake_class_status_feed_response() {
+		$feed_label = \__( 'Unity Intake Class Status feed', 'plugin' );
+		$response   = $this->get_unity_csv_capable_feed_response_for_meta_key(
+			self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY,
+			'cleanbcdx_ge_unity_intake_class_status_feed',
+			$feed_label,
+			array(
+				'flat_headers' => array( 'label', 'value', 'intake' ),
+			)
+		);
+
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+
+		if ( ! is_array( $data ) ) {
+			return new \WP_Error(
+				'cleanbcdx_ge_unity_intake_class_status_feed_invalid_data',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s must contain a JSON array or CSV rows.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 422 )
+			);
+		}
+
+		$response->set_data( $this->normalize_unity_intake_class_status_feed_rows( $data ) );
+
+		return $response;
+	}
+
+	/**
 	 * Return the currently active JSON or CSV attachment for a feed as a public API response.
 	 *
 	 * @param string $meta_key          Attachment meta key that flags the active feed file.
@@ -317,6 +401,10 @@ class MediaLibrary {
 		}
 
 		if ( $this->is_csv_attachment( $attachment_id ) ) {
+			if ( ! empty( $csv_options['flat_headers'] ) ) {
+				return $this->get_unity_flat_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label, $csv_options['flat_headers'] );
+			}
+
 			return $this->get_unity_vehicle_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label, $csv_options );
 		}
 
@@ -466,6 +554,189 @@ class MediaLibrary {
 	}
 
 	/**
+	 * Return a CSV-backed flat feed attachment as a public API response.
+	 *
+	 * @param int    $attachment_id      Attachment ID.
+	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
+	 * @param string $feed_label        Human-readable feed label.
+	 * @param array  $required_headers  Required CSV headers to return in each row.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	protected function get_unity_flat_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label, $required_headers ) {
+		$file_path = $this->get_attachment_file_path( $attachment_id );
+
+		if ( empty( $file_path ) || ! file_exists( $file_path ) || ! is_readable( $file_path ) ) {
+			return new \WP_Error(
+				$error_code_prefix . '_missing_file',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s could not be found.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 404 )
+			);
+		}
+
+		$data = $this->parse_unity_flat_csv_file( $file_path, $error_code_prefix, $feed_label, $required_headers );
+
+		if ( \is_wp_error( $data ) ) {
+			return $data;
+		}
+
+		$response = \rest_ensure_response( $data );
+		$response->header( 'X-Content-Type-Options', 'nosniff' );
+
+		return $response;
+	}
+
+	/**
+	 * Parse a flat CSV feed attachment into an array of rows.
+	 *
+	 * @param string $file_path         Absolute file path.
+	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
+	 * @param string $feed_label        Human-readable feed label.
+	 * @param array  $required_headers  Required CSV headers to return in each row.
+	 * @return array|\WP_Error
+	 */
+	protected function parse_unity_flat_csv_file( $file_path, $error_code_prefix, $feed_label, $required_headers ) {
+		$handle = fopen( $file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Reading a verified local attachment path.
+
+		if ( false === $handle ) {
+			return new \WP_Error(
+				$error_code_prefix . '_unreadable_file',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s could not be read.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 500 )
+			);
+		}
+
+		$headers = fgetcsv( $handle );
+
+		if ( false === $headers ) {
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+			return new \WP_Error(
+				$error_code_prefix . '_invalid_csv',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s does not contain a valid CSV header row.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 422 )
+			);
+		}
+
+		$headers      = $this->normalize_unity_csv_headers( $headers );
+		$header_error = $this->validate_unity_required_csv_headers( $headers, $required_headers, $error_code_prefix, $feed_label );
+
+		if ( \is_wp_error( $header_error ) ) {
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+			return $header_error;
+		}
+
+		$rows        = array();
+		$line_number = 1;
+
+		while ( true ) {
+			$row = fgetcsv( $handle );
+
+			if ( false === $row ) {
+				break;
+			}
+
+			++$line_number;
+
+			if ( $this->is_unity_csv_row_blank( $row ) ) {
+				continue;
+			}
+
+			if ( count( $row ) !== count( $headers ) ) {
+				fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+				return $this->get_unity_invalid_csv_error(
+					$error_code_prefix,
+					$feed_label,
+					sprintf(
+						/* translators: %1$s: feed label, %2$d: line number. */
+						\__( 'The active file for the %1$s contains an invalid CSV row at line %2$d.', 'plugin' ),
+						$feed_label,
+						$line_number
+					)
+				);
+			}
+
+			$record = array_combine( $headers, $row );
+			$entry  = array();
+
+			foreach ( $required_headers as $header ) {
+				$value = trim( (string) $record[ $header ] );
+
+				if ( '' === $value ) {
+					fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+					return $this->get_unity_invalid_csv_error(
+						$error_code_prefix,
+						$feed_label,
+						sprintf(
+							/* translators: %1$s: feed label, %2$s: field name, %3$d: line number. */
+							\__( 'The active file for the %1$s is missing a value for %2$s at line %3$d.', 'plugin' ),
+							$feed_label,
+							$header,
+							$line_number
+						)
+					);
+				}
+
+				$entry[ $header ] = $value;
+			}
+
+			$rows[] = $entry;
+		}
+
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+		return $rows;
+	}
+
+	/**
+	 * Normalize intake class status rows so the public feed only exposes open classes.
+	 *
+	 * @param array $rows Parsed intake class status rows.
+	 * @return array
+	 */
+	protected function normalize_unity_intake_class_status_feed_rows( $rows ) {
+		$normalized_rows = array();
+
+		foreach ( $rows as $row ) {
+			if ( is_object( $row ) ) {
+				$row = get_object_vars( $row );
+			}
+
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			$intake = strtolower( trim( (string) ( isset( $row['intake'] ) ? $row['intake'] : '' ) ) );
+
+			if ( 'open' !== $intake ) {
+				continue;
+			}
+
+			$normalized_rows[] = array(
+				'label'  => trim( (string) ( isset( $row['label'] ) ? $row['label'] : '' ) ),
+				'value'  => trim( (string) ( isset( $row['value'] ) ? $row['value'] : '' ) ),
+				'intake' => 'open',
+			);
+		}
+
+		return $normalized_rows;
+	}
+
+	/**
 	 * Parse a CSV vehicle feed attachment into the public response shape.
 	 *
 	 * @param string $file_path         Absolute file path.
@@ -505,7 +776,7 @@ class MediaLibrary {
 			);
 		}
 
-		$headers      = $this->normalize_unity_vehicle_csv_headers( $headers );
+		$headers      = $this->normalize_unity_csv_headers( $headers );
 		$header_error = $this->validate_unity_vehicle_csv_headers( $headers, $error_code_prefix, $feed_label, $csv_options );
 
 		if ( \is_wp_error( $header_error ) ) {
@@ -526,14 +797,14 @@ class MediaLibrary {
 
 			++$line_number;
 
-			if ( $this->is_unity_vehicle_csv_row_blank( $row ) ) {
+			if ( $this->is_unity_csv_row_blank( $row ) ) {
 				continue;
 			}
 
 			if ( count( $row ) !== count( $headers ) ) {
 				fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
 
-				return $this->get_unity_vehicle_invalid_csv_error(
+				return $this->get_unity_invalid_csv_error(
 					$error_code_prefix,
 					$feed_label,
 					sprintf(
@@ -673,7 +944,7 @@ class MediaLibrary {
 	 * @param array $headers Raw CSV headers.
 	 * @return array
 	 */
-	protected function normalize_unity_vehicle_csv_headers( $headers ) {
+	protected function normalize_unity_csv_headers( $headers ) {
 		$normalized = array();
 
 		foreach ( $headers as $index => $header ) {
@@ -692,7 +963,7 @@ class MediaLibrary {
 	/**
 	 * Validate that the CSV headers include the required vehicle feed columns.
 	 *
-	 * @param array  $headers            Normalized CSV headers.
+	 * @param array  $headers           Normalized CSV headers.
 	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
 	 * @param string $feed_label        Human-readable feed label.
 	 * @param array  $csv_options       CSV parsing options.
@@ -717,8 +988,22 @@ class MediaLibrary {
 			$required_headers[] = 'decision_date';
 		}
 
+		return $this->validate_unity_required_csv_headers( $headers, $required_headers, $error_code_prefix, $feed_label );
+	}
+
+	/**
+	 * Validate that the CSV headers include the required columns.
+	 *
+	 * @param array  $headers           Normalized CSV headers.
+	 * @param array  $required_headers  Required CSV headers.
+	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
+	 * @param string $feed_label        Human-readable feed label.
+	 * @return true|\WP_Error
+	 */
+	protected function validate_unity_required_csv_headers( $headers, $required_headers, $error_code_prefix, $feed_label ) {
+
 		if ( count( array_filter( $headers, 'strlen' ) ) !== count( array_unique( array_filter( $headers, 'strlen' ) ) ) || in_array( '', $headers, true ) ) {
-			return $this->get_unity_vehicle_invalid_csv_error(
+			return $this->get_unity_invalid_csv_error(
 				$error_code_prefix,
 				$feed_label,
 				sprintf(
@@ -732,7 +1017,7 @@ class MediaLibrary {
 		$missing_headers = array_diff( $required_headers, $headers );
 
 		if ( ! empty( $missing_headers ) ) {
-			return $this->get_unity_vehicle_invalid_csv_error(
+			return $this->get_unity_invalid_csv_error(
 				$error_code_prefix,
 				$feed_label,
 				sprintf(
@@ -753,7 +1038,7 @@ class MediaLibrary {
 	 * @param array $row CSV row values.
 	 * @return bool
 	 */
-	protected function is_unity_vehicle_csv_row_blank( $row ) {
+	protected function is_unity_csv_row_blank( $row ) {
 		foreach ( $row as $value ) {
 			if ( '' !== trim( (string) $value ) ) {
 				return false;
@@ -815,7 +1100,7 @@ class MediaLibrary {
 		$value = trim( (string) $record[ $field ] );
 
 		if ( '' === $value ) {
-			return $this->get_unity_vehicle_invalid_csv_error(
+			return $this->get_unity_invalid_csv_error(
 				$error_code_prefix,
 				$feed_label,
 				sprintf(
@@ -856,7 +1141,7 @@ class MediaLibrary {
 		$value = trim( (string) $record[ $field ] );
 
 		if ( '' === $value || ! is_numeric( $value ) ) {
-			return $this->get_unity_vehicle_invalid_csv_error(
+			return $this->get_unity_invalid_csv_error(
 				$error_code_prefix,
 				$feed_label,
 				sprintf(
@@ -890,7 +1175,7 @@ class MediaLibrary {
 		}
 
 		if ( ! is_numeric( $value ) ) {
-			return $this->get_unity_vehicle_invalid_csv_error(
+			return $this->get_unity_invalid_csv_error(
 				$error_code_prefix,
 				$feed_label,
 				sprintf(
@@ -1026,7 +1311,7 @@ class MediaLibrary {
 	 * @param string $message           Error message.
 	 * @return \WP_Error
 	 */
-	protected function get_unity_vehicle_invalid_csv_error( $error_code_prefix, $feed_label, $message ) {
+	protected function get_unity_invalid_csv_error( $error_code_prefix, $feed_label, $message ) {
 		return new \WP_Error(
 			$error_code_prefix . '_invalid_csv',
 			$message,

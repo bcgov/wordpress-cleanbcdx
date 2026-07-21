@@ -1,3 +1,6 @@
+## 1.0.11 July 21, 2026
+– Added a new Unity Intake Class Status feed option in the Media Library with REST endpoints
+
 ## 1.0.10 July 20, 2026
 – Sticky eligible vehicle table headers for desktop and mobile
 
