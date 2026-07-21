@@ -132,17 +132,70 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * OEM route should return uploaded JSON attachments verbatim.
+	 * OEM route should normalize uploaded JSON attachments into the public make/model response shape.
 	 *
 	 * @return void
 	 */
-	public function test_oem_route_returns_json_verbatim() {
+	public function test_oem_route_normalizes_and_sorts_json_attachments() {
 		$expected      = array(
-			'make'        => 'BYD',
-			'models'      => array( 'Explore', 'Discover' ),
-			'generatedAt' => '2026-07-08',
+			array(
+				'make'   => 'ARBOC',
+				'models' => array(
+					array(
+						'model_name' => 'Equess CHARGE',
+					),
+				),
+			),
+			array(
+				'make'   => 'Autocar',
+				'models' => array(
+					array(
+						'model_name' => 'E-ACTT',
+					),
+				),
+			),
+			array(
+				'make'   => 'BYD',
+				'models' => array(
+					array(
+						'model_name' => '6F',
+					),
+					array(
+						'model_name' => '8TT',
+					),
+					array(
+						'model_name' => '8Y',
+					),
+				),
+			),
 		);
-		$attachment_id = $this->create_attachment( 'unity-oem-feed.json', \wp_json_encode( $expected ), 'application/json' );
+		$payload       = array(
+			array(
+				'make'   => 'BYD',
+				'models' => array(
+					array(
+						'model_name'    => '8Y',
+						'configuration' => array(
+							array( 'configuration_name' => 'XL' ),
+						),
+					),
+					array( 'model_name' => '6F' ),
+					array( 'model_name' => '8TT' ),
+					array( 'model_name' => '8Y' ),
+				),
+			),
+			array(
+				'make'   => 'Autocar',
+				'models' => array(
+					array( 'model_name' => 'E-ACTT' ),
+				),
+			),
+			array(
+				'make'   => 'ARBOC',
+				'models' => array( 'Equess CHARGE' ),
+			),
+		);
+		$attachment_id = $this->create_attachment( 'unity-oem-feed.json', \wp_json_encode( $payload ), 'application/json' );
 
 		\update_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, '1' );
 
@@ -153,11 +206,11 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * OEM route should transform CSV attachments into the expected nested JSON structure.
+	 * OEM route should transform CSV attachments into the expected make/model-only JSON structure.
 	 *
 	 * @return void
 	 */
-	public function test_oem_route_transforms_csv_into_nested_response() {
+	public function test_oem_route_transforms_csv_into_simplified_response() {
 		$attachment_id = $this->create_attachment( 'unity-oem-feed.csv', $this->get_sample_oem_csv(), 'text/csv' );
 
 		\update_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, '1' );
@@ -403,11 +456,40 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Return the expected nested OEM response for the sample CSV.
+	 * Return the expected simplified OEM response for the sample CSV.
 	 *
 	 * @return array
 	 */
 	protected function get_expected_oem_csv_response() {
+		return array(
+			array(
+				'make'   => 'BYD',
+				'models' => array(
+					array(
+						'model_name' => 'Discover',
+					),
+					array(
+						'model_name' => 'Explore',
+					),
+				),
+			),
+			array(
+				'make'   => 'Ford',
+				'models' => array(
+					array(
+						'model_name' => 'F150 Lightning',
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Return the expected nested vehicle response for the sample CSV.
+	 *
+	 * @return array
+	 */
+	protected function get_expected_vehicle_csv_response() {
 		return array(
 			array(
 				'make'   => 'BYD',
@@ -553,7 +635,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	 * @return array
 	 */
 	protected function get_expected_eligible_vehicles_csv_response() {
-		$response       = $this->get_expected_oem_csv_response();
+		$response       = $this->get_expected_vehicle_csv_response();
 		$decision_dates = array( '6/12/2026', '6/13/2026', '6/14/2026', '6/15/2026', '6/15/2026' );
 		$index          = 0;
 

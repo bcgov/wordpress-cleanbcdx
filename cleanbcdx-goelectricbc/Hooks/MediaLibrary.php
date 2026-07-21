@@ -312,11 +312,26 @@ class MediaLibrary {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_unity_oem_feed_response() {
-		return $this->get_unity_csv_capable_feed_response_for_meta_key(
+		$feed_label = \__( 'Unity OEM feed', 'plugin' );
+		$response   = $this->get_unity_csv_capable_feed_response_for_meta_key(
 			self::UNITY_OEM_FEED_META_KEY,
 			'cleanbcdx_ge_unity_oem_feed',
-			\__( 'Unity OEM feed', 'plugin' )
+			$feed_label
 		);
+
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$data = $this->normalize_unity_oem_feed_response_data( $response->get_data(), $feed_label );
+
+		if ( \is_wp_error( $data ) ) {
+			return $data;
+		}
+
+		$response->set_data( $data );
+
+		return $response;
 	}
 
 	/**
@@ -734,6 +749,126 @@ class MediaLibrary {
 		}
 
 		return $normalized_rows;
+	}
+
+	/**
+	 * Normalize OEM feed data to the public make/model-only response shape.
+	 *
+	 * @param mixed  $data       Parsed OEM feed data.
+	 * @param string $feed_label Human-readable feed label.
+	 * @return array|\WP_Error
+	 */
+	protected function normalize_unity_oem_feed_response_data( $data, $feed_label ) {
+		if ( is_object( $data ) ) {
+			$data = get_object_vars( $data );
+		}
+
+		if ( ! is_array( $data ) ) {
+			return new \WP_Error(
+				'cleanbcdx_ge_unity_oem_feed_invalid_data',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s must contain an array of manufacturers or a single manufacturer object.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 422 )
+			);
+		}
+
+		if ( isset( $data['make'] ) ) {
+			$data = array( $data );
+		} elseif ( array_keys( $data ) !== array_keys( array_values( $data ) ) ) {
+			return new \WP_Error(
+				'cleanbcdx_ge_unity_oem_feed_invalid_data',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s must contain an array of manufacturers or a single manufacturer object.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 422 )
+			);
+		}
+
+		$manufacturers = array();
+
+		foreach ( $data as $manufacturer ) {
+			if ( is_object( $manufacturer ) ) {
+				$manufacturer = get_object_vars( $manufacturer );
+			}
+
+			if ( ! is_array( $manufacturer ) ) {
+				continue;
+			}
+
+			$make = trim( (string) ( isset( $manufacturer['make'] ) ? $manufacturer['make'] : '' ) );
+
+			if ( '' === $make ) {
+				continue;
+			}
+
+			$make_key = strtolower( $make );
+
+			if ( ! isset( $manufacturers[ $make_key ] ) ) {
+				$manufacturers[ $make_key ] = array(
+					'make'   => $make,
+					'models' => array(),
+				);
+			}
+
+			$models = isset( $manufacturer['models'] ) ? $manufacturer['models'] : array();
+
+			if ( is_object( $models ) ) {
+				$models = get_object_vars( $models );
+			}
+
+			if ( ! is_array( $models ) ) {
+				continue;
+			}
+
+			foreach ( $models as $model ) {
+				$model_name = $this->get_unity_oem_model_name( $model );
+				if ( '' === $model_name ) {
+					continue;
+				}
+
+				$manufacturers[ $make_key ]['models'][ strtolower( $model_name ) ] = array(
+					'model_name' => $model_name,
+				);
+			}
+		}
+
+		ksort( $manufacturers, SORT_NATURAL | SORT_FLAG_CASE );
+
+		foreach ( $manufacturers as &$manufacturer ) {
+			ksort( $manufacturer['models'], SORT_NATURAL | SORT_FLAG_CASE );
+			$manufacturer['models'] = array_values( $manufacturer['models'] );
+		}
+
+		unset( $manufacturer );
+
+		return array_values( $manufacturers );
+	}
+
+	/**
+	 * Extract a model name from an OEM feed model entry.
+	 *
+	 * @param mixed $model OEM feed model entry.
+	 * @return string
+	 */
+	protected function get_unity_oem_model_name( $model ) {
+		if ( is_string( $model ) || is_numeric( $model ) ) {
+			return trim( (string) $model );
+		}
+
+		if ( is_object( $model ) ) {
+			$model = get_object_vars( $model );
+		}
+
+		if ( ! is_array( $model ) ) {
+			return '';
+		}
+
+		return trim( (string) ( isset( $model['model_name'] ) ? $model['model_name'] : '' ) );
 	}
 
 	/**
