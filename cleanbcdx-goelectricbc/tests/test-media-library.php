@@ -285,9 +285,54 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
 
 		$expected = $this->get_expected_eligible_vehicles_csv_response();
-		$expected[0]['models'][0]['configuration'][0]['model_years'][0]['vehicle_class'][0]['vehicle_type'][0]['fuel_type'][0]['battery'][0]['decision_date'] = '';
+		$expected[0]['models'][1]['configuration'][0]['model_years'][0]['vehicle_class'][0]['vehicle_type'][0]['fuel_type'][0]['battery'][0]['decision_date'] = '';
 
 		$this->assertSame( $expected, $response->get_data() );
+	}
+
+	/**
+	 * Eligible vehicles route should sort each nested level and battery arrays in ascending order.
+	 *
+	 * @return void
+	 */
+	public function test_eligible_vehicles_route_sorts_nested_levels_and_batteries_ascending() {
+		$csv = implode(
+			"\n",
+			array(
+				"\xEF\xBB\xBFmake,model,configuration,model_year,vehicle_type,vehicle_class,fuel_type,battery_size_range,decision_date,battery_size,lower_battery_range,upper_battery_range",
+				'Zevo,Runner,Premium,2027,Truck,Class 7,FCEV,200 kWh - 300 kWh,6/20/2026,,200,300',
+				'Zevo,Runner,Premium,2027,Truck,Class 7,BEV,300 kWh,6/19/2026,300,,',
+				'Zevo,Runner,Premium,2027,Truck,Class 7,BEV,70 kWh,6/18/2026,70,,',
+				'Zevo,Runner,Premium,2027,Coach,Class 7,BEV,90 kWh,6/17/2026,90,,',
+				'Zevo,Runner,Premium,2027,Coach,Class 3,BEV,95 kWh,6/16/2026,95,,',
+				'Zevo,Runner,Base,2028,Truck,Class 7,BEV,80 kWh,6/21/2026,80,,',
+				'Zevo,Runner,Base,2026,Truck,Class 7,BEV,75 kWh,6/15/2026,75,,',
+				'Zevo,Roadster,Base,2026,Truck,Class 7,BEV,85 kWh,6/14/2026,85,,',
+				'Alpha,Runner,Base,2026,Truck,Class 7,BEV,60 kWh,6/13/2026,60,,',
+			)
+		);
+
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-feed-sorted.csv', $csv, 'text/csv' );
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, '1' );
+
+		$response = $this->media_library->get_unity_eligible_vehicles_feed_response();
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+
+		$data = $response->get_data();
+
+		$this->assertSame( array( 'Alpha', 'Zevo' ), array_column( $data, 'make' ) );
+		$this->assertSame( array( 'Roadster', 'Runner' ), array_column( $data[1]['models'], 'model_name' ) );
+		$this->assertSame( array( 'Base', 'Premium' ), array_column( $data[1]['models'][1]['configuration'], 'configuration_name' ) );
+		$this->assertSame( array( 2026, 2028 ), array_column( $data[1]['models'][1]['configuration'][0]['model_years'], 'year' ) );
+		$this->assertSame( array( 'Class 3', 'Class 7' ), array_column( $data[1]['models'][1]['configuration'][1]['model_years'][0]['vehicle_class'], 'vehicle_class_name' ) );
+		$this->assertSame( array( 'Coach', 'Truck' ), array_column( $data[1]['models'][1]['configuration'][1]['model_years'][0]['vehicle_class'][1]['vehicle_type'], 'vehicle_type_name' ) );
+		$this->assertSame( array( 'BEV', 'FCEV' ), array_column( $data[1]['models'][1]['configuration'][1]['model_years'][0]['vehicle_class'][1]['vehicle_type'][1]['fuel_type'], 'fuel_type_name' ) );
+		$this->assertSame(
+			array( '70 kWh', '300 kWh' ),
+			array_column( $data[1]['models'][1]['configuration'][1]['model_years'][0]['vehicle_class'][1]['vehicle_type'][1]['fuel_type'][0]['battery'], 'battery_size_range' )
+		);
 	}
 
 	/**
@@ -495,6 +540,42 @@ class MediaLibraryTest extends WP_UnitTestCase {
 				'make'   => 'BYD',
 				'models' => array(
 					array(
+						'model_name'    => 'Discover',
+						'configuration' => array(
+							array(
+								'configuration_name' => '6 Feet',
+								'model_years'        => array(
+									array(
+										'year'          => 2027,
+										'vehicle_class' => array(
+											array(
+												'vehicle_class_name' => 'Class 7',
+												'vehicle_type'       => array(
+													array(
+														'vehicle_type_name' => 'Coach',
+														'fuel_type'         => array(
+															array(
+																'fuel_type_name' => 'BEV',
+																'battery'        => array(
+																	array(
+																		'battery_size'        => 500,
+																		'lower_battery_range' => null,
+																		'upper_battery_range' => null,
+																		'battery_size_range'  => '500 kWh',
+																	),
+																),
+															),
+														),
+													),
+												),
+											),
+										),
+									),
+								),
+							),
+						),
+					),
+					array(
 						'model_name'    => 'Explore',
 						'configuration' => array(
 							array(
@@ -523,42 +604,6 @@ class MediaLibraryTest extends WP_UnitTestCase {
 																		'lower_battery_range' => 200,
 																		'upper_battery_range' => 300,
 																		'battery_size_range'  => '200 kWh - 300 kWh',
-																	),
-																),
-															),
-														),
-													),
-												),
-											),
-										),
-									),
-								),
-							),
-						),
-					),
-					array(
-						'model_name'    => 'Discover',
-						'configuration' => array(
-							array(
-								'configuration_name' => '6 Feet',
-								'model_years'        => array(
-									array(
-										'year'          => 2027,
-										'vehicle_class' => array(
-											array(
-												'vehicle_class_name' => 'Class 7',
-												'vehicle_type'       => array(
-													array(
-														'vehicle_type_name' => 'Coach',
-														'fuel_type'         => array(
-															array(
-																'fuel_type_name' => 'BEV',
-																'battery'        => array(
-																	array(
-																		'battery_size'        => 500,
-																		'lower_battery_range' => null,
-																		'upper_battery_range' => null,
-																		'battery_size_range'  => '500 kWh',
 																	),
 																),
 															),
@@ -636,7 +681,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	 */
 	protected function get_expected_eligible_vehicles_csv_response() {
 		$response       = $this->get_expected_vehicle_csv_response();
-		$decision_dates = array( '6/12/2026', '6/13/2026', '6/14/2026', '6/15/2026', '6/15/2026' );
+		$decision_dates = array( '6/14/2026', '6/12/2026', '6/13/2026', '6/15/2026', '6/15/2026' );
 		$index          = 0;
 
 		foreach ( $response as &$manufacturer ) {

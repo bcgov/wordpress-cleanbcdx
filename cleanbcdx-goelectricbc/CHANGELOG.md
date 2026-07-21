@@ -1,5 +1,5 @@
 ## 1.0.12 July 21, 2026
-– Normalise the OEM endpoint output to use shared eligible vehicles CSV 
+– Normalise the OEM endpoint output to use shared eligible vehicles CSV and added sorting
 
 ## 1.0.11 July 21, 2026
 – Added a new Unity Intake Class Status feed option in the Media Library with REST endpoints

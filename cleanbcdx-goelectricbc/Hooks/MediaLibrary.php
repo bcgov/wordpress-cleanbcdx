@@ -1409,12 +1409,31 @@ class MediaLibrary {
 	 * @return array
 	 */
 	protected function finalize_unity_vehicle_csv_feed_data( $manufacturers ) {
+		ksort( $manufacturers, SORT_NATURAL | SORT_FLAG_CASE );
+
 		foreach ( $manufacturers as &$manufacturer ) {
+			ksort( $manufacturer['models'], SORT_NATURAL | SORT_FLAG_CASE );
+
 			foreach ( $manufacturer['models'] as &$model ) {
+				ksort( $model['configuration'], SORT_NATURAL | SORT_FLAG_CASE );
+
 				foreach ( $model['configuration'] as &$configuration ) {
+					ksort( $configuration['model_years'], SORT_NUMERIC );
+
 					foreach ( $configuration['model_years'] as &$model_year ) {
+						ksort( $model_year['vehicle_class'], SORT_NATURAL | SORT_FLAG_CASE );
+
 						foreach ( $model_year['vehicle_class'] as &$vehicle_class ) {
+							ksort( $vehicle_class['vehicle_type'], SORT_NATURAL | SORT_FLAG_CASE );
+
 							foreach ( $vehicle_class['vehicle_type'] as &$vehicle_type ) {
+								ksort( $vehicle_type['fuel_type'], SORT_NATURAL | SORT_FLAG_CASE );
+
+								foreach ( $vehicle_type['fuel_type'] as &$fuel_type ) {
+									usort( $fuel_type['battery'], array( $this, 'compare_unity_vehicle_csv_batteries' ) );
+								}
+
+								unset( $fuel_type );
 								$vehicle_type['fuel_type'] = array_values( $vehicle_type['fuel_type'] );
 							}
 
@@ -1436,6 +1455,103 @@ class MediaLibrary {
 		unset( $manufacturer, $model, $configuration, $model_year, $vehicle_class, $vehicle_type );
 
 		return array_values( $manufacturers );
+	}
+
+	/**
+	 * Compare vehicle battery entries in ascending order.
+	 *
+	 * @param array $left  Left battery entry.
+	 * @param array $right Right battery entry.
+	 * @return int
+	 */
+	protected function compare_unity_vehicle_csv_batteries( $left, $right ) {
+		$left_primary  = $this->get_unity_vehicle_battery_primary_sort_value( $left );
+		$right_primary = $this->get_unity_vehicle_battery_primary_sort_value( $right );
+
+		if ( $left_primary !== $right_primary ) {
+			if ( null === $left_primary ) {
+				return 1;
+			}
+
+			if ( null === $right_primary ) {
+				return -1;
+			}
+
+			return $left_primary <=> $right_primary;
+		}
+
+		$left_secondary  = $this->get_unity_vehicle_battery_secondary_sort_value( $left );
+		$right_secondary = $this->get_unity_vehicle_battery_secondary_sort_value( $right );
+
+		if ( $left_secondary !== $right_secondary ) {
+			if ( null === $left_secondary ) {
+				return 1;
+			}
+
+			if ( null === $right_secondary ) {
+				return -1;
+			}
+
+			return $left_secondary <=> $right_secondary;
+		}
+
+		$comparison = strnatcasecmp(
+			isset( $left['battery_size_range'] ) ? (string) $left['battery_size_range'] : '',
+			isset( $right['battery_size_range'] ) ? (string) $right['battery_size_range'] : ''
+		);
+
+		if ( 0 !== $comparison ) {
+			return $comparison;
+		}
+
+		return strnatcasecmp(
+			isset( $left['decision_date'] ) ? (string) $left['decision_date'] : '',
+			isset( $right['decision_date'] ) ? (string) $right['decision_date'] : ''
+		);
+	}
+
+	/**
+	 * Return the primary numeric sort value for a battery entry.
+	 *
+	 * @param array $battery Battery entry.
+	 * @return int|null
+	 */
+	protected function get_unity_vehicle_battery_primary_sort_value( $battery ) {
+		if ( isset( $battery['battery_size'] ) && null !== $battery['battery_size'] ) {
+			return (int) $battery['battery_size'];
+		}
+
+		if ( isset( $battery['lower_battery_range'] ) && null !== $battery['lower_battery_range'] ) {
+			return (int) $battery['lower_battery_range'];
+		}
+
+		if ( isset( $battery['upper_battery_range'] ) && null !== $battery['upper_battery_range'] ) {
+			return (int) $battery['upper_battery_range'];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Return the secondary numeric sort value for a battery entry.
+	 *
+	 * @param array $battery Battery entry.
+	 * @return int|null
+	 */
+	protected function get_unity_vehicle_battery_secondary_sort_value( $battery ) {
+		if ( isset( $battery['battery_size'] ) && null !== $battery['battery_size'] ) {
+			return (int) $battery['battery_size'];
+		}
+
+		if ( isset( $battery['upper_battery_range'] ) && null !== $battery['upper_battery_range'] ) {
+			return (int) $battery['upper_battery_range'];
+		}
+
+		if ( isset( $battery['lower_battery_range'] ) && null !== $battery['lower_battery_range'] ) {
+			return (int) $battery['lower_battery_range'];
+		}
+
+		return null;
 	}
 
 	/**
