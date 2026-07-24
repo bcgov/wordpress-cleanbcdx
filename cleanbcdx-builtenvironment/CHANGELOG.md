@@ -1,3 +1,8 @@
+## 1.0.2 July 23, 2026
+– Refactored custom patterns
+– Removed dark color-scheme setting
+– Added feature to fingerprint CSV uploads for eligible vehicles block last updated output
+
 ## 1.0.1 June 25, 2026
 – Added the ECAP block to the vNext rebates questionnaire results.
 

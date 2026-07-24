@@ -1,16 +1,15 @@
 <?php
 
-namespace Bcgov\Plugin\CleanBCDXBE\Hooks;
+namespace Bcgov\Plugin\CleanBCDX\Hooks;
 
 /**
  * Sets up basic php template blocks for CleanBC
  *
- * @since 1.5.0
+ * @since 1.0.8
  *
- * @package Bcgov\Plugin\BasicBlocks
+ * @package Bcgov\Plugin\QueryBlocks
  */
-class BasicBlocks {
-
+class QueryBlocks {
 
     /**
      * Constructor.
@@ -37,7 +36,7 @@ class BasicBlocks {
      */
     public function enqueue_admin_scripts() {
         $name       = 'admin';
-        $asset_info = \Bcgov\Plugin\CleanBCDXBE\Setup::get_asset_information( $name, 'dist-basic' );
+        $asset_info = \Bcgov\Plugin\CleanBCDX\Setup::get_asset_information( $name, 'dist-basic' );
 
         wp_enqueue_script(
             $asset_info['handle'],
@@ -80,17 +79,6 @@ class BasicBlocks {
         );
     }
 
-    /**
-     * Helper function to check if the block render call is coming from Gutenburg or the website.
-     *
-     * @return bool $is_gb_editor
-     */
-    private function check_is_gb_editor() {
-        $is_gb_editor = defined( 'REST_REQUEST' ) && true === REST_REQUEST && ! empty( $_REQUEST['context'] ) && 'edit' === filter_input( INPUT_GET, 'context', FILTER_SANITIZE_SPECIAL_CHARS ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-        return $is_gb_editor;
-    }
-
 
     /**
      * Registers blocks and callbacks for dynamic blocks.
@@ -98,31 +86,36 @@ class BasicBlocks {
      * @return void
      */
     public function register_blocks(): void {
-        // Path to block.json folders.
-        $multiquery_block_dir            = plugin_dir_path( __DIR__ ) . 'scripts/blocks/multi-query';
-        $queryconditionalgroup_block_dir = plugin_dir_path( __DIR__ ) . 'scripts/blocks/query-conditional-group';
-        $queryfilter_block_dir           = plugin_dir_path( __DIR__ ) . 'scripts/blocks/query-filter-block';
-
-        register_block_type_from_metadata(
-            $multiquery_block_dir,
+        $block_definitions = [
             [
+                'directory'       => plugin_dir_path( __DIR__ ) . 'scripts/blocks/multi-query',
                 'render_callback' => [ $this, 'render_multi_query_block' ],
-            ]
-        );
-        register_block_type_from_metadata(
-            $queryconditionalgroup_block_dir,
+            ],
             [
+                'directory'       => plugin_dir_path( __DIR__ ) . 'scripts/blocks/query-conditional-group',
                 'render_callback' => [ $this, 'render_query_conditional_group' ],
-            ]
-        );
-        register_block_type_from_metadata(
-            $queryfilter_block_dir,
+            ],
             [
+                'directory'       => plugin_dir_path( __DIR__ ) . 'scripts/blocks/query-filter-block',
                 'render_callback' => [ $this, 'render_query_filter_block' ],
-            ]
-        );
-    }
+            ],
+        ];
 
+        foreach ( $block_definitions as $block_definition ) {
+            $block_json = trailingslashit( $block_definition['directory'] ) . 'block.json';
+
+            if ( ! file_exists( $block_json ) ) {
+                continue;
+            }
+
+            register_block_type_from_metadata(
+                $block_definition['directory'],
+                [
+                    'render_callback' => $block_definition['render_callback'],
+                ]
+            );
+        }
+    }
 
 
     /**
@@ -400,7 +393,7 @@ class BasicBlocks {
         );
     }
 
-
+	
     /**
      * Evaluate grouped conditional rules against query parameters.
      *

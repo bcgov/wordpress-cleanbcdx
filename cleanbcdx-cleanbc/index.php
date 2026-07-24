@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CleanBC DX Supplemental: CleanBC
  * Description: A plugin to load custom blocks enabling Vue-based custom posts filtering, scripts, styles and settings to augment the capabilities on the CleanBC website.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Nate King | CleanBC DX
  * Author URI: mailto:nate.king@gov.bc.ca
  * License: GPL-2.0+

@@ -2,6 +2,13 @@
     <div class="eligible-commercial-vehicles">
         <p class="screen-reader-text" aria-live="polite">{{ statusMessage }}</p>
 
+        <p
+            v-if="!isLoading && !errorMessage && lastUpdatedLabel"
+            class="eligible-commercial-vehicles__last-updated"
+        >
+            Last updated on {{ lastUpdatedLabel }}
+        </p>
+
         <div
             v-if="!isLoading && !errorMessage"
             class="eligible-commercial-vehicles__controls"
@@ -272,6 +279,9 @@ const collator = new Intl.Collator(undefined, {
     numeric: true,
     sensitivity: 'base',
 });
+const lastUpdatedDateFormatter = new Intl.DateTimeFormat("en-CA", {
+    dateStyle: 'long',
+});
 const columns = [
     {
         key: 'make',
@@ -311,6 +321,7 @@ const columns = [
 const rows = ref([]);
 const intakeStatuses = ref({});
 const hasLoadedIntakeStatuses = ref(false);
+const lastUpdated = ref('');
 const isLoading = ref(true);
 const errorMessage = ref('');
 const searchTerm = ref('');
@@ -323,6 +334,21 @@ const sortDirection = ref('asc');
 const controlIdBase = computed(
     () => props.appId || 'eligible-commercial-vehicles-app'
 );
+const lastUpdatedLabel = computed(() => {
+    const normalizedValue = normalizeTextValue(lastUpdated.value);
+
+    if (!normalizedValue) {
+        return '';
+    }
+
+    const parsedDate = new Date(normalizedValue);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+        return normalizedValue;
+    }
+
+    return lastUpdatedDateFormatter.format(parsedDate);
+});
 const hasActiveFilters = computed(
     () =>
         '' !== searchTerm.value ||
@@ -945,7 +971,14 @@ async function fetchFeed(endpoint, unavailableMessage) {
                     throw new Error(unavailableMessage);
                 }
 
-                return response.json();
+                return {
+                    data: await response.json(),
+                    lastUpdated: normalizeTextValue(
+                        response.headers.get(
+                            'X-CleanBCDX-Eligible-Vehicles-Last-Updated'
+                        )
+                    ),
+                };
             })
         );
     }
@@ -961,7 +994,7 @@ async function loadIntakeStatuses(endpoint) {
     }
 
     try {
-        const responseData = await fetchFeed(
+        const { data: responseData } = await fetchFeed(
             intakeEndpoint,
             'Unable to load eligible commercial vehicle intake statuses.'
         );
@@ -986,10 +1019,11 @@ onMounted(async () => {
     }
 
     try {
-        const responseData = await fetchFeed(
-            props.endpoint,
-            'Unable to load eligible commercial vehicles.'
-        );
+        const { data: responseData, lastUpdated: responseLastUpdated } =
+            await fetchFeed(
+                props.endpoint,
+                'Unable to load eligible commercial vehicles.'
+            );
 
         if (!Array.isArray(responseData)) {
             throw new Error(
@@ -998,6 +1032,7 @@ onMounted(async () => {
         }
 
         rows.value = flattenEligibleVehiclesFeed(responseData);
+        lastUpdated.value = responseLastUpdated;
         void loadIntakeStatuses(props.endpoint);
     } catch (error) {
         errorMessage.value =
@@ -1013,6 +1048,25 @@ onMounted(async () => {
 <style scoped>
 .eligible-commercial-vehicles {
     /* display: grid; */
+}
+
+.eligible-commercial-vehicles__last-updated {
+    color: var(--scorpiongrey, #585858);
+    font-size: var(--wp--preset--font-size--extra-small, 0.95rem);
+    margin: 0 0 0.5rem;
+
+    &::before {
+        background-image: var(--icon-last-updated);
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.25rem;
+        display: inline-block;
+        position: relative;
+        top: 0.15rem;
+        content: "";
+        background-position: center;
+        background-repeat: no-repeat;
+    }
 }
 
 .eligible-commercial-vehicles__controls {

@@ -5,7 +5,8 @@ namespace Bcgov\Plugin\CleanBCDXBE;
 use Bcgov\Plugin\CleanBCDXBE\Hooks\{
     EnqueueAndInject,
     EnableVueApp,
-    BasicBlocks
+    BasicBlocks,
+	CustomPatterns
 };
 
 /**
@@ -55,6 +56,7 @@ class Setup {
         $plugin_enqueue_and_inject = new EnqueueAndInject();
         $plugin_enable_vue_app     = new EnableVueApp();
 		$basic_blocks              = new BasicBlocks();
+		$custom_patterns           = new CustomPatterns();
 
         // Filters.
         add_filter( 'wp_theme_json_data_theme', [ $plugin_enqueue_and_inject, 'filter_theme_json_theme_plugin' ] );

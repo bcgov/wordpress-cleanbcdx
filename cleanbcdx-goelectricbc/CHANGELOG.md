@@ -1,3 +1,6 @@
+## 1.0.13 July 23, 2026
+– Removed dark color-scheme setting from patch
+
 ## 1.0.12 July 21, 2026
 – Normalise the OEM endpoint output to use shared eligible vehicles CSV and added sorting
 

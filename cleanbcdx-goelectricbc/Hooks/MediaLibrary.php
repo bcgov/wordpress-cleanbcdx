@@ -27,6 +27,11 @@ class MediaLibrary {
 	const UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY = '_cleanbcdx_ge_unity_eligible_vehicles_feed_active';
 
 	/**
+	 * Attachment meta key that stores eligible vehicles CSV usage history by file fingerprint.
+	 */
+	const UNITY_ELIGIBLE_VEHICLES_FEED_HISTORY_META_KEY = '_cleanbcdx_ge_unity_eligible_vehicles_feed_history';
+
+	/**
 	 * Attachment meta key used to flag intake class status feed uploads for the public unity intake class status feed.
 	 */
 	const UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY = '_cleanbcdx_ge_unity_intake_class_status_feed_active';
@@ -65,6 +70,11 @@ class MediaLibrary {
 	 * REST route alias for eligible vehicles feed clients that expect a .json suffix.
 	 */
 	const UNITY_ELIGIBLE_VEHICLES_FEED_JSON_ROUTE = '/unity-eligible-vehicles-feed.json';
+
+	/**
+	 * Response header used to expose the tracked eligible vehicles CSV last updated timestamp.
+	 */
+	const UNITY_ELIGIBLE_VEHICLES_LAST_UPDATED_HEADER = 'X-CleanBCDX-Eligible-Vehicles-Last-Updated';
 
 	/**
 	 * REST route for the public unity intake class status feed.
@@ -225,11 +235,17 @@ class MediaLibrary {
 			( $is_json_attachment || $is_csv_attachment ) && ! empty( $attachment['cleanbcdx_ge_unity_oem_feed_active'] )
 		);
 
+		$is_eligible_vehicles_feed_active = ( $is_json_attachment || $is_csv_attachment ) && ! empty( $attachment['cleanbcdx_ge_unity_eligible_vehicles_feed_active'] );
+
 		$this->update_unity_feed_attachment_flag(
 			$post_id,
 			self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY,
-			( $is_json_attachment || $is_csv_attachment ) && ! empty( $attachment['cleanbcdx_ge_unity_eligible_vehicles_feed_active'] )
+			$is_eligible_vehicles_feed_active
 		);
+
+		if ( $is_csv_attachment ) {
+			$this->maybe_track_unity_eligible_vehicles_csv_history( $post_id, $is_eligible_vehicles_feed_active );
+		}
 
 		$this->update_unity_feed_attachment_flag(
 			$post_id,
@@ -340,12 +356,28 @@ class MediaLibrary {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_unity_eligible_vehicles_feed_response() {
-		return $this->get_unity_csv_capable_feed_response_for_meta_key(
+		$response = $this->get_unity_csv_capable_feed_response_for_meta_key(
 			self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY,
 			'cleanbcdx_ge_unity_eligible_vehicles_feed',
 			\__( 'Unity Eligible Commercial Vehicles feed', 'plugin' ),
 			array( 'include_decision_date' => true )
 		);
+
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$attachment_id = $this->get_active_unity_feed_attachment_id( self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY );
+
+		if ( $attachment_id > 0 && $this->is_csv_attachment( $attachment_id ) ) {
+			$last_updated = $this->get_unity_eligible_vehicles_csv_last_updated( $attachment_id );
+
+			if ( '' !== $last_updated ) {
+				$response->header( self::UNITY_ELIGIBLE_VEHICLES_LAST_UPDATED_HEADER, $last_updated );
+			}
+		}
+
+		return $response;
 	}
 
 	/**
@@ -982,6 +1014,92 @@ class MediaLibrary {
 		} else {
 			\delete_post_meta( $post_id, $meta_key );
 		}
+	}
+
+	/**
+	 * Persist eligible vehicles CSV usage history for the current attachment fingerprint.
+	 *
+	 * @param int  $attachment_id Attachment ID.
+	 * @param bool $is_active     Whether the attachment is currently active for the eligible vehicles feed.
+	 * @return void
+	 */
+	protected function maybe_track_unity_eligible_vehicles_csv_history( $attachment_id, $is_active ) {
+		if ( ! $is_active ) {
+			return;
+		}
+
+		$fingerprint = $this->get_unity_feed_attachment_fingerprint( $attachment_id );
+
+		if ( '' === $fingerprint ) {
+			return;
+		}
+
+		$history = $this->get_unity_eligible_vehicles_csv_history( $attachment_id );
+
+		if ( ! isset( $history[ $fingerprint ] ) || ! is_string( $history[ $fingerprint ] ) || '' === trim( $history[ $fingerprint ] ) ) {
+			$history[ $fingerprint ] = gmdate( 'c' );
+			\update_post_meta( $attachment_id, self::UNITY_ELIGIBLE_VEHICLES_FEED_HISTORY_META_KEY, $history );
+		}
+	}
+
+	/**
+	 * Return the tracked eligible vehicles CSV last updated timestamp for the attachment fingerprint.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @return string
+	 */
+	protected function get_unity_eligible_vehicles_csv_last_updated( $attachment_id ) {
+		$fingerprint = $this->get_unity_feed_attachment_fingerprint( $attachment_id );
+
+		if ( '' === $fingerprint ) {
+			return '';
+		}
+
+		$history = $this->get_unity_eligible_vehicles_csv_history( $attachment_id );
+
+		if ( ! isset( $history[ $fingerprint ] ) || ! is_string( $history[ $fingerprint ] ) ) {
+			return '';
+		}
+
+		return trim( $history[ $fingerprint ] );
+	}
+
+	/**
+	 * Return the eligible vehicles CSV usage history for an attachment.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @return array
+	 */
+	protected function get_unity_eligible_vehicles_csv_history( $attachment_id ) {
+		$history = \get_post_meta( $attachment_id, self::UNITY_ELIGIBLE_VEHICLES_FEED_HISTORY_META_KEY, true );
+
+		if ( ! is_array( $history ) ) {
+			return array();
+		}
+
+		return $history;
+	}
+
+	/**
+	 * Return a fingerprint for the current attachment file contents.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @return string
+	 */
+	protected function get_unity_feed_attachment_fingerprint( $attachment_id ) {
+		$file_path = $this->get_attachment_file_path( $attachment_id );
+
+		if ( empty( $file_path ) || ! file_exists( $file_path ) || ! is_readable( $file_path ) ) {
+			return '';
+		}
+
+		$hash = hash_file( 'sha256', $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_get_contents -- Hashing a verified local attachment path.
+
+		if ( false === $hash ) {
+			return '';
+		}
+
+		return (string) $hash;
 	}
 
 	/**

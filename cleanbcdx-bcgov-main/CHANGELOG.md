@@ -1,3 +1,8 @@
+## 1.0.8 July 23, 2026
+– Refactored Protected Area blocks
+– Removed Custom Patterns for Built Environment
+– Removed dark color-scheme setting
+
 ## 1.0.7 July 20, 2026
 – Minor style update for quick link SVG
 

@@ -291,6 +291,83 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Eligible vehicles CSV history should preserve the original timestamp when the same file is reactivated.
+	 *
+	 * @return void
+	 */
+	public function test_eligible_vehicles_csv_history_reuses_original_timestamp_when_reactivated() {
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-history.csv', $this->get_sample_oem_csv(), 'text/csv' );
+
+		$this->media_library->save_unity_feed_attachment_field(
+			array( 'ID' => $attachment_id ),
+			array(
+				'cleanbcdx_ge_unity_eligible_vehicles_feed_active' => '1',
+			)
+		);
+
+		$original_history = \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_HISTORY_META_KEY, true );
+
+		$this->assertIsArray( $original_history );
+		$this->assertCount( 1, $original_history );
+		$this->assertNotSame( '', trim( (string) reset( $original_history ) ) );
+
+		$this->media_library->save_unity_feed_attachment_field( array( 'ID' => $attachment_id ), array() );
+		$this->media_library->save_unity_feed_attachment_field(
+			array( 'ID' => $attachment_id ),
+			array(
+				'cleanbcdx_ge_unity_eligible_vehicles_feed_active' => '1',
+			)
+		);
+
+		$this->assertSame( $original_history, \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_HISTORY_META_KEY, true ) );
+	}
+
+	/**
+	 * Eligible vehicles CSV route should expose the tracked last updated header for the active file.
+	 *
+	 * @return void
+	 */
+	public function test_eligible_vehicles_route_includes_csv_last_updated_header() {
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-last-updated.csv', $this->get_sample_oem_csv(), 'text/csv' );
+
+		$this->media_library->save_unity_feed_attachment_field(
+			array( 'ID' => $attachment_id ),
+			array(
+				'cleanbcdx_ge_unity_eligible_vehicles_feed_active' => '1',
+			)
+		);
+
+		$expected_last_updated = '2026-07-23T00:00:00+00:00';
+		$this->set_eligible_vehicles_csv_history_timestamp( $attachment_id, $expected_last_updated );
+
+		$response = $this->media_library->get_unity_eligible_vehicles_feed_response();
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertSame( $expected_last_updated, $response->get_headers()[ MediaLibrary::UNITY_ELIGIBLE_VEHICLES_LAST_UPDATED_HEADER ] );
+	}
+
+	/**
+	 * Eligible vehicles JSON route should not expose a CSV last updated header.
+	 *
+	 * @return void
+	 */
+	public function test_eligible_vehicles_route_omits_last_updated_header_for_json() {
+		$expected      = array(
+			'generatedFor' => 'Eligible Commercial Vehicles',
+			'items'        => array( 'BYD', 'Ford' ),
+			'count'        => 2,
+		);
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-feed.json', \wp_json_encode( $expected ), 'application/json' );
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, '1' );
+
+		$response = $this->media_library->get_unity_eligible_vehicles_feed_response();
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertArrayNotHasKey( MediaLibrary::UNITY_ELIGIBLE_VEHICLES_LAST_UPDATED_HEADER, $response->get_headers() );
+	}
+
+	/**
 	 * Eligible vehicles route should sort each nested level and battery arrays in ascending order.
 	 *
 	 * @return void
@@ -456,6 +533,26 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->file_paths[]     = $upload['file'];
 
 		return $attachment_id;
+	}
+
+	/**
+	 * Override the stored eligible vehicles CSV timestamp for the attachment's current fingerprint.
+	 *
+	 * @param int    $attachment_id Attachment ID.
+	 * @param string $timestamp     ISO 8601 timestamp.
+	 * @return void
+	 */
+	protected function set_eligible_vehicles_csv_history_timestamp( $attachment_id, $timestamp ) {
+		$history = \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_HISTORY_META_KEY, true );
+
+		$this->assertIsArray( $history );
+		$this->assertNotEmpty( $history );
+
+		reset( $history );
+		$fingerprint             = key( $history );
+		$history[ $fingerprint ] = $timestamp;
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_HISTORY_META_KEY, $history );
 	}
 
 	/**
