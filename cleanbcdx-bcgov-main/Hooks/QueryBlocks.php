@@ -393,7 +393,7 @@ class QueryBlocks {
         );
     }
 
-	
+
     /**
      * Evaluate grouped conditional rules against query parameters.
      *

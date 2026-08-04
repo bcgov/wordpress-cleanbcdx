@@ -5,6 +5,7 @@
 	display: none !important;
 }
 
+/* PATCH for v1.0.0 */
 
 html:has(body.custom-goelectricbc, body.goelectricbc) {
 
@@ -382,3 +383,146 @@ html:has(body.custom-goelectricbc, body.goelectricbc) {
 		padding-inline: 0;
 	}
 }
+
+
+td[data-content="Not applicable"] {
+	font-size: 0;
+}
+
+.private a::after,
+.password a::after {
+	background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDQ0OCA1MTIiICBmaWxsPSIjOWE5YTlhIj48cGF0aCBkPSJNNDAwIDIyNGgtMjR2LTcyQzM3NiA2OC4yIDMwNy44IDAgMjI0IDBTNzIgNjguMiA3MiAxNTJ2NzJINDhjLTI2LjUgMC00OCAyMS41LTQ4IDQ4djE5MmMwIDI2LjUgMjEuNSA0OCA0OCA0OGgzNTJjMjYuNSAwIDQ4LTIxLjUgNDgtNDhWMjcyYzAtMjYuNS0yMS41LTQ4LTQ4LTQ4ek0yNjQgMzkyYzAgMjIuMS0xNy45IDQwLTQwIDQwcy00MC0xNy45LTQwLTQwdi00OGMwLTIyLjEgMTcuOS00MCA0MC00MHM0MCAxNy45IDQwIDQwdjQ4em0zMi0xNjhIMTUydi03MmMwLTM5LjcgMzIuMy03MiA3Mi03MnM3MiAzMi4zIDcyIDcydjcyeiIvPjwvc3ZnPg==);
+	background-position: right;
+	background-repeat: no-repeat;
+	background-size: contain;
+	height: 1rem;
+	width: 1rem;
+	content: "";
+	position: relative;
+	top: 2px;
+	margin-left: 0.5rem;
+	display: inline-block;
+}
+
+/* PATCH for v1.0.14 */
+
+.cleanbcdx-protected-area__form * {
+	text-align: center;
+}
+
+#post-content,
+main {
+	align-content: center;
+}
+
+.height-100 {
+	height: 100%;
+}
+
+body.custom-goelectricbc .wp-block-media-text.wp-block-media-text:not(.link-card) .wp-block-media-text__media {
+	order: 0;
+}
+
+.wp-block-media-text.is-image-fill-element > .wp-block-media-text__media img {
+	position: relative;
+}
+
+.wp-block-table.is-style-stripes tbody tr:nth-child(2n+2) {
+	background-color: #fff;
+}
+
+.is-sticky-header {
+	overflow: visible;
+}
+
+@media (width < 600px) {
+
+	.is-sticky-header table {
+		display: block;
+		overflow-x: auto;
+		max-width: calc(100vw - 4rem);
+	}
+}
+
+.is-sticky-header thead {
+	position: sticky;
+	top: -1.25rem;
+	z-index: 99;
+}
+
+.is-sticky-header.is-sticky-header thead th {
+	border-bottom: 2px solid #333;
+	width: 15%;
+}
+
+.is-sticky-header.is-sticky-header thead th:nth-child(-n+3) {
+	width: 20%;
+}
+
+.is-sticky-header.is-sticky-header tbody td:nth-child(2),
+.is-sticky-header.is-sticky-header thead th:nth-child(2) {
+	container-type: scroll-state;
+	position: sticky;
+	left: 0;
+	z-index: 9;
+}
+
+.is-sticky-header.is-sticky-header tbody td:nth-child(2) {
+	background-color: inherit;
+}
+
+@container scroll-state(stuck: left) {
+
+	.is-sticky-header.is-sticky-header thead th:nth-child(2),
+	.is-sticky-header.is-sticky-header tbody td:nth-child(2) {
+		z-index: 9;
+	}
+
+	.is-sticky-header.is-sticky-header thead th:nth-child(n+2)::after,
+	.is-sticky-header.is-sticky-header tbody td:nth-child(n+2)::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		right: 0;
+		width: 2px;
+		height: 100%;
+		background-color: var(--white);
+		box-shadow: 1px 0 4px 0 rgba(0, 0, 0, 0.15);
+	}
+}
+
+html:has(body.custom-goelectricbc, body.goelectricbc) .linked-card.linked-card.closed::before {
+	border: 2px solid var(--wp--preset--color--custom-brown-text);
+	content: "Intake closed";
+}
+
+.overflow-hidden,
+.ohide,
+.no-scroll {
+	overflow: hidden !important;
+}
+
+.multi-col {
+	column-count: 3;
+	column-width: 26ch;
+	column-gap: 1rem;
+}
+
+#gform_fields_11 {
+	gap: 1rem;
+}
+
+.gform-theme--framework .gform_validation_errors {
+	margin-block-end: 0;
+}
+
+.mt-auto {
+	margin-top: auto !important;
+}
+
+
+.wp-block-heading.has-icon.icon-works-ev-truck.is-green::before {
+	filter: var(--green-filter);
+	top: 0;
+}
+

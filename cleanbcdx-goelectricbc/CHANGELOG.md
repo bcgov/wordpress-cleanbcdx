@@ -1,3 +1,6 @@
+## 1.0.14 August 4, 2026
+– API fetch error message refinement
+
 ## 1.0.13 July 23, 2026
 – Removed dark color-scheme setting from patch
 

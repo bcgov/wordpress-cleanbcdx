@@ -1,3 +1,6 @@
+## 1.0.9 August 4, 2026
+– Improvements to the definitions modal handling to allow in-modal defintion links and loading indicators
+
 ## 1.0.8 July 23, 2026
 – Refactored Protected Area blocks
 – Removed Custom Patterns for Built Environment

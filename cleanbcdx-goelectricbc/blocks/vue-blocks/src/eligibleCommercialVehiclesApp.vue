@@ -1022,7 +1022,7 @@ onMounted(async () => {
         const { data: responseData, lastUpdated: responseLastUpdated } =
             await fetchFeed(
                 props.endpoint,
-                'Unable to load eligible commercial vehicles.'
+                'Unable to fetch eligible commercial vehicles.'
             );
 
         if (!Array.isArray(responseData)) {
@@ -1356,7 +1356,7 @@ onMounted(async () => {
     }
 }
 
-td[data-content='Not available'] {
+td[data-content='Not applicable'] {
     font-size: 0;
 
     /* &::before {
