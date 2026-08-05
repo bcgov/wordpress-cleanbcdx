@@ -87,6 +87,11 @@ class MediaLibrary {
 	const UNITY_INTAKE_CLASS_STATUS_FEED_JSON_ROUTE = '/unity-intake-class-status-feed.json';
 
 	/**
+	 * Attachment field name used to store the selected Unity feed assignment.
+	 */
+	const UNITY_FEED_ASSIGNMENT_FIELD = 'cleanbcdx_ge_unity_feed_assignment';
+
+	/**
 	 * Allow feed files to be uploaded via the Media Library.
 	 *
 	 * @param array $mimes The allowed mime types keyed by file extension.
@@ -137,9 +142,35 @@ class MediaLibrary {
 	public function add_unity_feed_attachment_field( $form_fields, $post ) {
 		$is_json_attachment = $this->is_json_attachment( $post->ID );
 		$is_csv_attachment  = $this->is_csv_attachment( $post->ID );
+		$feed_meta_keys     = $this->get_unity_feed_assignment_meta_keys();
 
 		if ( ! $is_json_attachment && ! $is_csv_attachment ) {
 			return $form_fields;
+		}
+
+		$feed_options = array(
+			'none' => \__( 'None – clear feed setting', 'plugin' ),
+		);
+
+		if ( $is_json_attachment ) {
+			$feed_options['retroactive'] = \__( 'Retroactive feed – custom/v1/unity-retroactive-feed(.json)', 'plugin' );
+		}
+
+		$feed_options['oem']                 = \__( 'OEM feed – custom/v1/unity-oem-feed(.json)', 'plugin' );
+		$feed_options['eligible_vehicles']   = \__( 'Eligible Commercial Vehicles – custom/v1/unity-eligible-vehicles-feed(.json)', 'plugin' );
+		$feed_options['intake_class_status'] = \__( 'Intake Class Status – custom/v1/unity-intake-class-status-feed(.json)', 'plugin' );
+
+		$selected_feed = 'none';
+
+		foreach ( $feed_options as $feed_key => $feed_label ) {
+			if ( 'none' === $feed_key ) {
+				continue;
+			}
+
+			if ( '1' === \get_post_meta( $post->ID, $feed_meta_keys[ $feed_key ], true ) ) {
+				$selected_feed = $feed_key;
+				break;
+			}
 		}
 
 		$field_html = sprintf(
@@ -147,58 +178,35 @@ class MediaLibrary {
 			\esc_attr__( 'Unity feed data', 'plugin' )
 		);
 
-		if ( $is_json_attachment ) {
+		foreach ( $feed_options as $feed_key => $feed_label ) {
 			$field_html .= sprintf(
-				'<label for="attachments-%1$d-cleanbcdx-ge-unity-retroactive-feed-active">' .
-				'<input type="checkbox" id="attachments-%1$d-cleanbcdx-ge-unity-retroactive-feed-active" name="attachments[%1$d][cleanbcdx_ge_unity_retroactive_feed_active]" value="1" %2$s /> %3$s' .
+				'<label for="attachments-%1$d-cleanbcdx-ge-unity-feed-assignment-%2$s" style="padding-block-start: 8px;">' .
+				'<input type="radio" id="attachments-%1$d-cleanbcdx-ge-unity-feed-assignment-%2$s" name="attachments[%1$d][%3$s]" value="%2$s" %4$s style="margin-block-start: 0;" /> %5$s' .
 				'</label><br />',
 				(int) $post->ID,
-				\checked( '1', \get_post_meta( $post->ID, self::UNITY_RETROACTIVE_FEED_META_KEY, true ), false ),
-				\esc_html__( 'Retroactive feed – custom/v1/unity-retroactive-feed(.json)', 'plugin' )
+				\esc_attr( $feed_key ),
+				\esc_attr( self::UNITY_FEED_ASSIGNMENT_FIELD ),
+				\checked( $selected_feed, $feed_key, false ),
+				\esc_html( $feed_label )
 			);
 		}
 
-		$field_html .= sprintf(
-			'<label for="attachments-%1$d-cleanbcdx-ge-unity-oem-feed-active">' .
-			'<input type="checkbox" id="attachments-%1$d-cleanbcdx-ge-unity-oem-feed-active" name="attachments[%1$d][cleanbcdx_ge_unity_oem_feed_active]" value="1" %2$s /> %3$s' .
-			'</label><br />',
-			(int) $post->ID,
-			\checked( '1', \get_post_meta( $post->ID, self::UNITY_OEM_FEED_META_KEY, true ), false ),
-			\esc_html__( 'OEM feed – custom/v1/unity-oem-feed(.json)', 'plugin' )
-		);
-
-		$field_html .= sprintf(
-			'<label for="attachments-%1$d-cleanbcdx-ge-unity-eligible-vehicles-feed-active">' .
-			'<input type="checkbox" id="attachments-%1$d-cleanbcdx-ge-unity-eligible-vehicles-feed-active" name="attachments[%1$d][cleanbcdx_ge_unity_eligible_vehicles_feed_active]" value="1" %2$s /> %3$s' .
-			'</label><br />',
-			(int) $post->ID,
-			\checked( '1', \get_post_meta( $post->ID, self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, true ), false ),
-			\esc_html__( 'Eligible Commercial Vehicles – custom/v1/unity-eligible-vehicles-feed(.json)', 'plugin' )
-		);
-
-		$field_html .= sprintf(
-			'<label for="attachments-%1$d-cleanbcdx-ge-unity-intake-class-status-feed-active">' .
-			'<input type="checkbox" id="attachments-%1$d-cleanbcdx-ge-unity-intake-class-status-feed-active" name="attachments[%1$d][cleanbcdx_ge_unity_intake_class_status_feed_active]" value="1" %2$s /> %3$s' .
-			'</label></fieldset>',
-			(int) $post->ID,
-			\checked( '1', \get_post_meta( $post->ID, self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, true ), false ),
-			\esc_html__( 'Intake Class Status – custom/v1/unity-intake-class-status-feed(.json)', 'plugin' )
-		);
+		$field_html .= '</fieldset>';
 
 		$form_fields['cleanbcdx_ge_unity_feed_settings'] = array(
 			'label' => \__( 'Unity feed data', 'plugin' ),
 			'input' => 'html',
 			'html'  => $field_html,
 			'helps' => $is_csv_attachment
-				? \__( 'Expose the selected CSV file at the public Unity OEM, Eligible Commercial Vehicles, and/or Intake Class Status feed endpoints. The CSV will be transformed into the public JSON response. If multiple compatible files are marked active for the same feed, the newest upload is served.', 'plugin' )
-				: \__( 'Expose the selected JSON file at the public Unity Retroactive, OEM, Eligible Commercial Vehicles, and/or Intake Class Status feed endpoints. If multiple compatible files are marked active for the same feed, the newest upload is served.', 'plugin' ),
+				? \__( 'Expose the selected CSV file at one public Unity feed endpoint. The CSV will be transformed into the public JSON response. Select None to clear the assignment. If multiple compatible files are marked active for the same feed, the newest upload is served.', 'plugin' )
+				: \__( 'Expose the selected JSON file at one public Unity feed endpoint. Select None to clear the assignment. If multiple compatible files are marked active for the same feed, the newest upload is served.', 'plugin' ),
 		);
 
 		return $form_fields;
 	}
 
 	/**
-	 * Save the feed selectors for a compatible attachment.
+	 * Save the selected feed assignment for a compatible attachment.
 	 *
 	 * @param array $post       Attachment post data.
 	 * @param array $attachment Submitted attachment fields.
@@ -213,45 +221,39 @@ class MediaLibrary {
 
 		$is_json_attachment = $this->is_json_attachment( $post_id );
 		$is_csv_attachment  = $this->is_csv_attachment( $post_id );
+		$feed_meta_keys     = $this->get_unity_feed_assignment_meta_keys();
 
 		if ( ! $is_json_attachment && ! $is_csv_attachment ) {
-			\delete_post_meta( $post_id, self::UNITY_RETROACTIVE_FEED_META_KEY );
-			\delete_post_meta( $post_id, self::UNITY_OEM_FEED_META_KEY );
-			\delete_post_meta( $post_id, self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY );
-			\delete_post_meta( $post_id, self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY );
+			foreach ( $feed_meta_keys as $meta_key ) {
+				\delete_post_meta( $post_id, $meta_key );
+			}
 
 			return $post;
 		}
 
-		$this->update_unity_feed_attachment_flag(
-			$post_id,
-			self::UNITY_RETROACTIVE_FEED_META_KEY,
-			$is_json_attachment && ! empty( $attachment['cleanbcdx_ge_unity_retroactive_feed_active'] )
-		);
+		$supported_feed_assignments = array( 'oem', 'eligible_vehicles', 'intake_class_status' );
 
-		$this->update_unity_feed_attachment_flag(
-			$post_id,
-			self::UNITY_OEM_FEED_META_KEY,
-			( $is_json_attachment || $is_csv_attachment ) && ! empty( $attachment['cleanbcdx_ge_unity_oem_feed_active'] )
-		);
+		if ( $is_json_attachment ) {
+			array_unshift( $supported_feed_assignments, 'retroactive' );
+		}
 
-		$is_eligible_vehicles_feed_active = ( $is_json_attachment || $is_csv_attachment ) && ! empty( $attachment['cleanbcdx_ge_unity_eligible_vehicles_feed_active'] );
+		$selected_feed_assignment = isset( $attachment[ self::UNITY_FEED_ASSIGNMENT_FIELD ] )
+			? \sanitize_key( $attachment[ self::UNITY_FEED_ASSIGNMENT_FIELD ] )
+			: 'none';
 
-		$this->update_unity_feed_attachment_flag(
-			$post_id,
-			self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY,
-			$is_eligible_vehicles_feed_active
-		);
+		if ( ! in_array( $selected_feed_assignment, $supported_feed_assignments, true ) ) {
+			$selected_feed_assignment = 'none';
+		}
+
+		foreach ( $feed_meta_keys as $feed_assignment => $meta_key ) {
+			$this->update_unity_feed_attachment_flag( $post_id, $meta_key, $selected_feed_assignment === $feed_assignment );
+		}
+
+		$is_eligible_vehicles_feed_active = 'eligible_vehicles' === $selected_feed_assignment;
 
 		if ( $is_csv_attachment ) {
 			$this->maybe_track_unity_eligible_vehicles_csv_history( $post_id, $is_eligible_vehicles_feed_active );
 		}
-
-		$this->update_unity_feed_attachment_flag(
-			$post_id,
-			self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY,
-			( $is_json_attachment || $is_csv_attachment ) && ! empty( $attachment['cleanbcdx_ge_unity_intake_class_status_feed_active'] )
-		);
 
 		return $post;
 	}
@@ -1014,6 +1016,20 @@ class MediaLibrary {
 		} else {
 			\delete_post_meta( $post_id, $meta_key );
 		}
+	}
+
+	/**
+	 * Return the feed assignment meta keys keyed by radio value.
+	 *
+	 * @return array
+	 */
+	protected function get_unity_feed_assignment_meta_keys() {
+		return array(
+			'retroactive'         => self::UNITY_RETROACTIVE_FEED_META_KEY,
+			'oem'                 => self::UNITY_OEM_FEED_META_KEY,
+			'eligible_vehicles'   => self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY,
+			'intake_class_status' => self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY,
+		);
 	}
 
 	/**

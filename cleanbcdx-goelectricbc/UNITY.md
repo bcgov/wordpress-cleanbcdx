@@ -13,7 +13,7 @@ The plugin normalizes generic server MIME detection so JSON and CSV uploads can 
 
 1. Upload a compatible JSON or CSV file in the Media Library.
 2. Open the attachment details.
-3. In the `Unity feed data` section, enable one or more feed checkboxes.
+3. In the `Unity feed data` section, select one feed radio option or `None`.
 4. Save the attachment.
 
 If multiple files are marked active for the same feed, the newest active attachment is served.
@@ -128,7 +128,7 @@ make,model,configuration,model_year,vehicle_type,vehicle_class,fuel_type,battery
 
 Notes for both feeds:
 
-- the same full CSV can be reused for both the OEM and Eligible Commercial Vehicles feeds
+- the same full CSV format can be uploaded separately for both the OEM and Eligible Commercial Vehicles feeds
 - OEM ignores the extra detail in the public response, but still accepts the full shared CSV
 
 ### Intake Class Status CSV
@@ -182,7 +182,7 @@ The eligible commercial vehicles Vue app reads that header and shows a `Last upd
 Most Unity upload behaviour lives in `Hooks/MediaLibrary.php`, including:
 
 - upload MIME handling
-- Media Library attachment checkboxes
+- Media Library attachment radio buttons
 - active attachment selection
 - REST route registration
 - JSON passthrough

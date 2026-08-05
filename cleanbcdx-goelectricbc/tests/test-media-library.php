@@ -65,53 +65,85 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * JSON attachments should expose all supported feed options.
+	 * JSON attachments should expose all supported radio options with None selected by default.
 	 *
 	 * @return void
 	 */
-	public function test_json_attachment_shows_retroactive_oem_eligible_and_intake_class_status_options() {
+	public function test_json_attachment_shows_none_retroactive_oem_eligible_and_intake_class_status_radio_options() {
 		$attachment_id = $this->create_attachment( 'unity-oem-feed.json', '{"status":"ok"}', 'application/json' );
 		$form_fields   = $this->media_library->add_unity_feed_attachment_field( array(), \get_post( $attachment_id ) );
+		$field_html    = $form_fields['cleanbcdx_ge_unity_feed_settings']['html'];
 
 		$this->assertArrayHasKey( 'cleanbcdx_ge_unity_feed_settings', $form_fields );
-		$this->assertStringContainsString( 'cleanbcdx_ge_unity_retroactive_feed_active', $form_fields['cleanbcdx_ge_unity_feed_settings']['html'] );
-		$this->assertStringContainsString( 'cleanbcdx_ge_unity_oem_feed_active', $form_fields['cleanbcdx_ge_unity_feed_settings']['html'] );
-		$this->assertStringContainsString( 'cleanbcdx_ge_unity_eligible_vehicles_feed_active', $form_fields['cleanbcdx_ge_unity_feed_settings']['html'] );
-		$this->assertStringContainsString( 'cleanbcdx_ge_unity_intake_class_status_feed_active', $form_fields['cleanbcdx_ge_unity_feed_settings']['html'] );
+		$this->assertStringContainsString( 'type="radio"', $field_html );
+		$this->assertStringNotContainsString( 'type="checkbox"', $field_html );
+		$this->assertStringContainsString( MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD, $field_html );
+		$this->assertStringContainsString( 'value="none" checked=\'checked\'', $field_html );
+		$this->assertStringContainsString( 'value="retroactive"', $field_html );
+		$this->assertStringContainsString( 'value="oem"', $field_html );
+		$this->assertStringContainsString( 'value="eligible_vehicles"', $field_html );
+		$this->assertStringContainsString( 'value="intake_class_status"', $field_html );
 	}
 
 	/**
-	 * CSV attachments should only expose CSV-capable options and clear retroactive state on save.
+	 * CSV attachments should only expose CSV-capable radio options and keep only the selected feed.
 	 *
 	 * @return void
 	 */
-	public function test_csv_attachment_shows_oem_eligible_and_intake_class_status_options_and_clears_retroactive_state() {
+	public function test_csv_attachment_shows_none_oem_eligible_and_intake_class_status_radio_options_and_clears_other_assignments() {
 		$attachment_id = $this->create_attachment( 'unity-oem-feed.csv', $this->get_sample_oem_csv(), 'text/csv' );
 
 		\update_post_meta( $attachment_id, MediaLibrary::UNITY_RETROACTIVE_FEED_META_KEY, '1' );
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, '1' );
 
 		$form_fields = $this->media_library->add_unity_feed_attachment_field( array(), \get_post( $attachment_id ) );
+		$field_html  = $form_fields['cleanbcdx_ge_unity_feed_settings']['html'];
 
 		$this->assertArrayHasKey( 'cleanbcdx_ge_unity_feed_settings', $form_fields );
-		$this->assertStringNotContainsString( 'cleanbcdx_ge_unity_retroactive_feed_active', $form_fields['cleanbcdx_ge_unity_feed_settings']['html'] );
-		$this->assertStringContainsString( 'cleanbcdx_ge_unity_oem_feed_active', $form_fields['cleanbcdx_ge_unity_feed_settings']['html'] );
-		$this->assertStringContainsString( 'cleanbcdx_ge_unity_eligible_vehicles_feed_active', $form_fields['cleanbcdx_ge_unity_feed_settings']['html'] );
-		$this->assertStringContainsString( 'cleanbcdx_ge_unity_intake_class_status_feed_active', $form_fields['cleanbcdx_ge_unity_feed_settings']['html'] );
+		$this->assertStringContainsString( 'type="radio"', $field_html );
+		$this->assertStringContainsString( 'value="none"', $field_html );
+		$this->assertStringNotContainsString( 'value="retroactive"', $field_html );
+		$this->assertStringContainsString( 'value="eligible_vehicles" checked=\'checked\'', $field_html );
+		$this->assertStringContainsString( 'value="oem"', $field_html );
+		$this->assertStringContainsString( 'value="intake_class_status"', $field_html );
 
 		$this->media_library->save_unity_feed_attachment_field(
 			array( 'ID' => $attachment_id ),
 			array(
-				'cleanbcdx_ge_unity_retroactive_feed_active' => '1',
-				'cleanbcdx_ge_unity_oem_feed_active' => '1',
-				'cleanbcdx_ge_unity_eligible_vehicles_feed_active' => '1',
-				'cleanbcdx_ge_unity_intake_class_status_feed_active' => '1',
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'oem',
 			)
 		);
 
 		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_RETROACTIVE_FEED_META_KEY, true ) );
 		$this->assertSame( '1', \get_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, true ) );
-		$this->assertSame( '1', \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, true ) );
-		$this->assertSame( '1', \get_post_meta( $attachment_id, MediaLibrary::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, true ) );
+	}
+
+	/**
+	 * Selecting None should clear every Unity feed assignment for the attachment.
+	 *
+	 * @return void
+	 */
+	public function test_none_radio_option_clears_all_unity_feed_assignments() {
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-feed.json', '{"status":"ok"}', 'application/json' );
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_RETROACTIVE_FEED_META_KEY, '1' );
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, '1' );
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, '1' );
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, '1' );
+
+		$this->media_library->save_unity_feed_attachment_field(
+			array( 'ID' => $attachment_id ),
+			array(
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'none',
+			)
+		);
+
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_RETROACTIVE_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, true ) );
 	}
 
 	/**
@@ -301,7 +333,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->media_library->save_unity_feed_attachment_field(
 			array( 'ID' => $attachment_id ),
 			array(
-				'cleanbcdx_ge_unity_eligible_vehicles_feed_active' => '1',
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'eligible_vehicles',
 			)
 		);
 
@@ -315,7 +347,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->media_library->save_unity_feed_attachment_field(
 			array( 'ID' => $attachment_id ),
 			array(
-				'cleanbcdx_ge_unity_eligible_vehicles_feed_active' => '1',
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'eligible_vehicles',
 			)
 		);
 
@@ -333,7 +365,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->media_library->save_unity_feed_attachment_field(
 			array( 'ID' => $attachment_id ),
 			array(
-				'cleanbcdx_ge_unity_eligible_vehicles_feed_active' => '1',
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'eligible_vehicles',
 			)
 		);
 
