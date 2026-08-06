@@ -1,3 +1,7 @@
+## 1.0.15 August 6, 2026
+– CSV-only Unity feed option in attachment details for Approved Sellers with new REST endpoint
+– Approved Sellers Vue block
+
 ## 1.0.14 August 4, 2026
 – API fetch error message refinement
 

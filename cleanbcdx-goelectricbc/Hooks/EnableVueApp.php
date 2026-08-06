@@ -19,10 +19,12 @@ class EnableVueApp {
 		$plugin_dir                    = plugin_dir_path( __DIR__ );
 		$vehicle_filter_script_path    = $plugin_dir . 'blocks/vue-blocks/vehicle-filter-vue-block.js';
 		$eligible_vehicles_script_path = $plugin_dir . 'blocks/vue-blocks/eligible-commercial-vehicles-vue-block.js';
+		$approved_sellers_script_path  = $plugin_dir . 'blocks/vue-blocks/approved-sellers-vue-block.js';
 		$plugin_data                   = get_plugin_data( $plugin_dir . 'index.php' );
 		$plugin_version                = $plugin_data['Version'];
 		$vehicle_filter_version        = file_exists( $vehicle_filter_script_path ) ? (string) filemtime( $vehicle_filter_script_path ) : $plugin_version;
 		$eligible_vehicles_version     = file_exists( $eligible_vehicles_script_path ) ? (string) filemtime( $eligible_vehicles_script_path ) : $plugin_version;
+		$approved_sellers_version      = file_exists( $approved_sellers_script_path ) ? (string) filemtime( $approved_sellers_script_path ) : $plugin_version;
 
 		wp_enqueue_script(
 			'cleanbcdx-plugin/vehicle-filter-block',
@@ -37,6 +39,14 @@ class EnableVueApp {
 			plugin_dir_url( __DIR__ ) . 'blocks/vue-blocks/eligible-commercial-vehicles-vue-block.js',
 			[ 'wp-blocks', 'wp-element' ],
 			$eligible_vehicles_version,
+			true
+		);
+
+		wp_enqueue_script(
+			'cleanbcdx-plugin/approved-sellers-block',
+			plugin_dir_url( __DIR__ ) . 'blocks/vue-blocks/approved-sellers-vue-block.js',
+			[ 'wp-blocks', 'wp-element' ],
+			$approved_sellers_version,
 			true
 		);
 	}
@@ -132,6 +142,28 @@ class EnableVueApp {
 	}
 
 	/**
+	 * Load VueJS assets and return the Approved Sellers app mount point.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string
+	 */
+	public function vuejs_approved_sellers_dynamic_block_plugin( $attributes ) {
+
+		$this->enqueue_vue_app_assets();
+
+		$class_name = isset( $attributes['className'] ) ? $attributes['className'] : '';
+		$app_id     = wp_unique_id( 'approved-sellers-app-' );
+		$endpoint   = rest_url( MediaLibrary::UNITY_FEED_NAMESPACE . MediaLibrary::UNITY_APPROVED_SELLERS_FEED_ROUTE );
+
+		return sprintf(
+			'<div id="%1$s" class="%2$s" data-vue-app="approved-sellers" data-endpoint="%3$s">Loading approved sellers...</div>',
+			esc_attr( $app_id ),
+			esc_attr( $class_name ),
+			esc_url( $endpoint )
+		);
+	}
+
+	/**
 	 * Initialize the VueJS app blocks.
 	 */
 	public function vuejs_app_block_init_plugin() {
@@ -162,6 +194,20 @@ class EnableVueApp {
 				'render_callback' => [ $this, 'vuejs_eligible_commercial_vehicles_dynamic_block_plugin' ],
 			]
 		);
+
+		register_block_type(
+			'cleanbcdx-plugin/approved-sellers-block',
+			[
+				'render_callback' => [ $this, 'vuejs_approved_sellers_dynamic_block_plugin' ],
+			]
+		);
+
+		register_block_type(
+			'cleanbc-plugin/approved-sellers-block',
+			[
+				'render_callback' => [ $this, 'vuejs_approved_sellers_dynamic_block_plugin' ],
+			]
+		);
 	}
 
 	/**
@@ -175,6 +221,8 @@ class EnableVueApp {
 			'cleanbc-plugin/vehicle-filter-block',
 			'cleanbcdx-plugin/eligible-commercial-vehicles-block',
 			'cleanbc-plugin/eligible-commercial-vehicles-block',
+			'cleanbcdx-plugin/approved-sellers-block',
+			'cleanbc-plugin/approved-sellers-block',
 		);
 
 		foreach ( $block_names as $block_name ) {

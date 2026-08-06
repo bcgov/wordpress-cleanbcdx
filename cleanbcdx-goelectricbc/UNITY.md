@@ -108,6 +108,19 @@ Example response:
 ]
 ```
 
+### Approved Sellers
+
+- Attachment option: `Approved Sellers`
+- Endpoint:
+    - `custom/v1/unity-approved-sellers-feed`
+    - `custom/v1/unity-approved-sellers-feed.json`
+- File type: CSV only
+- Response behaviour:
+    - CSV uploads are returned as flat rows keyed by the seller CSV headers
+    - `mailing_unit` and `mailing_street_optional` headers are required, but their row values may be blank
+    - The `Approved Sellers` Vue block renders the feed as a single sortable HTML table with a simple text filter
+    - The table columns are `Company name`, `Location`, `Street address`, `Contact`, and `Approved since`
+
 ## CSV formats
 
 ### OEM CSV
@@ -146,6 +159,19 @@ label,value,intake
 "Class 2B (8,500 to 10,000 lbs)",Class 2B,open
 "Class 3 (10,001 to 14,000 lbs)",Class 3,open
 ```
+
+### Approved Sellers CSV
+
+Required headers:
+
+```text
+operating_org_name,city,postal_code,email,website,phone_number,decision_date,mailing_street,mailing_unit,mailing_street_optional
+```
+
+Notes:
+
+- `mailing_unit` and `mailing_street_optional` may be blank in individual rows
+- the `Approved Sellers` Vue block consumes this feed and renders a single table with column sorting and a text filter
 
 ## Eligible vehicles last updated tracking
 
@@ -188,3 +214,4 @@ Most Unity upload behaviour lives in `Hooks/MediaLibrary.php`, including:
 - JSON passthrough
 - CSV parsing and transformation
 - eligible vehicles CSV last-updated tracking
+- Vue mount points for the Eligible Commercial Vehicles and Approved Sellers blocks

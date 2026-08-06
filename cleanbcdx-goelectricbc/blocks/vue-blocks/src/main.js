@@ -2,6 +2,7 @@ import './assets/shared.css';
 import { createApp } from 'vue';
 import VehicleFilterApp from './vehicleFilterApp.vue';
 import EligibleCommercialVehiclesApp from './eligibleCommercialVehiclesApp.vue';
+import ApprovedSellersApp from './approvedSellersApp.vue';
 
 /**
  * Initialize a Vue.js application for a specific component and selector.
@@ -42,6 +43,14 @@ function initializeApps() {
                 appId: element.id || 'eligible-commercial-vehicles-app',
             }),
         },
+        {
+            component: ApprovedSellersApp,
+            selector: '[data-vue-app="approved-sellers"]',
+            getProps: (element) => ({
+                endpoint: element.dataset.endpoint || '',
+                appId: element.id || 'approved-sellers-app',
+            }),
+        },
     ];
 
     apps.forEach(({ component, selector, getProps }) => {
@@ -80,7 +89,7 @@ function observeDynamicAppMounts() {
     }
 
     const appSelector =
-        '#vehicleFilterApp, [data-vue-app="eligible-commercial-vehicles"]';
+        '#vehicleFilterApp, [data-vue-app="eligible-commercial-vehicles"], [data-vue-app="approved-sellers"]';
 
     const observer = new MutationObserver((mutations) => {
         const hasRelevantAddition = mutations.some((mutation) => {

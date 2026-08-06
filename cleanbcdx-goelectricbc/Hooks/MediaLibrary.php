@@ -37,6 +37,11 @@ class MediaLibrary {
 	const UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY = '_cleanbcdx_ge_unity_intake_class_status_feed_active';
 
 	/**
+	 * Attachment meta key used to flag approved sellers CSV uploads for the public unity approved sellers feed.
+	 */
+	const UNITY_APPROVED_SELLERS_FEED_META_KEY = '_cleanbcdx_ge_unity_approved_sellers_feed_active';
+
+	/**
 	 * REST namespace for the public unity feeds.
 	 */
 	const UNITY_FEED_NAMESPACE = 'custom/v1';
@@ -85,6 +90,16 @@ class MediaLibrary {
 	 * REST route alias for intake class status feed clients that expect a .json suffix.
 	 */
 	const UNITY_INTAKE_CLASS_STATUS_FEED_JSON_ROUTE = '/unity-intake-class-status-feed.json';
+
+	/**
+	 * REST route for the public unity approved sellers feed.
+	 */
+	const UNITY_APPROVED_SELLERS_FEED_ROUTE = '/unity-approved-sellers-feed';
+
+	/**
+	 * REST route alias for approved sellers feed clients that expect a .json suffix.
+	 */
+	const UNITY_APPROVED_SELLERS_FEED_JSON_ROUTE = '/unity-approved-sellers-feed.json';
 
 	/**
 	 * Attachment field name used to store the selected Unity feed assignment.
@@ -156,9 +171,13 @@ class MediaLibrary {
 			$feed_options['retroactive'] = \__( 'Retroactive feed – custom/v1/unity-retroactive-feed(.json)', 'plugin' );
 		}
 
-		$feed_options['oem']                 = \__( 'OEM feed – custom/v1/unity-oem-feed(.json)', 'plugin' );
-		$feed_options['eligible_vehicles']   = \__( 'Eligible Commercial Vehicles – custom/v1/unity-eligible-vehicles-feed(.json)', 'plugin' );
-		$feed_options['intake_class_status'] = \__( 'Intake Class Status – custom/v1/unity-intake-class-status-feed(.json)', 'plugin' );
+		$feed_options['oem']                 = \__( 'OEM feed - custom/v1/unity-oem-feed(.json)', 'plugin' );
+		$feed_options['eligible_vehicles']   = \__( 'Eligible Commercial Vehicles - custom/v1/unity-eligible-vehicles-feed(.json)', 'plugin' );
+		$feed_options['intake_class_status'] = \__( 'Intake Class Status - custom/v1/unity-intake-class-status-feed(.json)', 'plugin' );
+
+		if ( $is_csv_attachment ) {
+			$feed_options['approved_sellers'] = \__( 'Approved Sellers - custom/v1/unity-approved-sellers-feed(.json)', 'plugin' );
+		}
 
 		$selected_feed = 'none';
 
@@ -231,7 +250,7 @@ class MediaLibrary {
 			return $post;
 		}
 
-		$supported_feed_assignments = array( 'oem', 'eligible_vehicles', 'intake_class_status' );
+		$supported_feed_assignments = array( 'oem', 'eligible_vehicles', 'intake_class_status', 'approved_sellers' );
 
 		if ( $is_json_attachment ) {
 			array_unshift( $supported_feed_assignments, 'retroactive' );
@@ -308,6 +327,16 @@ class MediaLibrary {
 			self::UNITY_FEED_NAMESPACE,
 			self::UNITY_INTAKE_CLASS_STATUS_FEED_JSON_ROUTE,
 			array_merge( $route_args, array( 'callback' => array( $this, 'get_unity_intake_class_status_feed_response' ) ) )
+		);
+		\register_rest_route(
+			self::UNITY_FEED_NAMESPACE,
+			self::UNITY_APPROVED_SELLERS_FEED_ROUTE,
+			array_merge( $route_args, array( 'callback' => array( $this, 'get_unity_approved_sellers_feed_response' ) ) )
+		);
+		\register_rest_route(
+			self::UNITY_FEED_NAMESPACE,
+			self::UNITY_APPROVED_SELLERS_FEED_JSON_ROUTE,
+			array_merge( $route_args, array( 'callback' => array( $this, 'get_unity_approved_sellers_feed_response' ) ) )
 		);
 	}
 
@@ -422,6 +451,37 @@ class MediaLibrary {
 	}
 
 	/**
+	 * Return the currently active unity approved sellers CSV attachment as a public API response.
+	 *
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_unity_approved_sellers_feed_response() {
+		return $this->get_unity_csv_feed_response_for_meta_key(
+			self::UNITY_APPROVED_SELLERS_FEED_META_KEY,
+			'cleanbcdx_ge_unity_approved_sellers_feed',
+			\__( 'Unity Approved Sellers feed', 'plugin' ),
+			array(
+				'flat_headers' => array(
+					'required_headers' => array(
+						'operating_org_name',
+						'city',
+						'postal_code',
+						'email',
+						'website',
+						'phone_number',
+						'decision_date',
+						'mailing_street',
+					),
+					'optional_headers' => array(
+						'mailing_unit',
+						'mailing_street_optional',
+					),
+				),
+			)
+		);
+	}
+
+	/**
 	 * Return the currently active JSON or CSV attachment for a feed as a public API response.
 	 *
 	 * @param string $meta_key          Attachment meta key that flags the active feed file.
@@ -466,6 +526,49 @@ class MediaLibrary {
 			),
 			array( 'status' => 422 )
 		);
+	}
+
+	/**
+	 * Return the currently active CSV attachment for a feed as a public API response.
+	 *
+	 * @param string $meta_key          Attachment meta key that flags the active feed file.
+	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
+	 * @param string $feed_label        Human-readable feed label.
+	 * @param array  $csv_options       CSV parsing options.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	protected function get_unity_csv_feed_response_for_meta_key( $meta_key, $error_code_prefix, $feed_label, $csv_options = array() ) {
+		$attachment_id = $this->get_active_unity_feed_attachment_id( $meta_key );
+
+		if ( $attachment_id <= 0 ) {
+			return new \WP_Error(
+				$error_code_prefix . '_not_found',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'No active CSV file is available for the %s.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( ! $this->is_csv_attachment( $attachment_id ) ) {
+			return new \WP_Error(
+				$error_code_prefix . '_not_csv',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active attachment for the %s must be a CSV file.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 422 )
+			);
+		}
+
+		if ( ! empty( $csv_options['flat_headers'] ) ) {
+			return $this->get_unity_flat_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label, $csv_options['flat_headers'] );
+		}
+
+		return $this->get_unity_vehicle_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label, $csv_options );
 	}
 
 	/**
@@ -608,10 +711,10 @@ class MediaLibrary {
 	 * @param int    $attachment_id      Attachment ID.
 	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
 	 * @param string $feed_label        Human-readable feed label.
-	 * @param array  $required_headers  Required CSV headers to return in each row.
+	 * @param array  $csv_headers       CSV headers to return in each row.
 	 * @return \WP_REST_Response|\WP_Error
 	 */
-	protected function get_unity_flat_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label, $required_headers ) {
+	protected function get_unity_flat_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label, $csv_headers ) {
 		$file_path = $this->get_attachment_file_path( $attachment_id );
 
 		if ( empty( $file_path ) || ! file_exists( $file_path ) || ! is_readable( $file_path ) ) {
@@ -626,7 +729,7 @@ class MediaLibrary {
 			);
 		}
 
-		$data = $this->parse_unity_flat_csv_file( $file_path, $error_code_prefix, $feed_label, $required_headers );
+		$data = $this->parse_unity_flat_csv_file( $file_path, $error_code_prefix, $feed_label, $csv_headers );
 
 		if ( \is_wp_error( $data ) ) {
 			return $data;
@@ -644,10 +747,20 @@ class MediaLibrary {
 	 * @param string $file_path         Absolute file path.
 	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
 	 * @param string $feed_label        Human-readable feed label.
-	 * @param array  $required_headers  Required CSV headers to return in each row.
+	 * @param array  $csv_headers       CSV headers to return in each row.
 	 * @return array|\WP_Error
 	 */
-	protected function parse_unity_flat_csv_file( $file_path, $error_code_prefix, $feed_label, $required_headers ) {
+	protected function parse_unity_flat_csv_file( $file_path, $error_code_prefix, $feed_label, $csv_headers ) {
+		$required_headers = $csv_headers;
+		$optional_headers = array();
+
+		if ( isset( $csv_headers['required_headers'] ) || isset( $csv_headers['optional_headers'] ) ) {
+			$required_headers = isset( $csv_headers['required_headers'] ) && is_array( $csv_headers['required_headers'] ) ? $csv_headers['required_headers'] : array();
+			$optional_headers = isset( $csv_headers['optional_headers'] ) && is_array( $csv_headers['optional_headers'] ) ? $csv_headers['optional_headers'] : array();
+		}
+
+		$headers_to_return = array_values( array_unique( array_merge( $required_headers, $optional_headers ) ) );
+
 		$handle = fopen( $file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Reading a verified local attachment path.
 
 		if ( false === $handle ) {
@@ -679,7 +792,7 @@ class MediaLibrary {
 		}
 
 		$headers      = $this->normalize_unity_csv_headers( $headers );
-		$header_error = $this->validate_unity_required_csv_headers( $headers, $required_headers, $error_code_prefix, $feed_label );
+		$header_error = $this->validate_unity_required_csv_headers( $headers, $headers_to_return, $error_code_prefix, $feed_label );
 
 		if ( \is_wp_error( $header_error ) ) {
 			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
@@ -721,10 +834,10 @@ class MediaLibrary {
 			$record = array_combine( $headers, $row );
 			$entry  = array();
 
-			foreach ( $required_headers as $header ) {
+			foreach ( $headers_to_return as $header ) {
 				$value = trim( (string) $record[ $header ] );
 
-				if ( '' === $value ) {
+				if ( in_array( $header, $required_headers, true ) && '' === $value ) {
 					fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
 
 					return $this->get_unity_invalid_csv_error(
@@ -1029,6 +1142,7 @@ class MediaLibrary {
 			'oem'                 => self::UNITY_OEM_FEED_META_KEY,
 			'eligible_vehicles'   => self::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY,
 			'intake_class_status' => self::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY,
+			'approved_sellers'    => self::UNITY_APPROVED_SELLERS_FEED_META_KEY,
 		);
 	}
 

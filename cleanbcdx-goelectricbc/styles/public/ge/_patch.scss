@@ -179,7 +179,7 @@ html:has(body.custom-goelectricbc, body.goelectricbc) {
 
 	/* vNext adjustments */
 
-	body.custom-goelectricbc .wp-block-table table th[role="columnheader"] {
+	body.custom-goelectricbc .wp-block-table table th[role="columnheader"]:not([aria-sort]) {
 		background-color: #fff;
 	}
 

@@ -83,6 +83,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'value="oem"', $field_html );
 		$this->assertStringContainsString( 'value="eligible_vehicles"', $field_html );
 		$this->assertStringContainsString( 'value="intake_class_status"', $field_html );
+		$this->assertStringNotContainsString( 'value="approved_sellers"', $field_html );
 	}
 
 	/**
@@ -106,6 +107,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'value="eligible_vehicles" checked=\'checked\'', $field_html );
 		$this->assertStringContainsString( 'value="oem"', $field_html );
 		$this->assertStringContainsString( 'value="intake_class_status"', $field_html );
+		$this->assertStringContainsString( 'value="approved_sellers"', $field_html );
 
 		$this->media_library->save_unity_feed_attachment_field(
 			array( 'ID' => $attachment_id ),
@@ -118,6 +120,29 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->assertSame( '1', \get_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, true ) );
 		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, true ) );
 		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_META_KEY, true ) );
+	}
+
+	/**
+	 * CSV attachments should allow the approved sellers assignment to be saved.
+	 *
+	 * @return void
+	 */
+	public function test_csv_attachment_can_save_approved_sellers_assignment() {
+		$attachment_id = $this->create_attachment( 'unity-approved-sellers-feed.csv', $this->get_sample_approved_sellers_csv(), 'text/csv' );
+
+		$this->media_library->save_unity_feed_attachment_field(
+			array( 'ID' => $attachment_id ),
+			array(
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'approved_sellers',
+			)
+		);
+
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_RETROACTIVE_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, true ) );
+		$this->assertSame( '1', \get_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_META_KEY, true ) );
 	}
 
 	/**
@@ -132,6 +157,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		\update_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, '1' );
 		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, '1' );
 		\update_post_meta( $attachment_id, MediaLibrary::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, '1' );
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_META_KEY, '1' );
 
 		$this->media_library->save_unity_feed_attachment_field(
 			array( 'ID' => $attachment_id ),
@@ -144,6 +170,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_OEM_FEED_META_KEY, true ) );
 		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, true ) );
 		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_INTAKE_CLASS_STATUS_FEED_META_KEY, true ) );
+		$this->assertSame( '', \get_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_META_KEY, true ) );
 	}
 
 	/**
@@ -484,6 +511,39 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Approved sellers route should transform CSV attachments into the expected flat response.
+	 *
+	 * @return void
+	 */
+	public function test_approved_sellers_route_transforms_csv_into_flat_response() {
+		$attachment_id = $this->create_attachment( 'unity-approved-sellers-feed.csv', $this->get_sample_approved_sellers_csv(), 'text/csv' );
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_META_KEY, '1' );
+
+		$response = $this->media_library->get_unity_approved_sellers_feed_response();
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertSame( $this->get_expected_approved_sellers_csv_response(), $response->get_data() );
+	}
+
+	/**
+	 * Approved sellers route should reject JSON attachments.
+	 *
+	 * @return void
+	 */
+	public function test_approved_sellers_route_rejects_json_attachment() {
+		$attachment_id = $this->create_attachment( 'unity-approved-sellers-feed.json', '{"status":"ok"}', 'application/json' );
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_META_KEY, '1' );
+
+		$response = $this->media_library->get_unity_approved_sellers_feed_response();
+
+		$this->assertWPError( $response );
+		$this->assertSame( 'cleanbcdx_ge_unity_approved_sellers_feed_not_csv', $response->get_error_code() );
+		$this->assertSame( 422, $response->get_error_data()['status'] );
+	}
+
+	/**
 	 * OEM route should reject malformed CSV uploads.
 	 *
 	 * @return void
@@ -530,6 +590,31 @@ class MediaLibraryTest extends WP_UnitTestCase {
 
 		$this->assertWPError( $response );
 		$this->assertSame( 'cleanbcdx_ge_unity_intake_class_status_feed_invalid_csv', $response->get_error_code() );
+		$this->assertSame( 422, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * Approved sellers route should reject malformed CSV uploads.
+	 *
+	 * @return void
+	 */
+	public function test_approved_sellers_route_rejects_invalid_csv() {
+		$csv = implode(
+			"\n",
+			array(
+				'operating_org_name,city,postal_code,email,website,phone_number,decision_date,mailing_street,mailing_unit,mailing_street_optional',
+				'Three Point Motors,Victoria,V8T 4P7,,www.mercedes-benz-threepointmotors.ca,(250) 385-6737,2026-06-26,2546 Government Street,,',
+			)
+		);
+
+		$attachment_id = $this->create_attachment( 'unity-approved-sellers-feed-invalid.csv', $csv, 'text/csv' );
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_META_KEY, '1' );
+
+		$response = $this->media_library->get_unity_approved_sellers_feed_response();
+
+		$this->assertWPError( $response );
+		$this->assertSame( 'cleanbcdx_ge_unity_approved_sellers_feed_invalid_csv', $response->get_error_code() );
 		$this->assertSame( 422, $response->get_error_data()['status'] );
 	}
 
@@ -625,6 +710,23 @@ class MediaLibraryTest extends WP_UnitTestCase {
 				'"Class 7 (26,001 to 33,000 lbs)",Class 7,open',
 				'"Class 8 (>33,000 lbs)",Class 8,open',
 				'"Class 1 (0 to 6,000 lbs)",Class 1,closed',
+			)
+		);
+	}
+
+	/**
+	 * Return the sample approved sellers CSV payload.
+	 *
+	 * @return string
+	 */
+	protected function get_sample_approved_sellers_csv() {
+		return implode(
+			"\n",
+			array(
+				"\xEF\xBB\xBFoperating_org_name,city,postal_code,email,website,phone_number,decision_date,mailing_street,mailing_unit,mailing_street_optional",
+				'Three Point Motors,Victoria,V8T 4P7,info@threepointmotors.com,www.mercedes-benz-threepointmotors.ca,(250) 385-6737,2026-06-26,2546 Government Street,,',
+				'West Coast Ford,Maple Ridge,V2X 2P8,ndavis@westcoastford.com,westcoastford.com,(604) 465-5434,2026-06-29,20370 Lougheed Highway,,',
+				'PACIFIC COAST HEAVY TRUCK GROUP,Langley,V1M 4B9,rhys@pactrucks.com,pchtg.ca,(604) 888-5577,2026-07-23,9758 203rd Street,,',
 			)
 		);
 	}
@@ -878,6 +980,52 @@ class MediaLibraryTest extends WP_UnitTestCase {
 				'label'  => 'Class 8 (>33,000 lbs)',
 				'value'  => 'Class 8',
 				'intake' => 'open',
+			),
+		);
+	}
+
+	/**
+	 * Return the expected approved sellers response for the sample CSV.
+	 *
+	 * @return array
+	 */
+	protected function get_expected_approved_sellers_csv_response() {
+		return array(
+			array(
+				'operating_org_name'      => 'Three Point Motors',
+				'city'                    => 'Victoria',
+				'postal_code'             => 'V8T 4P7',
+				'email'                   => 'info@threepointmotors.com',
+				'website'                 => 'www.mercedes-benz-threepointmotors.ca',
+				'phone_number'            => '(250) 385-6737',
+				'decision_date'           => '2026-06-26',
+				'mailing_street'          => '2546 Government Street',
+				'mailing_unit'            => '',
+				'mailing_street_optional' => '',
+			),
+			array(
+				'operating_org_name'      => 'West Coast Ford',
+				'city'                    => 'Maple Ridge',
+				'postal_code'             => 'V2X 2P8',
+				'email'                   => 'ndavis@westcoastford.com',
+				'website'                 => 'westcoastford.com',
+				'phone_number'            => '(604) 465-5434',
+				'decision_date'           => '2026-06-29',
+				'mailing_street'          => '20370 Lougheed Highway',
+				'mailing_unit'            => '',
+				'mailing_street_optional' => '',
+			),
+			array(
+				'operating_org_name'      => 'PACIFIC COAST HEAVY TRUCK GROUP',
+				'city'                    => 'Langley',
+				'postal_code'             => 'V1M 4B9',
+				'email'                   => 'rhys@pactrucks.com',
+				'website'                 => 'pchtg.ca',
+				'phone_number'            => '(604) 888-5577',
+				'decision_date'           => '2026-07-23',
+				'mailing_street'          => '9758 203rd Street',
+				'mailing_unit'            => '',
+				'mailing_street_optional' => '',
 			),
 		);
 	}
