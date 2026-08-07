@@ -47,72 +47,81 @@
                 No approved sellers are available.
             </p>
 
-            <p
-                v-else-if="!sortedRows.length"
-                class="approved-sellers__message eligible-commercial-vehicles__message"
-            >
-                No approved sellers match the current filter.
-            </p>
-
-            <div
-                v-else
-                class="wp-block-group gap-0 approved-sellers__group eligible-commercial-vehicles__group"
-            >
-                <h3
-                    class="wp-block-heading is-style-default cz5-contrast has-extra-small-font-size approved-sellers__heading eligible-commercial-vehicles__heading"
+            <template v-else>
+                <p
+                    v-if="showNoMatchesMessage"
+                    class="approved-sellers__message eligible-commercial-vehicles__message"
                 >
-                    Approved sellers
-                </h3>
+                <img
+                    decoding="async"
+                    :src="noResultsImage"
+                    alt=""
+                    width="32"
+                    height="32"
+                    style="position: relative; top: 10px"
+                    title=""
+                />
+                    No approved sellers match the current filter. Showing all available sellers below.
+                </p>
 
                 <div
-                    class="wp-block-group is-layout-flow approved-sellers__table-shell eligible-commercial-vehicles__table-shell"
+                    class="wp-block-group gap-0 approved-sellers__group eligible-commercial-vehicles__group"
                 >
-                    <figure
-                        class="wp-block-table is-style-stripes is-sticky-header has-extra-small-font-size approved-sellers__table-figure"
+                    <h3
+                        class="wp-block-heading is-style-default cz5-contrast has-extra-small-font-size approved-sellers__heading eligible-commercial-vehicles__heading"
                     >
-                        <table
-                            role="table"
-                            class="has-fixed-layout approved-sellers__table"
+                        Approved sellers
+                    </h3>
+
+                    <div
+                        class="wp-block-group is-layout-flow approved-sellers__table-shell eligible-commercial-vehicles__table-shell"
+                    >
+                        <figure
+                            class="wp-block-table is-style-stripes is-sticky-header has-extra-small-font-size approved-sellers__table-figure"
                         >
-                            <caption class="screen-reader-text">
-                                Approved sellers
-                            </caption>
-                            <colgroup>
-                                <col
-                                    v-for="column in columns"
-                                    :key="column.key"
-                                    :style="{ width: column.width }"
-                                />
-                            </colgroup>
-                            <thead role="rowgroup">
-                                <tr role="row">
-                                    <th
+                            <table
+                                role="table"
+                                class="has-fixed-layout approved-sellers__table"
+                            >
+                                <caption class="screen-reader-text">
+                                    Approved sellers
+                                </caption>
+                                <colgroup>
+                                    <col
                                         v-for="column in columns"
                                         :key="column.key"
-                                        class="has-text-align-left"
-                                        data-align="left"
-                                        :data-column="column.key"
-                                        role="columnheader"
-                                        :aria-sort="getAriaSort(column.key)"
-                                    >
-                                        <button
-                                            type="button"
-                                            class="approved-sellers__sort-button eligible-commercial-vehicles__sort-button"
-                                            :aria-label="`Sort by ${column.label}`"
-                                            @click="changeSort(column.key)"
+                                        :style="{ width: column.width }"
+                                    />
+                                </colgroup>
+                                <thead role="rowgroup">
+                                    <tr role="row">
+                                        <th
+                                            v-for="column in columns"
+                                            :key="column.key"
+                                            class="has-text-align-left"
+                                            data-align="left"
+                                            :data-column="column.key"
+                                            role="columnheader"
+                                            :aria-sort="getAriaSort(column.key)"
                                         >
-                                            <span>{{ column.label }}</span>
-                                            <span
-                                                class="approved-sellers__sort-indicator eligible-commercial-vehicles__sort-indicator"
-                                                :class="`is-${getSortState(column.key)}`"
-                                                aria-hidden="true"
-                                            ></span>
-                                        </button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody role="rowgroup">
-                                <tr v-for="row in sortedRows" :key="row.id" role="row">
+                                            <button
+                                                type="button"
+                                                class="approved-sellers__sort-button eligible-commercial-vehicles__sort-button"
+                                                :aria-label="`Sort by ${column.label}`"
+                                                @click="changeSort(column.key)"
+                                            >
+                                                <span>{{ column.label }}</span>
+                                                <span
+                                                    class="approved-sellers__sort-indicator eligible-commercial-vehicles__sort-indicator"
+                                                    :class="`is-${getSortState(column.key)}`"
+                                                    aria-hidden="true"
+                                                ></span>
+                                            </button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody role="rowgroup">
+                                    <tr v-for="row in sortedRows" :key="row.id" role="row">
                                     <td
                                         class="has-text-align-left"
                                         data-align="left"
@@ -195,18 +204,20 @@
                                     >
                                         {{ row.approvedSinceDisplay }}
                                     </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </figure>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </figure>
+                    </div>
                 </div>
-            </div>
+            </template>
         </template>
     </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import noResultsImage from './assets/leaf-icon-01.png';
 
 const props = defineProps({
     endpoint: {
@@ -278,8 +289,16 @@ const filteredRows = computed(() => {
     );
 });
 
+const showNoMatchesMessage = computed(
+    () => hasActiveFilter.value && 0 === filteredRows.value.length && rows.value.length > 0
+);
+
+const displayRows = computed(() => {
+    return showNoMatchesMessage.value ? rows.value : filteredRows.value;
+});
+
 const sortedRows = computed(() => {
-    return [...filteredRows.value].sort((left, right) => {
+    return [...displayRows.value].sort((left, right) => {
         const primarySort = compareRows(left, right, sortKey.value);
 
         if (0 !== primarySort) {
@@ -299,6 +318,10 @@ const resultSummary = computed(() => {
 
     if (!totalCount) {
         return 'Showing 0 approved sellers.';
+    }
+
+    if (showNoMatchesMessage.value) {
+        return `Showing all ${totalCount} approved seller${1 === totalCount ? '' : 's'}.`;
     }
 
     if (hasActiveFilter.value) {
