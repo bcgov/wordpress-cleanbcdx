@@ -13,7 +13,7 @@
                     v-model.trim="searchTerm"
                     class="approved-sellers__input eligible-commercial-vehicles__input"
                     type="search"
-                    placeholder="Filter by company, location, address, email, phone, or website"
+                    placeholder="Filter by company name, location, address, email, phone, or website"
                 />
             </div>
 
@@ -133,7 +133,6 @@
                                             v-if="row.websiteHref"
                                             :href="row.websiteHref"
                                             rel="noopener noreferrer"
-                                            target="_blank"
                                         >
                                             {{ row.operatingOrgName }}
                                         </a>
