@@ -2,6 +2,13 @@
     <div class="approved-sellers eligible-commercial-vehicles">
         <p class="screen-reader-text" aria-live="polite">{{ statusMessage }}</p>
 
+        <p
+            v-if="!isLoading && !errorMessage && lastUpdatedLabel"
+            class="approved-sellers__last-updated"
+        >
+            Last updated on {{ lastUpdatedLabel }}
+        </p>
+
         <div
             v-if="!isLoading && !errorMessage"
             class="approved-sellers__controls eligible-commercial-vehicles__controls"
@@ -267,6 +274,7 @@ const approvedSinceFormatter = new Intl.DateTimeFormat('en-CA', {
 });
 
 const rows = ref([]);
+const lastUpdated = ref('');
 const isLoading = ref(true);
 const errorMessage = ref('');
 const searchTerm = ref('');
@@ -274,6 +282,21 @@ const sortKey = ref('operatingOrgName');
 const sortDirection = ref('asc');
 
 const controlIdBase = computed(() => props.appId || 'approved-sellers-app');
+const lastUpdatedLabel = computed(() => {
+    const normalizedValue = normalizeTextValue(lastUpdated.value);
+
+    if (!normalizedValue) {
+        return '';
+    }
+
+    const parsedDate = new Date(normalizedValue);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+        return normalizedValue;
+    }
+
+    return approvedSinceFormatter.format(parsedDate);
+});
 const hasActiveFilter = computed(() => '' !== searchTerm.value);
 
 const filteredRows = computed(() => {
@@ -533,7 +556,14 @@ async function fetchFeed(endpoint, unavailableMessage) {
                     throw new Error(unavailableMessage);
                 }
 
-                return response.json();
+                return {
+                    data: await response.json(),
+                    lastUpdated: normalizeTextValue(
+                        response.headers.get(
+                            'X-CleanBCDX-Approved-Sellers-Last-Updated'
+                        )
+                    ),
+                };
             })
         );
     }
@@ -550,7 +580,10 @@ onMounted(async () => {
     }
 
     try {
-        const responseData = await fetchFeed(
+        const {
+            data: responseData,
+            lastUpdated: responseLastUpdated,
+        } = await fetchFeed(
             props.endpoint,
             'Unable to fetch approved sellers.'
         );
@@ -562,6 +595,7 @@ onMounted(async () => {
         }
 
         rows.value = normalizeApprovedSellersFeed(responseData);
+        lastUpdated.value = responseLastUpdated;
     } catch (error) {
         errorMessage.value =
             error instanceof Error
@@ -574,12 +608,33 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+
+.approved-sellers__last-updated {
+    color: var(--scorpiongrey, #585858);
+    font-size: var(--wp--preset--font-size--extra-small, 0.95rem);
+    margin: 0 0 0.5rem;
+
+    &::before {
+        background-image: var(--icon-last-updated);
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.25rem;
+        display: inline-block;
+        position: relative;
+        top: 0.15rem;
+        content: "";
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+}
+
 .approved-sellers__controls {
     display: grid;
     gap: 1rem;
     align-items: end;
     background: white;
     width: 100%;
+    padding-block: 1rem;
 }
 
 .approved-sellers__field {

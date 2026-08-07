@@ -427,6 +427,62 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Approved sellers CSV history should preserve the original timestamp when the same file is reactivated.
+	 *
+	 * @return void
+	 */
+	public function test_approved_sellers_csv_history_reuses_original_timestamp_when_reactivated() {
+		$attachment_id = $this->create_attachment( 'unity-approved-sellers-history.csv', $this->get_sample_approved_sellers_csv(), 'text/csv' );
+
+		$this->media_library->save_unity_feed_attachment_field(
+			array( 'ID' => $attachment_id ),
+			array(
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'approved_sellers',
+			)
+		);
+
+		$original_history = \get_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_HISTORY_META_KEY, true );
+
+		$this->assertIsArray( $original_history );
+		$this->assertCount( 1, $original_history );
+		$this->assertNotSame( '', trim( (string) reset( $original_history ) ) );
+
+		$this->media_library->save_unity_feed_attachment_field( array( 'ID' => $attachment_id ), array() );
+		$this->media_library->save_unity_feed_attachment_field(
+			array( 'ID' => $attachment_id ),
+			array(
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'approved_sellers',
+			)
+		);
+
+		$this->assertSame( $original_history, \get_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_HISTORY_META_KEY, true ) );
+	}
+
+	/**
+	 * Approved sellers CSV route should expose the tracked last updated header for the active file.
+	 *
+	 * @return void
+	 */
+	public function test_approved_sellers_route_includes_csv_last_updated_header() {
+		$attachment_id = $this->create_attachment( 'unity-approved-sellers-last-updated.csv', $this->get_sample_approved_sellers_csv(), 'text/csv' );
+
+		$this->media_library->save_unity_feed_attachment_field(
+			array( 'ID' => $attachment_id ),
+			array(
+				MediaLibrary::UNITY_FEED_ASSIGNMENT_FIELD => 'approved_sellers',
+			)
+		);
+
+		$expected_last_updated = '2026-07-23T00:00:00+00:00';
+		$this->set_approved_sellers_csv_history_timestamp( $attachment_id, $expected_last_updated );
+
+		$response = $this->media_library->get_unity_approved_sellers_feed_response();
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $response );
+		$this->assertSame( $expected_last_updated, $response->get_headers()[ MediaLibrary::UNITY_APPROVED_SELLERS_LAST_UPDATED_HEADER ] );
+	}
+
+	/**
 	 * Eligible vehicles route should sort each nested level and battery arrays in ascending order.
 	 *
 	 * @return void
@@ -670,6 +726,26 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$history[ $fingerprint ] = $timestamp;
 
 		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_HISTORY_META_KEY, $history );
+	}
+
+	/**
+	 * Override the stored approved sellers CSV timestamp for the attachment's current fingerprint.
+	 *
+	 * @param int    $attachment_id Attachment ID.
+	 * @param string $timestamp     ISO 8601 timestamp.
+	 * @return void
+	 */
+	protected function set_approved_sellers_csv_history_timestamp( $attachment_id, $timestamp ) {
+		$history = \get_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_HISTORY_META_KEY, true );
+
+		$this->assertIsArray( $history );
+		$this->assertNotEmpty( $history );
+
+		reset( $history );
+		$fingerprint             = key( $history );
+		$history[ $fingerprint ] = $timestamp;
+
+		\update_post_meta( $attachment_id, MediaLibrary::UNITY_APPROVED_SELLERS_FEED_HISTORY_META_KEY, $history );
 	}
 
 	/**

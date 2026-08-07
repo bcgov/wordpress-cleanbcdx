@@ -192,6 +192,24 @@ X-CleanBCDX-Eligible-Vehicles-Last-Updated
 
 The eligible commercial vehicles Vue app reads that header and shows a `Last updated:` line above the filter controls.
 
+## Approved sellers last updated tracking
+
+For CSV-backed Approved Sellers uploads, the plugin tracks when a specific file was first activated for that feed.
+
+Behaviour:
+
+- history is keyed by the file fingerprint, not only by attachment ID
+- unchecking and rechecking the same CSV keeps the original tracked date
+- if the file contents change, the new fingerprint gets its own timestamp
+
+The active CSV timestamp is exposed as the response header:
+
+```text
+X-CleanBCDX-Approved-Sellers-Last-Updated
+```
+
+The Approved Sellers Vue block reads that header and shows a `Last updated on` line above the filter controls.
+
 ## Validation and errors
 
 - Retroactive rejects non-JSON attachments
@@ -213,5 +231,5 @@ Most Unity upload behaviour lives in `Hooks/MediaLibrary.php`, including:
 - REST route registration
 - JSON passthrough
 - CSV parsing and transformation
-- eligible vehicles CSV last-updated tracking
+- eligible vehicles and approved sellers CSV last-updated tracking
 - Vue mount points for the Eligible Commercial Vehicles and Approved Sellers blocks
