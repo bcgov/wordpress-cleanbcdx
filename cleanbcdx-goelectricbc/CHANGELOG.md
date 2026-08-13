@@ -1,3 +1,6 @@
+## 1.0.16 August 13, 2026
+– Updated simplified CSV upload structure for OEM feed
+
 ## 1.0.15 August 6, 2026
 – CSV-only Unity feed option in attachment details for Approved Sellers with new REST endpoint
 – Approved Sellers Vue block

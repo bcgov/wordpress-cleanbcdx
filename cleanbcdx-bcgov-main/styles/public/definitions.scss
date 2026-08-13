@@ -10,9 +10,9 @@
 }
 
 a.icon-definition.icon-definition {
-	color: var(--wp--preset--color--secondary-brand);
+	color: currentColor;
 	text-decoration-style: dashed;
-	text-decoration-color: var(--wp--preset--color--secondary-brand);
+	text-decoration-color: currentColor;
 
 	span.last-word {
 

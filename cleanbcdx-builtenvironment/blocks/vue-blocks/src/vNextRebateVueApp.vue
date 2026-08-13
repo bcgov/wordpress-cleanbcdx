@@ -6426,15 +6426,6 @@ function withQueryString(baseUrl, queryOverrides = null) {
                 grid-template-columns: 1fr;
             }
 
-            :is(a).icon-definition.icon-definition,
-            :is(a).icon-definition.icon-definition * {
-                color: var(--wp--preset--color--primary-brand);
-                text-decoration-style: dashed;
-                text-decoration-color: var(--wp--preset--color--primary-brand);
-                display: inline;
-                font-size: 0.85rem;
-            }
-
             .control {
                 justify-content: start;
                 margin-block: 0;

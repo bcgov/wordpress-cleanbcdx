@@ -5086,9 +5086,9 @@ function withQueryString(baseUrl, queryOverrides = null) {
 
       :is(a).icon-definition.icon-definition,
       :is(a).icon-definition.icon-definition * {
-        color: var(--wp--preset--color--primary-brand);
+        color: currentColor;
         text-decoration-style: dashed;
-        text-decoration-color: var(--wp--preset--color--primary-brand);
+        text-decoration-color: currentColor;
         display: inline;
         font-size: 0.85rem;
       }

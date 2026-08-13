@@ -38,7 +38,7 @@ If multiple files are marked active for the same feed, the newest active attachm
 - File type: JSON or CSV
 - Response behaviour:
     - JSON uploads are normalized to a make/model-only array
-    - CSV uploads can contain full vehicle detail, but the public response only returns:
+    - CSV uploads must use the simplified OEM format and the public response returns:
         - `make`
         - `models[].model_name`
     - Output is de-duplicated and sorted ascending by make and model
@@ -128,7 +128,7 @@ Example response:
 Required headers:
 
 ```text
-make,model,configuration,model_year,vehicle_type,vehicle_class,fuel_type,battery_size_range,battery_size,lower_battery_range,upper_battery_range
+make,model
 ```
 
 ### Eligible Commercial Vehicles CSV
@@ -141,8 +141,8 @@ make,model,configuration,model_year,vehicle_type,vehicle_class,fuel_type,battery
 
 Notes for both feeds:
 
-- the same full CSV format can be uploaded separately for both the OEM and Eligible Commercial Vehicles feeds
-- OEM ignores the extra detail in the public response, but still accepts the full shared CSV
+- OEM accepts only the simplified `make,model` CSV format
+- Eligible Commercial Vehicles continues to use the full detailed vehicle CSV format
 
 ### Intake Class Status CSV
 

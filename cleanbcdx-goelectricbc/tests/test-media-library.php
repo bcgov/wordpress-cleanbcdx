@@ -307,7 +307,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_eligible_vehicles_route_transforms_csv_into_nested_response_with_decision_dates() {
-		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-feed.csv', $this->get_sample_oem_csv(), 'text/csv' );
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-feed.csv', $this->get_sample_eligible_vehicles_csv(), 'text/csv' );
 
 		\update_post_meta( $attachment_id, MediaLibrary::UNITY_ELIGIBLE_VEHICLES_FEED_META_KEY, '1' );
 
@@ -355,7 +355,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_eligible_vehicles_csv_history_reuses_original_timestamp_when_reactivated() {
-		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-history.csv', $this->get_sample_oem_csv(), 'text/csv' );
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-history.csv', $this->get_sample_eligible_vehicles_csv(), 'text/csv' );
 
 		$this->media_library->save_unity_feed_attachment_field(
 			array( 'ID' => $attachment_id ),
@@ -387,7 +387,7 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_eligible_vehicles_route_includes_csv_last_updated_header() {
-		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-last-updated.csv', $this->get_sample_oem_csv(), 'text/csv' );
+		$attachment_id = $this->create_attachment( 'unity-eligible-vehicles-last-updated.csv', $this->get_sample_eligible_vehicles_csv(), 'text/csv' );
 
 		$this->media_library->save_unity_feed_attachment_field(
 			array( 'ID' => $attachment_id ),
@@ -608,8 +608,8 @@ class MediaLibraryTest extends WP_UnitTestCase {
 		$csv = implode(
 			"\n",
 			array(
-				'make,model,configuration,model_year,vehicle_type,vehicle_class,battery_size_range,decision_date,battery_size,lower_battery_range,upper_battery_range',
-				'BYD,Explore,XL,2028,Coach,Class 4,70 kWh,6/12/2026,70,,',
+				'make,model,configuration',
+				'BYD,Explore,XL',
 			)
 		);
 
@@ -754,6 +754,26 @@ class MediaLibraryTest extends WP_UnitTestCase {
 	 * @return string
 	 */
 	protected function get_sample_oem_csv() {
+		return implode(
+			"\n",
+			array(
+				"\xEF\xBB\xBFmake,model",
+				'BYD,Explore',
+				'BYD,Explore',
+				'BYD,Discover',
+				'',
+				'Ford,F150 Lightning',
+				',',
+			)
+		);
+	}
+
+	/**
+	 * Return the sample eligible vehicles CSV payload.
+	 *
+	 * @return string
+	 */
+	protected function get_sample_eligible_vehicles_csv() {
 		return implode(
 			"\n",
 			array(

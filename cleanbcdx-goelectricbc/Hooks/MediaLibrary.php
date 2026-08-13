@@ -371,12 +371,39 @@ class MediaLibrary {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_unity_oem_feed_response() {
-		$feed_label = \__( 'Unity OEM feed', 'plugin' );
-		$response   = $this->get_unity_csv_capable_feed_response_for_meta_key(
-			self::UNITY_OEM_FEED_META_KEY,
-			'cleanbcdx_ge_unity_oem_feed',
-			$feed_label
-		);
+		$feed_label        = \__( 'Unity OEM feed', 'plugin' );
+		$error_code_prefix = 'cleanbcdx_ge_unity_oem_feed';
+		$attachment_id     = $this->get_active_unity_feed_attachment_id( self::UNITY_OEM_FEED_META_KEY );
+
+		if ( $attachment_id <= 0 ) {
+			return new \WP_Error(
+				$error_code_prefix . '_not_found',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'No active JSON or CSV file is available for the %s.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( $this->is_csv_attachment( $attachment_id ) ) {
+			return $this->get_unity_oem_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label );
+		}
+
+		if ( ! $this->is_json_attachment( $attachment_id ) ) {
+			return new \WP_Error(
+				$error_code_prefix . '_invalid_attachment',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active attachment for the %s must be a JSON or CSV file.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 422 )
+			);
+		}
+
+		$response = $this->get_unity_json_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label );
 
 		if ( \is_wp_error( $response ) ) {
 			return $response;
@@ -389,6 +416,41 @@ class MediaLibrary {
 		}
 
 		$response->set_data( $data );
+
+		return $response;
+	}
+
+	/**
+	 * Return an OEM CSV attachment as a public API response.
+	 *
+	 * @param int    $attachment_id      Attachment ID.
+	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
+	 * @param string $feed_label        Human-readable feed label.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	protected function get_unity_oem_csv_feed_response_for_attachment( $attachment_id, $error_code_prefix, $feed_label ) {
+		$file_path = $this->get_attachment_file_path( $attachment_id );
+
+		if ( empty( $file_path ) || ! file_exists( $file_path ) || ! is_readable( $file_path ) ) {
+			return new \WP_Error(
+				$error_code_prefix . '_missing_file',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s could not be found.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 404 )
+			);
+		}
+
+		$data = $this->parse_unity_oem_csv_file( $file_path, $error_code_prefix, $feed_label );
+
+		if ( \is_wp_error( $data ) ) {
+			return $data;
+		}
+
+		$response = \rest_ensure_response( $data );
+		$response->header( 'X-Content-Type-Options', 'nosniff' );
 
 		return $response;
 	}
@@ -1144,6 +1206,124 @@ class MediaLibrary {
 	}
 
 	/**
+	 * Parse an OEM CSV attachment into the public make/model response shape.
+	 *
+	 * @param string $file_path         Absolute file path.
+	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
+	 * @param string $feed_label        Human-readable feed label.
+	 * @return array|\WP_Error
+	 */
+	protected function parse_unity_oem_csv_file( $file_path, $error_code_prefix, $feed_label ) {
+		$handle = fopen( $file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Reading a verified local attachment path.
+
+		if ( false === $handle ) {
+			return new \WP_Error(
+				$error_code_prefix . '_unreadable_file',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s could not be read.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 500 )
+			);
+		}
+
+		$headers = fgetcsv( $handle );
+
+		if ( false === $headers ) {
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+			return new \WP_Error(
+				$error_code_prefix . '_invalid_csv',
+				sprintf(
+					/* translators: %s: feed label. */
+					\__( 'The active file for the %s does not contain a valid CSV header row.', 'plugin' ),
+					$feed_label
+				),
+				array( 'status' => 422 )
+			);
+		}
+
+		$headers      = $this->normalize_unity_csv_headers( $headers );
+		$header_error = $this->validate_unity_oem_csv_headers( $headers, $error_code_prefix, $feed_label );
+
+		if ( \is_wp_error( $header_error ) ) {
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+			return $header_error;
+		}
+
+		$manufacturers = array();
+		$line_number   = 1;
+
+		while ( true ) {
+			$row = fgetcsv( $handle );
+
+			if ( false === $row ) {
+				break;
+			}
+
+			++$line_number;
+
+			if ( $this->is_unity_csv_row_blank( $row ) ) {
+				continue;
+			}
+
+			if ( count( $row ) !== count( $headers ) ) {
+				fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+				return $this->get_unity_invalid_csv_error(
+					$error_code_prefix,
+					$feed_label,
+					sprintf(
+						/* translators: %1$s: feed label, %2$d: line number. */
+						\__( 'The active file for the %1$s contains an invalid CSV row at line %2$d.', 'plugin' ),
+						$feed_label,
+						$line_number
+					)
+				);
+			}
+
+			$record     = array_combine( $headers, $row );
+			$make       = $this->get_unity_vehicle_required_csv_text( $record, 'make', $line_number, $error_code_prefix, $feed_label );
+			$model_name = $this->get_unity_vehicle_required_csv_text( $record, 'model', $line_number, $error_code_prefix, $feed_label );
+
+			if ( \is_wp_error( $make ) || \is_wp_error( $model_name ) ) {
+				fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+				return \is_wp_error( $make ) ? $make : $model_name;
+			}
+
+			$make_key  = strtolower( $make );
+			$model_key = strtolower( $model_name );
+
+			if ( ! isset( $manufacturers[ $make_key ] ) ) {
+				$manufacturers[ $make_key ] = array(
+					'make'   => $make,
+					'models' => array(),
+				);
+			}
+
+			$manufacturers[ $make_key ]['models'][ $model_key ] = array(
+				'model_name' => $model_name,
+			);
+		}
+
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Closing a verified local file handle.
+
+		ksort( $manufacturers, SORT_NATURAL | SORT_FLAG_CASE );
+
+		foreach ( $manufacturers as &$manufacturer ) {
+			ksort( $manufacturer['models'], SORT_NATURAL | SORT_FLAG_CASE );
+			$manufacturer['models'] = array_values( $manufacturer['models'] );
+		}
+
+		unset( $manufacturer );
+
+		return array_values( $manufacturers );
+	}
+
+	/**
 	 * Save a feed flag for an attachment.
 	 *
 	 * @param int    $post_id   Attachment ID.
@@ -1465,6 +1645,38 @@ class MediaLibrary {
 		}
 
 		return $this->validate_unity_required_csv_headers( $headers, $required_headers, $error_code_prefix, $feed_label );
+	}
+
+	/**
+	 * Validate that the OEM CSV headers use the simplified make/model format.
+	 *
+	 * @param array  $headers           Normalized CSV headers.
+	 * @param string $error_code_prefix Error code prefix for feed-specific failures.
+	 * @param string $feed_label        Human-readable feed label.
+	 * @return true|\WP_Error
+	 */
+	protected function validate_unity_oem_csv_headers( $headers, $error_code_prefix, $feed_label ) {
+		$required_headers = array( 'make', 'model' );
+		$header_error     = $this->validate_unity_required_csv_headers( $headers, $required_headers, $error_code_prefix, $feed_label );
+
+		if ( \is_wp_error( $header_error ) ) {
+			return $header_error;
+		}
+
+		if ( count( $headers ) !== count( $required_headers ) || ! empty( array_diff( $headers, $required_headers ) ) ) {
+			return $this->get_unity_invalid_csv_error(
+				$error_code_prefix,
+				$feed_label,
+				sprintf(
+					/* translators: %1$s: feed label, %2$s: required headers. */
+					\__( 'The active file for the %1$s must only include these CSV headers: %2$s.', 'plugin' ),
+					$feed_label,
+					implode( ', ', $required_headers )
+				)
+			);
+		}
+
+		return true;
 	}
 
 	/**
