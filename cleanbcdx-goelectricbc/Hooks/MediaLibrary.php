@@ -1083,7 +1083,38 @@ class MediaLibrary {
 
 		unset( $manufacturer );
 
-		return array_values( $manufacturers );
+		return $this->append_unity_oem_other_manufacturer( array_values( $manufacturers ) );
+	}
+
+	/**
+	 * Append the Other manufacturer option to the OEM feed.
+	 *
+	 * @param array $manufacturers Normalized OEM manufacturer rows.
+	 * @return array
+	 */
+	protected function append_unity_oem_other_manufacturer( $manufacturers ) {
+		$normalized_manufacturers = array();
+
+		foreach ( $manufacturers as $manufacturer ) {
+			if ( ! is_array( $manufacturer ) ) {
+				continue;
+			}
+
+			$make = trim( (string) ( isset( $manufacturer['make'] ) ? $manufacturer['make'] : '' ) );
+
+			if ( 0 === strcasecmp( $make, 'Other' ) ) {
+				continue;
+			}
+
+			$normalized_manufacturers[] = $manufacturer;
+		}
+
+		$normalized_manufacturers[] = array(
+			'make'   => 'Other',
+			'models' => array(),
+		);
+
+		return $normalized_manufacturers;
 	}
 
 	/**
@@ -1320,7 +1351,7 @@ class MediaLibrary {
 
 		unset( $manufacturer );
 
-		return array_values( $manufacturers );
+		return $this->append_unity_oem_other_manufacturer( array_values( $manufacturers ) );
 	}
 
 	/**

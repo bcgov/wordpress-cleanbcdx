@@ -1,3 +1,6 @@
+## 1.0.17 August 14, 2026
+– Updated the OEM feed so it always ends with {"make":"Other","models":[]}
+
 ## 1.0.16 August 13, 2026
 – Updated simplified CSV upload structure for OEM feed
 

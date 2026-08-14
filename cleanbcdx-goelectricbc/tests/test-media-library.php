@@ -227,6 +227,10 @@ class MediaLibraryTest extends WP_UnitTestCase {
 					),
 				),
 			),
+			array(
+				'make'   => 'Other',
+				'models' => array(),
+			),
 		);
 		$payload       = array(
 			array(
@@ -852,6 +856,10 @@ class MediaLibraryTest extends WP_UnitTestCase {
 						'model_name' => 'F150 Lightning',
 					),
 				),
+			),
+			array(
+				'make'   => 'Other',
+				'models' => array(),
 			),
 		);
 	}

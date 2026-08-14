@@ -57,6 +57,10 @@ Example response:
                 "model_name": "8TT"
             }
         ]
+    },
+    {
+        "make": "Other",
+        "models": []
     }
 ]
 ```
