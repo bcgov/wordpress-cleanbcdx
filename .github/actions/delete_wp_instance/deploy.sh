@@ -10,6 +10,7 @@ OPENSHIFT_SERVER=$4
 DEV_TOKEN=$5
 TEST_TOKEN=$6
 PROD_TOKEN=$7
+OC_NAMEPLATE=$8
 
 git clone  https://github.com/bcgov/wordpress-deploy-cleanbcdx.git
       
@@ -36,14 +37,32 @@ esac
 
 
 echo "::group::Login to OC"
-oc login $OPENSHIFT_SERVER --token=$token       #--insecure-skip-tls-verify=true
+#Sometimes oc login will fail to connect, so lets re-try on failure.
+set +e
+oc login $OPENSHIFT_SERVER --token=$token
+ret=$?
+set -e
+if [ $ret -eq 0 ]; then
+    # The command was successful
+    echo "Login successful"
+
+else
+    echo "Re-trying oc-login in 10s..."
+
+    sleep 10
+
+    # The command was not successful, lets try again
+    oc login $OPENSHIFT_SERVER --token=$token
+
+fi
+
 echo "::endgroup::"
 
 #Go into the deployment folder
 cd wordpress-deploy-cleanbcdx
 
 #Setup some variables
-export NAMESPACE="f181a8-$ENVIRONMENT"
+export NAMESPACE="$OC_NAMEPLATE-$ENVIRONMENT"
 export OC_ENV=$ENVIRONMENT
 export OC_SITE_NAME=$PROJECT_NAME-$SITE_NAME
 
@@ -66,6 +85,8 @@ if [ -n "$WORDPRESS_CONTAINER_NAME" ]; then
 else
     #Generate GH Actions summary
     echo "### Deployment Not Found (nothing deleted)" >> $GITHUB_STEP_SUMMARY
+
+    return 99
 fi      
 
 echo "" >> $GITHUB_STEP_SUMMARY # this is a blank line
