@@ -29,7 +29,7 @@ on:
 
 env:
   # Change this per project.
-  OC_NAMEPLATE: "c0cce6" 
+  OC_NAMEPLATE: "f181a8" 
   
 jobs:
   deploy:
