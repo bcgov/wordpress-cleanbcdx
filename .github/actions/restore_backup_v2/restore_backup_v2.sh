@@ -12,7 +12,15 @@ TEST_TOKEN=$6
 PROD_TOKEN=$7
 BACKUP_NUMBER=$8
 S3_TOKEN=$9
+OC_NAMEPLATE=${10}
+OC_TIER=${11}
+RESTORE_FILES=${12}
+RESTORE_DB=${13}
 
+
+S3_AKI="nr-cleanbcdx-pr"
+S3_ENDPOINT_URL="https://nrs.objectstore.gov.bc.ca"
+S3_BUCKET_NAME="clbcdx"
 
 
 #only allow restore on prod to the -backup instances
@@ -24,11 +32,25 @@ if [ $ENVIRONMENT = "prod" ]; then
 fi
 
 
+if [ $RESTORE_FILES != "true" ] && [ $RESTORE_DB != "true" ]; then
+    echo "At least one of restore files or restore db must be true"
+    exit 99
+fi
+
+
+if [ "$OC_NAMEPLATE" = "c0cce6" ]; then
+	FILENAME_SEARCH="${PROJECT_NAME}_prod_*_backup.tar*"
+else
+    FILENAME_SEARCH="$PROJECT_NAME-prod_prod_*_backup.tar*"
+fi
+
+echo "OC Nameplate: $OC_NAMEPLATE"
+echo "Project Name: $PROJECT_NAME"
 
 
 #copy down the backup file from s3
-echo "Grabbing the backup filename for backup #$BACKUP_NUMBER"
-CMD_RESULTS=$(rclone lsf :s3:clbcdx/oc-sites-bk --include "$PROJECT_NAME-prod_prod_*_backup.tar*" --files-only --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca"  --contimeout "15s" --retries 3 | sort | tail -n ${BACKUP_NUMBER} | sed -n "1p")
+echo "Grabbing the backup filename for backup #$BACKUP_NUMBER - pattern ${FILENAME_SEARCH}"
+CMD_RESULTS=$(rclone lsf :s3:$S3_BUCKET_NAME/oc-sites-bk --include "$FILENAME_SEARCH" --files-only --s3-provider Other --s3-access-key-id "$S3_AKI" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "$S3_ENDPOINT_URL"  --contimeout "15s" --retries 3 | sort | tail -n ${BACKUP_NUMBER} | sed -n "1p")
 
 if [ -z "$CMD_RESULTS" ]; then
     echo "::error::Unknown backup file name: ${CMD_RESULTS}"
@@ -46,14 +68,18 @@ fi
 
 echo "Grabbing backup file: $S3_FILENAME"
 set +e
-CMD1_RESULTS=$(rclone copy :s3:clbcdx/oc-sites-bk/$S3_FILENAME . --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s 2>&1)
+CMD1_RESULTS=$(rclone copy :s3:$S3_BUCKET_NAME/oc-sites-bk/$S3_FILENAME . --s3-provider Other --s3-access-key-id "$S3_AKI" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "$S3_ENDPOINT_URL" -P --stats-log-level NOTICE --stats 60s 2>&1)
 CMD1_EXIT_CODE=$?
 set -e
 echo "${CMD1_EXIT_CODE}"
 echo "${CMD1_RESULTS}"
 
-    
+
+
+
 if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then 
+    echo "Using environment: $ENVIRONMENT"
+
     case "$ENVIRONMENT" in
         "dev")
         token=$DEV_TOKEN
@@ -79,13 +105,14 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         OC_SITE_NAME="$PROJECT_NAME-$SITE_NAME"
     fi
 
+
     echo "Deploying to the site $OC_SITE_NAME in $OC_ENV"
 
     # Log in to OpenShift
     echo "::group::Login to target OC"
     #Sometimes oc login will fail to connect, so lets re-try on failure.
     set +e
-    oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
+    oc login $OPENSHIFT_SERVER --token=$token
     ret=$?
     set -e
     if [ $ret -eq 0 ]; then
@@ -98,14 +125,14 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         sleep 10
 
         # The command was not successful, lets try again
-        oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
+        oc login $OPENSHIFT_SERVER --token=$token
 
     fi
 
     echo "::endgroup::"
 
 
-    NAMESPACE="f181a8-$ENVIRONMENT"
+    NAMESPACE="$OC_NAMEPLATE-$ENVIRONMENT"
     WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
     WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
 
@@ -141,6 +168,9 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     echo " Namespace: ${NAMESPACE}"
     echo " Container Name: ${WORDPRESS_CONTAINER_NAME}"
     echo " Pod Name: ${WORDPRESS_POD_NAME}"
+
+    echo " Restore Files: ${RESTORE_FILES}"
+    echo " Restore DB: ${RESTORE_DB}"
     
 
     # Download wp-cli in the GitHub Actions workspace
@@ -157,6 +187,9 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     tar -xvf $S3_FILENAME
     #should end up with db.sql.gz and files.tar.gz
 
+    #erase the old wp-content files
+    echo "Removing wp-content-bk folder"
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm -rf /var/www/html/wp-content-bk
 
     #move the destination wp-content to wp-content-bk
     echo "Moving wp-content to wp-content-bk"
