@@ -26,6 +26,15 @@ on:
         description: 'Site name'
         required: true
         default: 'test'
+
+env:
+  # Change this per project.
+  OC_NAMEPLATE: "f181a8" 
+  OC_TIER: "gold"   #gold, silver
+  WPCMD_NAME_CONFIG_MO: "cleanbcdx-config-mo"
+  WPCMD_NAME_FIX_MO: "cleanbcdx-fix-mo"
+  WPCMD_PLUGIN_NAME: "cleanbcdx-misc"
+
 jobs:
   prepare:
     name: Set Keycloak Secret Name
@@ -43,12 +52,21 @@ jobs:
             ENVIRONMENT="test"
           fi
 
-          
-          #For unknown reason, dev secret doesnt always work. Use test key in dev. Only do this in the prepare step.
-          SITE_NAME=${SITE_NAME//dev/test} 
+          if [ "${PROJECT_NAME}" == "digital" ];  then #legacy key name for digital
+            if [ "$SITE_NAME" == "digital" ];  then #production live site
+              echo "Running on production"
+              CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_${ENVIRONMENT^^}_CLIENT_SECRET"
+            else
+              CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_TEST_CLIENT_SECRET" 
+            fi
 
-          CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_${PROJECT_NAME^^}_${ENVIRONMENT^^}_CLIENT_SECRET"            
-          CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME//-/_}  
+          else
+            #For unknown reason, dev secret doesnt always work. Use test key in dev. Only do this in the prepare step.
+            SITE_NAME=${SITE_NAME//dev/test} 
+
+            CLIENT_KEYCLOAK_SECRET_NAME="KEYCLOAK_${PROJECT_NAME^^}_${ENVIRONMENT^^}_CLIENT_SECRET"            
+            CLIENT_KEYCLOAK_SECRET_NAME=${CLIENT_KEYCLOAK_SECRET_NAME//-/_}  
+          fi
                 
 
           #echo "::set-output name=CLIENT_KEYCLOAK_SECRET_NAME::${CLIENT_KEYCLOAK_SECRET_NAME}";
@@ -86,6 +104,10 @@ jobs:
       env:
         CLIENT_KEYCLOAK_SECRET_NAME: ${{ needs.prepare.outputs.CLIENT_KEYCLOAK_SECRET_NAME }}
       run: |
+
+        OC_NAMEPLATE="${{ env.OC_NAMEPLATE }}"
+        OC_TIER="${{ env.OC_TIER }}"
+
         ENVIRONMENT=${{ github.event.inputs.ENVIRONMENT }}
         echo "Deploying to the OC environment $ENVIRONMENT"
         case "$ENVIRONMENT" in
@@ -101,7 +123,6 @@ jobs:
 
             "prod")
             token=${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
-            #OC_SITE_NAME=${{ github.event.inputs.SITE-NAME }}
             OC_SITE_NAME=${{ github.event.inputs.PROJECT-NAME }}-${{ github.event.inputs.SITE-NAME }}
             #echo "For safety reasons, we won't run this action on prod!"
             #exit 1
@@ -115,7 +136,7 @@ jobs:
 
         oc login ${{ secrets.OPENSHIFT_SERVER }} --token=$token           #--insecure-skip-tls-verify=true
 
-        NAMESPACE="f181a8-$ENVIRONMENT"
+        NAMESPACE="$OC_NAMEPLATE-$ENVIRONMENT"
         OC_ENV=$ENVIRONMENT
         OC_PROJECT_NAME=${{ github.event.inputs.PROJECT-NAME }}
         
@@ -133,7 +154,7 @@ jobs:
         oc cp --no-preserve wp-cli.phar $NAMESPACE/$WORDPRESS_POD_NAME:/tmp/wp-cli.phar -c $WORDPRESS_CONTAINER_NAME
         oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- chmod +x /tmp/wp-cli.phar
 
-        siteURL=https://${OC_SITE_NAME}.apps.gold.devops.gov.bc.ca
+        siteURL=https://${OC_SITE_NAME}.apps.${OC_TIER}.devops.gov.bc.ca
         ssoURI=''
 
         echo "Keycloak Secret Name: ${CLIENT_KEYCLOAK_SECRET_NAME}"
@@ -143,8 +164,19 @@ jobs:
           exit 1
         fi
 
+
+        OC_ENV_FOR_KEY=$ENVIRONMENT
+        if [ "${ENVIRONMENT}" == "prod" ];  then 
+          if [ "${{ github.event.inputs.SITE-NAME }}" == "digital" ];  then #production
+            OC_ENV_FOR_KEY="prod"
+          else  #other site on production, ie. backup
+            OC_ENV_FOR_KEY="test"
+          fi
+        fi
+
+        echo "Env for SSO Key: $OC_ENV_FOR_KEY"
         clientSecret=${{ secrets[env.CLIENT_KEYCLOAK_SECRET_NAME] }}
-        case $OC_ENV in
+        case $OC_ENV_FOR_KEY in
           'dev')
             ssoURI='https://test.loginproxy.gov.bc.ca/auth'            
             ;;
@@ -153,7 +185,7 @@ jobs:
             ssoURI='https://test.loginproxy.gov.bc.ca/auth'
             ;;
 
-          'prod') #this branch wont run due to exit above.
+          'prod') 
             ssoURI='https://loginproxy.gov.bc.ca/auth'        
             ;;
 
@@ -164,26 +196,32 @@ jobs:
         esac
 
          
-        if [ "${ENVIRONMENT}" == "prod" ];  then 
-          if [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-bh-prod" ];  then #production
-            echo "Running on production"
-            siteURL=https://betterhomesbc.ca
+        if [ "c0cce6" = "$OC_NAMEPLATE" ]; then
+          if [ "${ENVIRONMENT}" == "prod" ];  then 
+            if [ "${{ github.event.inputs.SITE-NAME }}" == "digital" ];  then #production
+              echo "Running on production"
+              siteURL=https://${OC_SITE_NAME}.gov.bc.ca
+            fi
+          fi
 
-          elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-ge-prod" ];  then #production
-            echo "Running on production"
-            siteURL=https://goelectricbc.gov.bc.ca
+        else
+          if [ "${ENVIRONMENT}" == "prod" ];  then 
+            if [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-bh-prod" ];  then #production
+              echo "Running on production"
+              siteURL=https://betterhomesbc.ca
 
-          elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-bb-prod" ];  then #production
-            echo "Running on production"
-            siteURL=https://betterbuildingsbc.ca
+            elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-ge-prod" ];  then #production
+              echo "Running on production"
+              siteURL=https://goelectricbc.gov.bc.ca
 
-          elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbc-prod" ];  then #production
-            echo "Running on production"
-            siteURL=https://cleanbc.gov.bc.ca
+            elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbcdx-bb-prod" ];  then #production
+              echo "Running on production"
+              siteURL=https://betterbuildingsbc.ca
 
-          else
-            echo "Running on prod environment, but not on production site. You will need to manually fix SSO. Use the test/dev settings."
-            exit 1
+            elif [ "${{ github.event.inputs.SITE-NAME }}" == "cleanbc-prod" ];  then #production
+              echo "Running on production"
+              siteURL=https://cleanbc.gov.bc.ca
+            fi
           fi
         fi
 
@@ -193,18 +231,19 @@ jobs:
           exit 1
         fi
 
-
-        echo "Activating cleanbcdx-misc plugin"
-        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar plugin activate cleanbcdx-misc
+        #if [ "$OC_NAMEPLATE" = "c0cce6" ]; then
+          echo "Activating $WPCMD_PLUGIN_NAME plugin"
+          oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar plugin activate $WPCMD_PLUGIN_NAME
+        #fi
 
 
 
         #run command to change miniorange plugin variables
-        CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar cleanbcdx-config-mo $clientSecret $ssoURI $siteURL ")
+        CMD1_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar $WPCMD_NAME_CONFIG_MO $clientSecret $ssoURI $siteURL ")
         echo "${CMD1_RESULTS}"
 
         #run command to fix any miniorange plugin settings
-        CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar cleanbcdx-fix-mo ")
+        CMD2_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- bash -c "echo 'y' | php /tmp/wp-cli.phar $WPCMD_NAME_FIX_MO ")
         echo "${CMD2_RESULTS}"
 
 

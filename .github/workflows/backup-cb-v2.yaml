@@ -40,6 +40,11 @@ on:
     # * is a special character in YAML so you have to quote this string
     - cron: '16 2 * * *'
 
+env:
+  # Change this per project.
+  OC_NAMEPLATE: "f181a8" 
+  OC_TIER: "gold"   #gold, silver
+
 jobs:
   deploy:
     runs-on: ubuntu-22.04
@@ -59,3 +64,5 @@ jobs:
           prod-token: ${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
           s3-token: "${{ secrets.BCGOV_S3_SECRET_ACCESS_KEY }}"
           restore-check: ${{ github.event.inputs.restore-check || true }}
+          oc_nameplate: "${{ env.OC_NAMEPLATE }}"
+          oc_tier: "${{ env.OC_TIER }}"

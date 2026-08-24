@@ -1,0 +1,82 @@
+# Manual Action Doing the heavy lifting
+name: List Backups V2 
+inputs:
+  environment:
+    description: 'Deployment environment'
+    required: true
+    default: 'prod'
+  project-name:
+    description: 'Project name'
+    required: true
+    default: 'digital'
+  site-name:
+    description: 'Site name'
+    required: true
+    default: 'prod'
+  openshift-server:
+    description: 'OpenShift server'
+    required: true
+  dev-token:
+    description: 'Dev token'
+    required: true
+  test-token:
+    description: 'Test token'
+    required: true
+  prod-token:
+    description: 'Prod token'
+    required: true
+  s3-token:
+    description: 'BCGov S3 token'
+    required: true
+  restore-check:
+    description: 'Check backup via restore'
+    required: true
+    type: boolean
+    default: true
+  oc_nameplate:
+    description: 'OpenShift nameplate'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Rclone
+      run: |
+        if command -v rclone &> /dev/null; then
+          echo "rclone is already installed"
+        else
+          echo "rclone not found, installing..."
+          sudo -v ; curl https://rclone.org/install.sh | sudo bash ; rclone config touch
+        fi
+      shell: bash
+
+    - name: Verify Installation
+      run: rclone version
+      shell: bash
+
+    # Not needed since base linux image being used has OC built in.
+    # - name: Install OC CLI
+    #   run: |
+    #     curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+    #     tar xvzf openshift-client-linux.tar.gz
+    #     sudo mv oc kubectl /usr/local/bin/
+
+    - name: List Backups
+      shell: bash
+      run: |
+        chmod +x ./.github/actions/list_backups_v2/list_backups_v2.sh
+
+        set +e
+        ./.github/actions/list_backups_v2/list_backups_v2.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.s3-token }}" "${{ inputs.oc_nameplate }}"
+        CMD_EXIT_CODE=$?
+        set -e
+
+        if [[ $CMD_EXIT_CODE -ne 0 ]]; then
+          echo "::endgroup::" #close the group started in list_backups_v2.sh
+
+          echo "Error listing backups"
+          echo "Code: $CMD_EXIT_CODE"
+
+          exit $CMD_EXIT_CODE
+        fi
+        

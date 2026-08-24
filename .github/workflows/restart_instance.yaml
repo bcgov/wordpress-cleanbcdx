@@ -25,6 +25,11 @@ on:
         description: 'Site name'
         required: true
         default: 'test'
+
+env:
+  # Change this per project.
+  OC_NAMEPLATE: "f181a8" 
+
 jobs:
   deploy:
     runs-on: ubuntu-22.04
@@ -65,7 +70,7 @@ jobs:
         esac
 
         echo "Restarting the site $OC_SITE_NAME in $ENVIRONMENT"
-        NAMESPACE="f181a8-$ENVIRONMENT"
+        NAMESPACE="${{ env.OC_NAMEPLATE }}-$ENVIRONMENT"
         OC_ENV=$ENVIRONMENT
 
         oc login ${{ secrets.OPENSHIFT_SERVER }} -n $NAMESPACE --token=$token             #--insecure-skip-tls-verify=true
