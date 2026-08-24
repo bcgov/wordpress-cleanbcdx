@@ -10,11 +10,13 @@ OPENSHIFT_SERVER=$4
 DEV_TOKEN=$5
 TEST_TOKEN=$6
 PROD_TOKEN=$7
+OC_NAMEPLATE=$8
+OC_TIER=$9
 
 
-NAMESPACE="f181a8-$ENVIRONMENT"
+NAMESPACE="$OC_NAMEPLATE-$ENVIRONMENT"
 
-NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca/"
+NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.$OC_TIER.devops.gov.bc.ca/"
 echo "Checking the site $NEW_SITE_URL"
 
 
@@ -31,11 +33,31 @@ echo "The runner's public IP is: $RUNNER_IP"
 echo "ip=$RUNNER_IP" >> $GITHUB_OUTPUT
 
 
+
+echo "Using environment: $ENVIRONMENT"
+case "$ENVIRONMENT" in
+    "dev")
+    token=$DEV_TOKEN
+    ;;
+    "test")
+    token=$TEST_TOKEN
+    ;;
+    "prod")
+    token=$PROD_TOKEN
+    # echo "For safety reasons, we won't run this action on prod!"
+    # exit 1
+    ;;
+    *)
+    echo "Unknown environment: $ENVIRONMENT"
+    exit 1
+    ;;
+esac
+
 # Log in to OpenShift
 echo "::group::Login to target OC"
 #Sometimes oc login will fail to connect, so lets re-try on failure.
 set +e
-oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
+oc login $OPENSHIFT_SERVER --token=$token
 ret=$?
 set -e
 if [ $ret -eq 0 ]; then
@@ -48,7 +70,7 @@ else
     sleep 10
 
     # The command was not successful, lets try again
-    oc login $OPENSHIFT_SERVER --token=$PROD_TOKEN
+    oc login $OPENSHIFT_SERVER --token=$token
 
 fi
 

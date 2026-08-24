@@ -33,7 +33,7 @@ fi
 
 
 if [ $RESTORE_FILES != "true" ] && [ $RESTORE_DB != "true" ]; then
-    echo "At least one of restore files or restore db must be true"
+    echo "At least one of restore files or restore db must be true. $RESTORE_FILES $RESTORE_DB"
     exit 99
 fi
 
@@ -187,65 +187,120 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     tar -xvf $S3_FILENAME
     #should end up with db.sql.gz and files.tar.gz
 
-    #erase the old wp-content files
-    echo "Removing wp-content-bk folder"
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm -rf /var/www/html/wp-content-bk
-
-    #move the destination wp-content to wp-content-bk
-    echo "Moving wp-content to wp-content-bk"
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mkdir -p /var/www/html/wp-content-bk
-
-    #only move the files if the folder has files
-    set +e
-    CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'ls /var/www/html/wp-content/*'))
-    CMD1_EXIT_CODE=$?
-    set -e
-
-    if [ $CMD1_EXIT_CODE -eq 0 ]; then
-        echo "Moved files"
-        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'mv /var/www/html/wp-content/* /var/www/html/wp-content-bk'
-    fi
 
 
-    echo "::group::Restore DB backup"
-    #need to copy the file then do restore.
-    oc cp db.sql.gz -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME:/tmp/db.sql.gz
-    
-    set +e
-    CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'gunzip < /tmp/db.sql.gz | mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE' ) 2>&1)
-    CMD1_EXIT_CODE=$?
-    set -e
+    if [ "$RESTORE_DB" = "true" ]; then
+        echo "::group::Restore DB backup"
 
-    oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- rm /tmp/db.sql.gz
+        echo "DB sql size uncompressed:"
+        CMD_RESULTS=$(gzip -l db.sql.gz | tail -n 1)
+        echo $CMD_RESULTS;
 
-    if [ $CMD1_EXIT_CODE -eq 0 ]; then
-        echo "Success restoring database backup"
-        echo "Code: $CMD1_EXIT_CODE"
-        echo "$CMD1_RESULTS"
 
-    else
-        echo "Error restoring database backup:"
-        echo "Code: $CMD1_EXIT_CODE"
-        echo "$CMD1_RESULTS"
+        echo "Space usage on db pod:"
+        CMD_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'df -h /var/lib/mysql')
+        echo "$CMD_RESULTS"
+        
+        
+        #need to copy the file then do restore.
+        #oc cp db.sql.gz -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME:/tmp/db.sql.gz
+        
+        echo "Extracting db.sql.gz"
+        gunzip db.sql.gz
+        
 
-        if [[ "$S3_FILENAME" != *".problem"* ]]; then
-            #update the filename of the backup to mark it as such
-            echo "Renaming the backup file to mark it as problematic"
-            rclone moveto :s3:clbcdx/oc-sites-bk/$S3_FILENAME :s3:clbcdx/oc-sites-bk/$S3_FILENAME.problem  --s3-provider Other --s3-access-key-id "nr-cleanbcdx-pr" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "https://nrs.objectstore.gov.bc.ca" -P --stats-log-level NOTICE --stats 60s
+        echo "Retrieving pre-restore innodb_buffer_pool_size"
+        CMD_RESULTS=$(oc exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SELECT @@innodb_buffer_pool_size;" -N -s'  )
+        echo "Current innodb_buffer_pool_size: $CMD_RESULTS"
+
+        ORIGINAL_INNODB_BUFFER_POOL_SIZE=$CMD_RESULTS
+        NEW_INNODB_BUFFER_POOL_SIZE=$((822144000))  #set the pool memory to 820mb temporarily.
+
+
+        echo "Performing actual db restore...please wait"
+        set +e
+        #CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'gunzip < /tmp/db.sql.gz | mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE' ) 2>&1)
+        
+        CMD1_RESULTS=$( pv db.sql | (oc exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE --init-command="SET GLOBAL innodb_flush_log_at_trx_commit=2; SET GLOBAL foreign_key_checks=0; SET GLOBAL unique_checks=0; SET GLOBAL autocommit=0; SET GLOBAL innodb_buffer_pool_size='$NEW_INNODB_BUFFER_POOL_SIZE';"' ) 2>&1) #SET GLOBAL innodb_doublewrite=0; 
+        CMD1_EXIT_CODE=$?
+        set -e
+
+
+        if [ $CMD1_EXIT_CODE -eq 0 ]; then
+            echo "Success restoring database backup"
+            echo "Code: $CMD1_EXIT_CODE"
+            echo "$CMD1_RESULTS"
+
+        else
+            echo "Error restoring database backup:"
+            echo "Code: $CMD1_EXIT_CODE"
+            echo "$CMD1_RESULTS"
+
+            if [[ "$S3_FILENAME" != *".problem"* ]]; then
+                #update the filename of the backup to mark it as such
+                echo "Renaming the backup file to mark it as problematic"
+                rclone moveto :s3:$S3_BUCKET_NAME/oc-sites-bk/$S3_FILENAME :s3:$S3_BUCKET_NAME/oc-sites-bk/$S3_FILENAME.problem  --s3-provider Other --s3-access-key-id "$S3_AKI" --s3-secret-access-key "$S3_TOKEN" --s3-endpoint "$S3_ENDPOINT_URL" -P --stats-log-level NOTICE --stats 60s
+            fi
+
+            exit 99
         fi
 
-        exit 99
+        echo "Restoring database settings to default"
+        oc exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SET GLOBAL innodb_flush_log_at_trx_commit=1; SET GLOBAL foreign_key_checks = 1; SET GLOBAL unique_checks = 1; SET GLOBAL autocommit=1; SET GLOBAL innodb_buffer_pool_size='$ORIGINAL_INNODB_BUFFER_POOL_SIZE'; COMMIT; "'
+
+        echo "Retrieving post-restore innodb_buffer_pool_size"
+        CMD_RESULTS=$(oc exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SELECT @@innodb_buffer_pool_size;" -N -s'  )
+        echo "Post-restore innodb_buffer_pool_size: $CMD_RESULTS"
+
+        #echo "Removing the /tmp/db.sql.gz file from the pod"
+        #oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- rm /tmp/db.sql.gz
+
+        
+        echo "::endgroup::"
     fi
 
-    echo "::endgroup::"
 
+    if [ "$RESTORE_FILES" = "true" ]; then
+        echo "::group::Restore Files"
 
-    echo "::group::Restore Files backup"
-    #restore files. only wp-content
-    mkdir extracted-files
-    tar -xzf files.tar.gz -C extracted-files
-    oc cp extracted-files/wp-content  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html
-    echo "::endgroup::"
+        echo "Files archive size uncompressed:"
+        CMD_RESULTS=$(gzip -l files.tar.gz | tail -n 1)
+        echo $CMD_RESULTS;
+
+        echo "Space usage on wp pod:"
+        CMD_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'df -h /var/www/html/wp-content')
+        echo "$CMD_RESULTS"
+
+        #erase the old wp-content files
+        echo "Removing wp-content-bk folder"
+        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm -rf /var/www/html/wp-content-bk
+
+        #move the destination wp-content to wp-content-bk
+        echo "Moving wp-content to wp-content-bk. Creating folder."
+        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mkdir -p /var/www/html/wp-content-bk
+
+        #only move the files if the folder has files
+        set +e
+        CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'ls /var/www/html/wp-content/*'))
+        CMD1_EXIT_CODE=$?
+        set -e
+
+        if [ $CMD1_EXIT_CODE -eq 0 ]; then
+            echo "Moving files..."
+            oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'mv /var/www/html/wp-content/* /var/www/html/wp-content-bk'
+            echo "Done"
+        fi
+        
+
+        #restore files. only wp-content
+        echo "Restoring wp-content files from backup"
+        mkdir extracted-files
+        tar -xzf files.tar.gz -C extracted-files
+        oc cp extracted-files/wp-content  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html
+        echo "Done"
+
+        echo "::endgroup::"
+    fi
 
 
 
@@ -258,12 +313,14 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
         exit 97
     fi 
+    OLD_SITE_DOMAIN=$(echo "$CMD1_RESULTS" | sed -E 's|https?://||')
 
-    NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.gold.devops.gov.bc.ca"
+    NEW_SITE_URL="https://$PROJECT_NAME-$SITE_NAME.apps.${OC_TIER}.devops.gov.bc.ca"
 
-    echo "Changing database url from $CMD1_RESULTS to $NEW_SITE_URL"
+    echo "Changing database url from $OLD_SITE_DOMAIN to $NEW_SITE_URL"
 
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "$CMD1_RESULTS" "$NEW_SITE_URL" --all-tables
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "http://$OLD_SITE_DOMAIN" "$NEW_SITE_URL" --all-tables
+    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "https://$OLD_SITE_DOMAIN" "$NEW_SITE_URL" --all-tables
     
     #Disable site indexing
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option set blog_public 0
@@ -271,6 +328,8 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     #Update the site urls
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "$NEW_SITE_URL"
     oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "$NEW_SITE_URL"
+
+    #oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar cache flush
     
     echo "::endgroup::"
 

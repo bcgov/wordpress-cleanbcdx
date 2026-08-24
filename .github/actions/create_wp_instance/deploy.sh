@@ -13,8 +13,14 @@ PROD_TOKEN=$7
 OC_NAMEPLATE=$8
 OC_TIER=$9
 
-git clone  https://github.com/bcgov/wordpress-deploy-cleanbcdx.git
-      
+if [ "$OC_NAMEPLATE" == "c0cce6" ]; then
+    #NG. no longer grabbing the branch    -b digimod-deploy
+    git clone  https://github.com/bcgov/wordpress-deploy-digimod.git
+else
+    git clone  https://github.com/bcgov/wordpress-deploy-cleanbcdx.git
+fi
+
+
 #Log in to OpenShift
 echo "Deploying to $ENVIRONMENT"
 case "$ENVIRONMENT" in
@@ -59,7 +65,15 @@ fi
 echo "::endgroup::"
 
 #Go into the deployment folder
-cd wordpress-deploy-cleanbcdx
+if [ "$OC_NAMEPLATE" == "c0cce6" ]; then
+    echo "Using digimod deploy folder"
+    cd wordpress-deploy-digimod
+
+else
+    echo "Using cleanbcdx deploy folder"
+    cd wordpress-deploy-cleanbcdx
+fi
+
 
 #Setup some variables
 export NAMESPACE="$OC_NAMEPLATE-$ENVIRONMENT"

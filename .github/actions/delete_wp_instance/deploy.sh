@@ -59,7 +59,11 @@ fi
 echo "::endgroup::"
 
 #Go into the deployment folder
-cd wordpress-deploy-cleanbcdx
+if [ "$OC_NAMEPLATE" == "c0cce6" ]; then
+    cd wordpress-deploy-digimod
+else
+    cd wordpress-deploy-cleanbcdx
+fi
 
 #Setup some variables
 export NAMESPACE="$OC_NAMEPLATE-$ENVIRONMENT"
