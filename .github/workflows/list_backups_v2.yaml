@@ -6,9 +6,12 @@ on:
         description: 'Project'
         required: true
         type: choice
-        options:      
-        - digital
-        default: 'digital'
+        options:     
+        - cleanbcdx-bh
+        - cleanbcdx-ge
+        - cleanbcdx-bb
+        - cleanbc
+        default: 'cleanbcdx-bh'
 
       site-name:
         description: 'Site name'
