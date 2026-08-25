@@ -45,7 +45,7 @@ on:
 env:
   # Change this per project.
   OC_NAMEPLATE: "c0cce6" 
-  OC_TIER: "silver"   #gold, silver
+  OC_TIER: "gold"   #gold, silver
 
 
 jobs:
