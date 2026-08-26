@@ -90,7 +90,7 @@ NGINX_ROUTE_IP_WHITELIST=$(oc get route -n $NAMESPACE $NGINX_ROUTE_NAME -o jsonp
 
 echo "Adding runner IP to route temporarily"
 echo "Existing whitelist: $NGINX_ROUTE_IP_WHITELIST"
-oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST $RUNNER_IP"
+./.github/oc-retry-wrapper.sh annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST $RUNNER_IP"
 
 echo "Waiting 10s for the route to update...."
 sleep 10
@@ -103,36 +103,45 @@ CMD_RESULTS=$(curl -s -o /dev/null -w "%{http_code}" ${NEW_SITE_URL})
 CMD_EXIT_CODE=$?
 set -e
 
-if [ $CMD_EXIT_CODE -ne 0 ]; then
+if [ $CMD_EXIT_CODE = 52 ]; then
+    #soft fail.
+    echo "::warning::Error trying to check remote url, ${CMD_RESULTS}"
+    echo "::warning::Exit code: ${CMD_EXIT_CODE}"
+
+
+elif [ $CMD_EXIT_CODE -ne 0 ]; then    
     echo "::error::Error trying to check remote url, ${CMD_RESULTS}"
+    echo "::error::Exit code: ${CMD_EXIT_CODE}"
+    
 
     echo "Restoring pod ip whitelist"
-    oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
-
+    ./.github/oc-retry-wrapper.sh annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
 
     exit $CMD_EXIT_CODE
+
+
+else
+    if [ $CMD_RESULTS -eq 200 ]; then
+        echo "Success, restored site responded with http 200 - $NEW_SITE_URL"
+    fi
+
+    if [ "$CMD_RESULTS" -ne 200 ]; then
+        echo "::error::Incorrect http status returned, ${CMD_RESULTS}"
+
+
+        echo "Restoring pod ip whitelist"
+        ./.github/oc-retry-wrapper.sh annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
+
+
+        exit 99
+    fi 
 fi
 
 
-
-if [ $CMD_RESULTS -eq 200 ]; then
-    echo "Success, restored site responded with http 200 - $NEW_SITE_URL"
-fi
-
-if [ "$CMD_RESULTS" -ne 200 ]; then
-    echo "::error::Incorrect http status returned, ${CMD_RESULTS}"
-
-
-    echo "Restoring pod ip whitelist"
-    oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
-
-
-    exit 99
-fi 
 
 
 echo "Restoring pod ip whitelist"
-oc annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
+./.github/oc-retry-wrapper.sh annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
 
 
 echo "### Checked Restored Site" >> $GITHUB_STEP_SUMMARY

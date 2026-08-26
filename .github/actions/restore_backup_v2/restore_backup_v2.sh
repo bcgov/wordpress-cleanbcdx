@@ -32,10 +32,10 @@ if [ $ENVIRONMENT = "prod" ]; then
 fi
 
 
-if [ $RESTORE_FILES != "true" ] && [ $RESTORE_DB != "true" ]; then
-    echo "At least one of restore files or restore db must be true. $RESTORE_FILES $RESTORE_DB"
-    exit 99
-fi
+# if [ $RESTORE_FILES != "true" ] && [ $RESTORE_DB != "true" ]; then
+#     echo "At least one of restore files or restore db must be true. $RESTORE_FILES $RESTORE_DB"
+#     exit 99
+# fi
 
 
 if [ "$OC_NAMEPLATE" = "c0cce6" ]; then
@@ -133,11 +133,11 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
 
     NAMESPACE="$OC_NAMEPLATE-$ENVIRONMENT"
-    WORDPRESS_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
-    WORDPRESS_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
+    WORDPRESS_POD_NAME=$(./.github/oc-retry-wrapper.sh get pods -n $NAMESPACE -l app=wordpress,role=wordpress-core,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
+    WORDPRESS_CONTAINER_NAME=$(./.github/oc-retry-wrapper.sh get pods -n $NAMESPACE $WORDPRESS_POD_NAME -o jsonpath='{.spec.containers[0].name}')
 
-    DB_POD_NAME=$(oc get pods -n $NAMESPACE -l app=wordpress,role=mariadb,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
-    DB_CONTAINER_NAME=$(oc get pods -n $NAMESPACE $DB_POD_NAME -o jsonpath='{.spec.containers[0].name}')
+    DB_POD_NAME=$(./.github/oc-retry-wrapper.sh get pods -n $NAMESPACE -l app=wordpress,role=mariadb,site=${OC_SITE_NAME} -o jsonpath='{.items[0].metadata.name}')
+    DB_CONTAINER_NAME=$(./.github/oc-retry-wrapper.sh get pods -n $NAMESPACE $DB_POD_NAME -o jsonpath='{.spec.containers[0].name}')
 
     if [ -z "$WORDPRESS_CONTAINER_NAME" ]; then
         echo "::error::Unknown site name: ${SITE_NAME}"
@@ -179,8 +179,8 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     chmod +x wp-cli.phar
 
     # Copy wp-cli to the WordPress instance and install wordpress
-    oc cp --no-preserve wp-cli.phar $NAMESPACE/$WORDPRESS_POD_NAME:/tmp/wp-cli.phar -c $WORDPRESS_CONTAINER_NAME
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- chmod +x /tmp/wp-cli.phar
+    ./.github/oc-retry-wrapper.sh cp --no-preserve wp-cli.phar $NAMESPACE/$WORDPRESS_POD_NAME:/tmp/wp-cli.phar -c $WORDPRESS_CONTAINER_NAME
+    ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- chmod +x /tmp/wp-cli.phar
 
 
     echo "Expanding backup archive on runner"
@@ -198,7 +198,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
 
         echo "Space usage on db pod:"
-        CMD_RESULTS=$(oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'df -h /var/lib/mysql')
+        CMD_RESULTS=$(./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'df -h /var/lib/mysql')
         echo "$CMD_RESULTS"
         
         
@@ -210,7 +210,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         
 
         echo "Retrieving pre-restore innodb_buffer_pool_size"
-        CMD_RESULTS=$(oc exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SELECT @@innodb_buffer_pool_size;" -N -s'  )
+        CMD_RESULTS=$(./.github/oc-retry-wrapper.sh exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SELECT @@innodb_buffer_pool_size;" -N -s'  )
         echo "Current innodb_buffer_pool_size: $CMD_RESULTS"
 
         ORIGINAL_INNODB_BUFFER_POOL_SIZE=$CMD_RESULTS
@@ -221,7 +221,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         set +e
         #CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'gunzip < /tmp/db.sql.gz | mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE' ) 2>&1)
         
-        CMD1_RESULTS=$( pv db.sql | (oc exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE --init-command="SET GLOBAL innodb_flush_log_at_trx_commit=2; SET GLOBAL foreign_key_checks=0; SET GLOBAL unique_checks=0; SET GLOBAL autocommit=0; SET GLOBAL innodb_buffer_pool_size='$NEW_INNODB_BUFFER_POOL_SIZE';"' ) 2>&1) #SET GLOBAL innodb_doublewrite=0; 
+        CMD1_RESULTS=$( pv db.sql | (./.github/oc-retry-wrapper.sh exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) $MYSQL_DATABASE --init-command="SET GLOBAL innodb_flush_log_at_trx_commit=2; SET GLOBAL foreign_key_checks=0; SET GLOBAL unique_checks=0; SET GLOBAL autocommit=0; SET GLOBAL innodb_buffer_pool_size='$NEW_INNODB_BUFFER_POOL_SIZE';"' ) 2>&1) #SET GLOBAL innodb_doublewrite=0; 
         CMD1_EXIT_CODE=$?
         set -e
 
@@ -246,10 +246,10 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         fi
 
         echo "Restoring database settings to default"
-        oc exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SET GLOBAL innodb_flush_log_at_trx_commit=1; SET GLOBAL foreign_key_checks = 1; SET GLOBAL unique_checks = 1; SET GLOBAL autocommit=1; SET GLOBAL innodb_buffer_pool_size='$ORIGINAL_INNODB_BUFFER_POOL_SIZE'; COMMIT; "'
+        ./.github/oc-retry-wrapper.sh exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SET GLOBAL innodb_flush_log_at_trx_commit=1; SET GLOBAL foreign_key_checks = 1; SET GLOBAL unique_checks = 1; SET GLOBAL autocommit=1; SET GLOBAL innodb_buffer_pool_size='$ORIGINAL_INNODB_BUFFER_POOL_SIZE'; COMMIT; "'
 
         echo "Retrieving post-restore innodb_buffer_pool_size"
-        CMD_RESULTS=$(oc exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SELECT @@innodb_buffer_pool_size;" -N -s'  )
+        CMD_RESULTS=$(./.github/oc-retry-wrapper.sh exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SELECT @@innodb_buffer_pool_size;" -N -s'  )
         echo "Post-restore innodb_buffer_pool_size: $CMD_RESULTS"
 
         #echo "Removing the /tmp/db.sql.gz file from the pod"
@@ -258,6 +258,11 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         
         echo "::endgroup::"
     fi
+
+    #just in case the flow gets cancelled, re-run this any time the action is called to make sure the DB is in a proper state again
+    echo "Re-Restoring database settings to default"
+    ./.github/oc-retry-wrapper.sh exec -i -n $NAMESPACE -c $DB_CONTAINER_NAME $DB_POD_NAME -- sh -c 'mariadb  -u root -p$(cat $MYSQL_ROOT_PASSWORD_FILE) -e "SET GLOBAL innodb_flush_log_at_trx_commit=1; SET GLOBAL foreign_key_checks = 1; SET GLOBAL unique_checks = 1; SET GLOBAL autocommit=1; COMMIT; "'
+
 
 
     if [ "$RESTORE_FILES" = "true" ]; then
@@ -268,26 +273,26 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         echo $CMD_RESULTS;
 
         echo "Space usage on wp pod:"
-        CMD_RESULTS=$(oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'df -h /var/www/html/wp-content')
+        CMD_RESULTS=$(./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'df -h /var/www/html/wp-content')
         echo "$CMD_RESULTS"
 
         #erase the old wp-content files
         echo "Removing wp-content-bk folder"
-        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm -rf /var/www/html/wp-content-bk
+        ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm -rf /var/www/html/wp-content-bk
 
         #move the destination wp-content to wp-content-bk
         echo "Moving wp-content to wp-content-bk. Creating folder."
-        oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mkdir -p /var/www/html/wp-content-bk
+        ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- mkdir -p /var/www/html/wp-content-bk
 
         #only move the files if the folder has files
         set +e
-        CMD1_RESULTS=$( (oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'ls /var/www/html/wp-content/*'))
+        CMD1_RESULTS=$( (./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'ls /var/www/html/wp-content/*'))
         CMD1_EXIT_CODE=$?
         set -e
 
         if [ $CMD1_EXIT_CODE -eq 0 ]; then
             echo "Moving files..."
-            oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'mv /var/www/html/wp-content/* /var/www/html/wp-content-bk'
+            ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- sh -c 'mv /var/www/html/wp-content/* /var/www/html/wp-content-bk'
             echo "Done"
         fi
         
@@ -296,7 +301,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
         echo "Restoring wp-content files from backup"
         mkdir extracted-files
         tar -xzf files.tar.gz -C extracted-files
-        oc cp extracted-files/wp-content  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html
+        ./.github/oc-retry-wrapper.sh cp extracted-files/wp-content  -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME:/var/www/html
         echo "Done"
 
         echo "::endgroup::"
@@ -307,7 +312,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
     echo "::group::Update WP Settings and Database"
     #update the url in the database content
     #get the siteurl of the backed up site
-    CMD1_RESULTS=$( oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option get siteurl )
+    CMD1_RESULTS=$( ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option get siteurl )
     if [ -z "$CMD1_RESULTS" ]; then
         echo "::error::Unknown siteurl: ${CMD1_RESULTS}"
 
@@ -319,15 +324,15 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
     echo "Changing database url from $OLD_SITE_DOMAIN to $NEW_SITE_URL"
 
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "http://$OLD_SITE_DOMAIN" "$NEW_SITE_URL" --all-tables
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "https://$OLD_SITE_DOMAIN" "$NEW_SITE_URL" --all-tables
+    ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "http://$OLD_SITE_DOMAIN" "$NEW_SITE_URL" --all-tables
+    ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar search-replace "https://$OLD_SITE_DOMAIN" "$NEW_SITE_URL" --all-tables
     
     #Disable site indexing
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option set blog_public 0
+    ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option set blog_public 0
 
     #Update the site urls
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "$NEW_SITE_URL"
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "$NEW_SITE_URL"
+    ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update siteurl "$NEW_SITE_URL"
+    ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar option update home "$NEW_SITE_URL"
 
     #oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- php /tmp/wp-cli.phar cache flush
     
@@ -336,7 +341,7 @@ if [[ "$CMD1_EXIT_CODE" -eq 0 && -f "$S3_FILENAME" ]]; then
 
     #erase the old wp-content files
     echo "Removing wp-content-bk folder"
-    oc exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm -rf /var/www/html/wp-content-bk
+    ./.github/oc-retry-wrapper.sh exec -n $NAMESPACE -c $WORDPRESS_CONTAINER_NAME $WORDPRESS_POD_NAME -- rm -rf /var/www/html/wp-content-bk
 
 
     echo "Restore backup finished"
