@@ -1,3 +1,6 @@
+## 1.0.2 August 26, 2026
+– Minor style adjustment
+
 ## 1.0.1 July 23, 2026
 – Removed dark color-scheme setting
 

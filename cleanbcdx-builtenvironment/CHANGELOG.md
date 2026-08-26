@@ -1,3 +1,6 @@
+## 1.0.3 August 26, 2026
+– Minor style adjustment
+
 ## 1.0.2 July 23, 2026
 – Refactored custom patterns
 – Removed dark color-scheme setting

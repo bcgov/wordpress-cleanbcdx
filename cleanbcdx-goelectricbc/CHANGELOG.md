@@ -1,3 +1,6 @@
+## 1.0.18 August 26, 2026
+– Minor style adjustment
+
 ## 1.0.17 August 14, 2026
 – Updated the OEM feed so it always ends with {"make":"Other","models":[]}
 

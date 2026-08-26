@@ -1,3 +1,6 @@
+## 1.0.10 August 26, 2026
+– Minor style adjustment
+
 ## 1.0.9 August 4, 2026
 – Improvements to the definitions modal handling to allow in-modal defintion links and loading indicators
 

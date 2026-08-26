@@ -31,13 +31,3 @@ body {
 	--wp--preset--font-size--extra-large: clamp(1.8rem, 1.8rem + ((1vw - 0.2rem) * 0.617), 2.16rem);
 	--wp--preset--font-size--extra-extra-large: clamp(2.16rem, 2.16rem + ((1vw - 0.2rem) * 0.737), 2.592rem);
 }
-
-* {
-	// Shadows from https://getcssscan.com/css-box-shadow-examples
-	// #39
-	--box-shadow: rgba(0, 0, 0, 0.1) 0 20px 25px -5px, rgba(0, 0, 0, 0.04) 0 10px 10px -5px;
-
-	&::selection {
-		background-color: var(--curiousblue);
-	}
-}

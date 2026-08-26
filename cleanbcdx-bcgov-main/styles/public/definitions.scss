@@ -10,9 +10,9 @@
 }
 
 a.icon-definition.icon-definition {
-	color: currentColor;
+	color: currentcolor;
 	text-decoration-style: dashed;
-	text-decoration-color: currentColor;
+	text-decoration-color: currentcolor;
 
 	span.last-word {
 
@@ -77,6 +77,7 @@ body:has(#dialog[open]) {
 
 	&.wide {
 		max-width: 1220px;
+		width: 100%;
 	}
 
 	&.pin-to-top {
