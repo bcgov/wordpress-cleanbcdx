@@ -27,6 +27,11 @@ on:
         description: 'Site name'
         required: true
         default: 'test'
+
+env:
+  # Change this per project.
+  OC_NAMEPLATE: "f181a8" 
+  
 jobs:
   deploy:
     runs-on: ubuntu-22.04
@@ -44,3 +49,4 @@ jobs:
           dev-token: ${{ secrets.OPENSHIFT_DEV_API_TOKEN }}
           test-token: ${{ secrets.OPENSHIFT_TEST_API_TOKEN }}
           prod-token: ${{ secrets.OPENSHIFT_PROD_API_TOKEN }}
+          oc_nameplate: "${{ env.OC_NAMEPLATE }}"

@@ -1,5 +1,5 @@
 name: Deploy Plugin
-description: 'Deploy a single plugin from the wordpress-cleanbcdx repository to the given site.'
+description: 'Deploy a single plugin from the repository to the given site.'
 inputs:
   environment:
     description: 'Deployment environment'
@@ -28,11 +28,15 @@ inputs:
   plugin:
     description: 'Plugin name'
     required: true  
+  oc_nameplate:
+    description: 'OpenShift nameplate'
+    required: true
+    
 runs:
   using: 'composite'
   steps:
     - name: Deploy plugin
       run: |
         chmod +x ./.github/actions/deploy_plugin/deploy_plugin.sh
-        ./.github/actions/deploy_plugin/deploy_plugin.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.plugin }}"
+        ./.github/actions/deploy_plugin/deploy_plugin.sh "${{ inputs.environment }}" "${{ inputs.project-name }}" "${{ inputs.site-name }}" "${{ inputs.openshift-server }}" "${{ inputs.dev-token }}" "${{ inputs.test-token }}" "${{ inputs.prod-token }}" "${{ inputs.plugin }}" "${{ inputs.oc_nameplate }}"
       shell: bash
