@@ -1,3 +1,6 @@
+## 1.0.11 August 28, 2026
+– Additional SVG for how it works custom programs
+
 ## 1.0.10 August 26, 2026
 – Minor style adjustment
 

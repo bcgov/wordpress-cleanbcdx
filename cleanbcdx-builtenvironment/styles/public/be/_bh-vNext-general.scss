@@ -179,6 +179,18 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 				}
 			}
 
+			#how-it-works-custom {
+
+				&::before {
+					content: var(--howitworks-custom-horizontal);
+					display: block;
+
+					@container howitworksgrid (width < 800px) {
+						content: var(--howitworks-custom-vertical);
+					}
+				}
+			}
+
 			.how-it-works-diagram {
 
 				&::before {
