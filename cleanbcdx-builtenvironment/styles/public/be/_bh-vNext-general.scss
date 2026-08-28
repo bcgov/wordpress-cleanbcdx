@@ -185,7 +185,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 					content: var(--howitworks-custom-horizontal);
 					display: block;
 
-					@container howitworksgrid (width < 800px) {
+					@container howitworksgrid (width < 650px) {
 						content: var(--howitworks-custom-vertical);
 					}
 				}
@@ -238,6 +238,7 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 
 					@container howitworks (width >= 650px) {
 						grid-template-columns: repeat(4, minmax(0, 1fr));
+						align-items: flex-start;
 
 						p {
 							text-align: center;
