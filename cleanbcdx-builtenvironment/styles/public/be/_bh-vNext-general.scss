@@ -1,10 +1,10 @@
-html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbuildingsbc, body.betterhomesbc, body.goelectricbc) {
+/* stylelint-disable-next-line scss/at-rule-no-unknown */
+@view-transition {
+	/* stylelint-disable-next-line property-no-unknown */
+	navigation: auto;
+}
 
-	/* stylelint-disable-next-line scss/at-rule-no-unknown */
-	@view-transition {
-		/* stylelint-disable-next-line property-no-unknown */
-		navigation: auto;
-	}
+html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbuildingsbc, body.betterhomesbc, body.goelectricbc) {
 
 	h1 {
 		text-wrap: balance;
