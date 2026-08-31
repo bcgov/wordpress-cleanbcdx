@@ -1,5 +1,90 @@
 html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbuildingsbc, body.betterhomesbc, body.goelectricbc) {
 
+	/* stylelint-disable-next-line scss/at-rule-no-unknown */
+	@view-transition {
+		/* stylelint-disable-next-line property-no-unknown */
+		navigation: auto;
+	}
+
+	h1 {
+		text-wrap: balance;
+	}
+
+	a[href*="tel"] {
+		white-space: nowrap;
+	}
+
+	a.card-title-link .wp-block-heading {
+		text-decoration: underline;
+		text-decoration-thickness: 0.5px;
+		text-underline-offset: 4px;
+	}
+
+	a.card-title-link:is(:hover, :focus-visible) .wp-block-heading {
+		text-decoration-thickness: 2px;
+	}
+
+	.balanced,
+	.balanced > * {
+		text-wrap: balance !important;
+	}
+
+	.blue-filter {
+		filter: var(--blue-filter);
+	}
+
+	.centred {
+		align-content: center;
+	}
+
+	mark:is(mark) {
+		display: inline;
+	}
+
+	.paused {
+		position: relative;
+	}
+
+	.paused::before {
+		border: 2px solid var(--wp--preset--color--nonary);
+		content: "Paused";
+		background-color: var(--wp--preset--color--luminous-vivid-amber);
+		color: var(--wp--preset--color--nonary);
+		padding: 0 1rem 0.15rem;
+		border-radius: 999px;
+		font-size: 1.15rem;
+		font-weight: bold;
+		position: absolute;
+		top: -1.25rem;
+		right: 1rem;
+	}
+
+	.wp-block-navigation-item.has-child button {
+		display: none;
+	}
+
+	.wp-block-navigation-item.has-child.current-menu-ancestor a {
+		background-color: var(--bcds-surface-brand-gray-30);
+		font-weight: bold;
+		border-left: 0 !important;
+	}
+
+	.wp-block-navigation-item.has-child a:is(:hover, :focus-visible, :focus) {
+		border-left: 4px solid transparent !important;
+	}
+
+	.wp-block-navigation-item.has-child.current-menu-ancestor a:is(:hover, :focus-visible) {
+		border-left: 0 solid transparent !important;
+	}
+
+	body.find-incentives #post-content #nav-banner .wp-element-button:not([href]) {
+		pointer-events: none;
+	}
+
+	body.find-incentives #post-content #nav-banner .wp-element-button:not([href])::after {
+		content: "";
+	}
+
 	/* -------------------------------------------------------------------------- */
 
 	/* CUSTOM HOME FEATURES */
