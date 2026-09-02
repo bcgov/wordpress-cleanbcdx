@@ -1,3 +1,6 @@
+## 1.1.0 September 2, 2026
+– Updated composer to point to GitHub instance and removed Satis dependency from build system
+
 ## 1.0.18 August 26, 2026
 – Minor style adjustment
 
