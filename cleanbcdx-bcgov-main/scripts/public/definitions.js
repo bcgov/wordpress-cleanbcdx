@@ -10,6 +10,9 @@ export const bcgovBlockThemePluginDefnitions = () => {
             'a:not(#postFilterApp a, [href*="#top"])';
         const protectedAreaBlockSelector = '.cleanbcdx-protected-area-block';
         const protectedAreaFormSelector = '.cleanbcdx-protected-area__form';
+        const gravityFormSelector = '.gform_wrapper form, form[id^="gform_"]';
+        const gravityFormContentSelector =
+            '.gform_wrapper, [id^="gform_wrapper_"], .gform_confirmation_wrapper, [id^="gform_confirmation_wrapper_"], form[id^="gform_"]';
 
         const getDefinitionUrl = (triggerElement) => {
             if (!triggerElement?.href) {
@@ -35,6 +38,43 @@ export const bcgovBlockThemePluginDefnitions = () => {
             return Boolean(container.querySelector(protectedAreaBlockSelector));
         };
 
+        const contentHasGravityForm = (content) => {
+            if (!content) {
+                return false;
+            }
+
+            const container = document.createElement('div');
+            container.innerHTML = content;
+
+            return Boolean(container.querySelector(gravityFormContentSelector));
+        };
+
+        const contentHasDynamicForm = (content) => {
+            return (
+                contentHasProtectedArea(content) || contentHasGravityForm(content)
+            );
+        };
+
+        const getCurrentDialogTitle = () => {
+            const dialogTitle = document.querySelector(
+                '#dialog .dialog-content h2'
+            );
+
+            if (!(dialogTitle instanceof HTMLElement)) {
+                return document.title || '';
+            }
+
+            return dialogTitle.innerText || dialogTitle.textContent || '';
+        };
+
+        const extractGravityFormResponseContent = (doc) => {
+            const gravityFormContent = doc.querySelector(
+                '.gform_confirmation_wrapper, [id^="gform_confirmation_wrapper_"], .gform_wrapper, [id^="gform_wrapper_"], form[id^="gform_"]'
+            );
+
+            return gravityFormContent ? gravityFormContent.outerHTML : '';
+        };
+
         const parseDefinitionData = (html) => {
             const parser = new window.DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
@@ -42,6 +82,18 @@ export const bcgovBlockThemePluginDefnitions = () => {
             const contentElement = doc.querySelector('.entry-content');
 
             if (!titleElement || !contentElement) {
+                const gravityFormContent =
+                    extractGravityFormResponseContent(doc);
+
+                if (gravityFormContent) {
+                    return {
+                        title: getCurrentDialogTitle(),
+                        content: gravityFormContent,
+                        hasProtectedArea: false,
+                        hasGravityForm: true,
+                    };
+                }
+
                 throw new Error(
                     'Required content not found in the fetched HTML.'
                 );
@@ -52,6 +104,9 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 content: contentElement.innerHTML,
                 hasProtectedArea: Boolean(
                     contentElement.querySelector(protectedAreaBlockSelector)
+                ),
+                hasGravityForm: Boolean(
+                    contentElement.querySelector(gravityFormContentSelector)
                 ),
             };
         };
@@ -74,7 +129,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
                     return null;
                 }
 
-                if (contentHasProtectedArea(parsedData.content)) {
+                if (contentHasDynamicForm(parsedData.content)) {
                     window.sessionStorage.removeItem(url);
                     return null;
                 }
@@ -91,7 +146,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 return;
             }
 
-            if (definitionData.hasProtectedArea) {
+            if (definitionData.hasProtectedArea || definitionData.hasGravityForm) {
                 window.sessionStorage.removeItem(url);
                 return;
             }
@@ -120,7 +175,18 @@ export const bcgovBlockThemePluginDefnitions = () => {
             };
         };
 
-        const syncProtectedAreaForms = (dialogContent, definitionUrl) => {
+        const isGravityForm = (form) => {
+            if (!(form instanceof HTMLFormElement)) {
+                return false;
+            }
+
+            return (
+                form.matches(gravityFormSelector) ||
+                Boolean(form.closest('.gform_wrapper'))
+            );
+        };
+
+        const syncDefinitionForms = (dialogContent, definitionUrl) => {
             if (!dialogContent || !definitionUrl) {
                 return;
             }
@@ -130,6 +196,58 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 .forEach((form) => {
                     form.setAttribute('action', definitionUrl);
                 });
+
+            dialogContent.querySelectorAll(gravityFormSelector).forEach((form) => {
+                if (!(form instanceof HTMLFormElement)) {
+                    return;
+                }
+
+                form.setAttribute('action', definitionUrl);
+                form.removeAttribute('target');
+
+                form.querySelectorAll('input[name="gform_ajax"]').forEach(
+                    (input) => {
+                        input.disabled = true;
+                    }
+                );
+            });
+        };
+
+        const persistDialogPresentationState = (dialog) => {
+            dialog.dataset.definitionWide = dialog.classList.contains('wide')
+                ? 'true'
+                : 'false';
+            dialog.dataset.definitionPinned = dialog.classList.contains('pin-to-top')
+                ? 'true'
+                : 'false';
+        };
+
+        const buildDialogFormData = (form, submitButton) => {
+            let formData;
+
+            if (
+                submitButton instanceof HTMLButtonElement ||
+                submitButton instanceof HTMLInputElement
+            ) {
+                try {
+                    formData = new window.FormData(form, submitButton);
+                } catch {
+                    formData = new window.FormData(form);
+                }
+            } else {
+                formData = new window.FormData(form);
+            }
+
+            if (
+                (submitButton instanceof HTMLButtonElement ||
+                    submitButton instanceof HTMLInputElement) &&
+                submitButton.name &&
+                !formData.has(submitButton.name)
+            ) {
+                formData.append(submitButton.name, submitButton.value);
+            }
+
+            return formData;
         };
 
         const setDialogWideState = (isWide) => {
@@ -343,7 +461,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 '<h2 tabindex="0">' + title + '</h2>' + content;
 
             initializeDefinitionLinks(dialogContent);
-            syncProtectedAreaForms(dialogContent, definitionUrl);
+            syncDefinitionForms(dialogContent, definitionUrl);
             showDialog();
 
             const focusTarget =
@@ -380,14 +498,18 @@ export const bcgovBlockThemePluginDefnitions = () => {
             dialog.showModal();
         };
 
-        const handleProtectedAreaSubmit = async (event) => {
+        const handleDialogFormSubmit = async (event) => {
             const form = event.target;
             const dialog = document.getElementById('dialog');
+            const isProtectedAreaForm =
+                form instanceof HTMLFormElement &&
+                form.matches(protectedAreaFormSelector);
+            const isGravityFormsForm = isGravityForm(form);
 
             if (
                 !dialog ||
                 !(form instanceof HTMLFormElement) ||
-                !form.matches(protectedAreaFormSelector) ||
+                (!isProtectedAreaForm && !isGravityFormsForm) ||
                 !dialog.contains(form)
             ) {
                 return;
@@ -403,13 +525,14 @@ export const bcgovBlockThemePluginDefnitions = () => {
             }
 
             event.preventDefault();
+            event.stopPropagation();
+
+            if ('function' === typeof event.stopImmediatePropagation) {
+                event.stopImmediatePropagation();
+            }
+
             form.setAttribute('action', definitionUrl);
-            dialog.dataset.definitionWide = dialog.classList.contains('wide')
-                ? 'true'
-                : 'false';
-            dialog.dataset.definitionPinned = dialog.classList.contains('pin-to-top')
-                ? 'true'
-                : 'false';
+            persistDialogPresentationState(dialog);
 
             const submitButton = event.submitter;
 
@@ -421,13 +544,17 @@ export const bcgovBlockThemePluginDefnitions = () => {
             }
 
             try {
-                const definitionData = await fetchDefinitionData(
-                    definitionUrl,
-                    {
-                        method: 'POST',
-                        body: new window.FormData(form),
-                    }
-                );
+                const formData = buildDialogFormData(form, submitButton);
+
+                // Force server-rendered markup so the modal can replace its own DOM.
+                if (isGravityFormsForm) {
+                    formData.delete('gform_ajax');
+                }
+
+                const definitionData = await fetchDefinitionData(definitionUrl, {
+                    method: 'POST',
+                    body: formData,
+                });
 
                 cacheDefinitionData(definitionUrl, definitionData);
                 displayContent(
@@ -437,7 +564,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 );
             } catch (error) {
                 console.error(
-                    'Error submitting protected content form:',
+                    'Error submitting modal form:',
                     error
                 );
                 form.submit();
@@ -578,7 +705,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 });
 
                 dialog.addEventListener('click', closeDialogOnBackdropClick);
-                dialog.addEventListener('submit', handleProtectedAreaSubmit);
+                dialog.addEventListener('submit', handleDialogFormSubmit, true);
             }
 
         }

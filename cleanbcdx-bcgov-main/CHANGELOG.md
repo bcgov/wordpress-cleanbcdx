@@ -1,3 +1,6 @@
+## 1.1.1 September 4, 2026
+– Added Gravity Forms handling to definitions modal handling
+
 ## 1.1.0 September 2, 2026
 – Updated composer to point to GitHub instance and removed Satis dependency from build system
 
