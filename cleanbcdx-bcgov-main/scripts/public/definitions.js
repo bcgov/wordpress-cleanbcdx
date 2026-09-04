@@ -186,6 +186,58 @@ export const bcgovBlockThemePluginDefnitions = () => {
             );
         };
 
+        const getGravityFormId = (form) => {
+            if (!(form instanceof HTMLFormElement)) {
+                return '';
+            }
+
+            const formIdMatch = form.id.match(/^gform_(\d+)$/);
+
+            if (formIdMatch?.[1]) {
+                return formIdMatch[1];
+            }
+
+            const wrapper = form.closest(
+                '[id^="gform_wrapper_"], [id^="gform_confirmation_wrapper_"]'
+            );
+            const wrapperIdMatch = wrapper?.id?.match(/_(\d+)$/);
+
+            if (wrapperIdMatch?.[1]) {
+                return wrapperIdMatch[1];
+            }
+
+            return form.dataset.formid || '';
+        };
+
+        const resetGravityFormSubmissionState = (form) => {
+            if (!isGravityForm(form)) {
+                return;
+            }
+
+            const gravityFormId = getGravityFormId(form);
+            const submissionApi = window.gform?.submission;
+
+            if ('function' === typeof submissionApi?.unlockSubmission) {
+                try {
+                    submissionApi.unlockSubmission(form);
+                } catch (error) {
+                    void error;
+                }
+            }
+
+            if ('function' === typeof submissionApi?.removeSpinner) {
+                try {
+                    submissionApi.removeSpinner(form);
+                } catch (error) {
+                    void error;
+                }
+            }
+
+            if (gravityFormId) {
+                window[`gf_submitting_${gravityFormId}`] = false;
+            }
+        };
+
         const syncDefinitionForms = (dialogContent, definitionUrl) => {
             if (!dialogContent || !definitionUrl) {
                 return;
@@ -498,6 +550,31 @@ export const bcgovBlockThemePluginDefnitions = () => {
             dialog.showModal();
         };
 
+        const handleDialogFormButtonClick = (event) => {
+            const clickTarget = event.target;
+
+            if (!(clickTarget instanceof HTMLElement)) {
+                return;
+            }
+
+            const submitter = clickTarget.closest(
+                'button, input[type="submit"], input[type="button"], input[type="image"]'
+            );
+
+            if (!(submitter instanceof HTMLElement)) {
+                return;
+            }
+
+            const form = submitter.closest('form');
+            const dialog = document.getElementById('dialog');
+
+            if (!(form instanceof HTMLFormElement) || !dialog?.contains(form)) {
+                return;
+            }
+
+            resetGravityFormSubmissionState(form);
+        };
+
         const handleDialogFormSubmit = async (event) => {
             const form = event.target;
             const dialog = document.getElementById('dialog');
@@ -536,6 +613,8 @@ export const bcgovBlockThemePluginDefnitions = () => {
 
             const submitButton = event.submitter;
 
+            resetGravityFormSubmissionState(form);
+
             if (
                 submitButton instanceof HTMLButtonElement ||
                 submitButton instanceof HTMLInputElement
@@ -569,6 +648,8 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 );
                 form.submit();
             } finally {
+                resetGravityFormSubmissionState(form);
+
                 if (
                     submitButton instanceof HTMLButtonElement ||
                     submitButton instanceof HTMLInputElement
@@ -704,6 +785,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
                     setBodyScrollLock(false);
                 });
 
+                dialog.addEventListener('click', handleDialogFormButtonClick, true);
                 dialog.addEventListener('click', closeDialogOnBackdropClick);
                 dialog.addEventListener('submit', handleDialogFormSubmit, true);
             }
