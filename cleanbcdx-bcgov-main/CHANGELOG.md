@@ -1,3 +1,6 @@
+## 1.1.2 September 8, 2026
+– Added wide/narrow handling for open dialog modals with nested links
+
 ## 1.1.1 September 4, 2026
 – Added Gravity Forms handling to definitions modal handling
 

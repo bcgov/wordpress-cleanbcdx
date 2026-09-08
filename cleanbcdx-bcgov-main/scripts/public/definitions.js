@@ -735,11 +735,14 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 return false;
             }
 
-            if (triggerElement.classList.contains('wide')) {
-                return true;
+            if (
+                triggerElement.classList.contains('narrow') ||
+                triggerElement.closest('.narrow:not(#dialog)')
+            ) {
+                return false;
             }
 
-            return Boolean(triggerElement.closest('.wide'));
+            return Boolean(triggerElement.closest('.wide:not(#dialog)'));
         };
 
         const shouldPinToTopDialog = (triggerElement) => {

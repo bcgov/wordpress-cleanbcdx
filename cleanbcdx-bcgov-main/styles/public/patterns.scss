@@ -118,6 +118,10 @@
 			content: var(--icon-contact);
 		}
 
+		&.icon-contact-email::before {
+			content: var(--mail-icon);
+		}
+
 		&.icon-electrify::before {
 			content: var(--icon-electrify);
 			scale: 1.2;
@@ -204,6 +208,14 @@
 			margin-right: 0;
 			top: -0.15rem;
 			scale: 1.25;
+			left: 0.5rem;
+		}
+
+		&.icon-contact-email::before {
+			content: var(--mail-icon);
+			margin-right: 0;
+			top: -0.15rem;
+			scale: 1.1;
 			left: 0.5rem;
 		}
 
