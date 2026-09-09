@@ -1,3 +1,6 @@
+## 1.1.3 September 9, 2026
+– Set presentation state of dialog after content load
+
 ## 1.1.2 September 8, 2026
 – Added wide/narrow handling for open dialog modals with nested links
 

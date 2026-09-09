@@ -388,8 +388,8 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 }
 
                 event.preventDefault();
-                setDialogWideState(shouldUseWideDialog(triggerElement));
-                setDialogPinToTopState(shouldPinToTopDialog(triggerElement));
+                const isWideDialog = shouldUseWideDialog(triggerElement);
+                const isPinnedDialog = shouldPinToTopDialog(triggerElement);
                 const url = getDefinitionUrl(triggerElement);
 
                 if (!url) {
@@ -399,7 +399,10 @@ export const bcgovBlockThemePluginDefnitions = () => {
                 const cachedData = getCachedDefinitionData(url);
 
                 if (cachedData) {
-                    displayContent(cachedData.title, cachedData.content, url);
+                    displayContent(cachedData.title, cachedData.content, url, {
+                        isWide: isWideDialog,
+                        isPinned: isPinnedDialog,
+                    });
                 } else {
                     setDefinitionLoadingState(triggerElement, true);
 
@@ -410,7 +413,11 @@ export const bcgovBlockThemePluginDefnitions = () => {
                         displayContent(
                             definitionData.title,
                             definitionData.content,
-                            definitionData.url
+                            definitionData.url,
+                            {
+                                isWide: isWideDialog,
+                                isPinned: isPinnedDialog,
+                            }
                         );
                     } catch (error) {
                         console.error('Error fetching content:', error);
@@ -489,6 +496,7 @@ export const bcgovBlockThemePluginDefnitions = () => {
          * @param {string} title - The title to be displayed in the dialog.
          * @param {string} content - The HTML content to be displayed in the dialog.
          * @param {string} definitionUrl - The definition page URL used for protected-area form submissions.
+         * @param {Object} presentationState - Dialog presentation state to apply after content updates.
          *
          * @description
          * - Updates the content of the dialog's `.dialog-content` element.
@@ -496,7 +504,12 @@ export const bcgovBlockThemePluginDefnitions = () => {
          * - Calls `showDialog()` to display the dialog.
          * - Moves focus to the title (`<h2>` element) after rendering.
          */
-        const displayContent = (title, content, definitionUrl = '') => {
+        const displayContent = (
+            title,
+            content,
+            definitionUrl = '',
+            presentationState = {}
+        ) => {
             const dialog = document.getElementById('dialog');
             const dialogContent = document.querySelector(
                 '#dialog .dialog-content'
@@ -507,10 +520,16 @@ export const bcgovBlockThemePluginDefnitions = () => {
             }
 
             dialog.dataset.definitionUrl = definitionUrl;
-            setDialogWidth('true' === dialog.dataset.definitionWide);
-            setDialogPinned('true' === dialog.dataset.definitionPinned);
             dialogContent.innerHTML =
                 '<h2 tabindex="0">' + title + '</h2>' + content;
+
+            if ('boolean' === typeof presentationState.isWide) {
+                setDialogWideState(presentationState.isWide);
+            }
+
+            if ('boolean' === typeof presentationState.isPinned) {
+                setDialogPinToTopState(presentationState.isPinned);
+            }
 
             initializeDefinitionLinks(dialogContent);
             syncDefinitionForms(dialogContent, definitionUrl);
