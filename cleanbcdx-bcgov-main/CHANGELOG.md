@@ -1,3 +1,6 @@
+## 1.1.4 September 18, 2026
+– modified custom how it works graphics
+
 ## 1.1.3 September 9, 2026
 – Set presentation state of dialog after content load
 
