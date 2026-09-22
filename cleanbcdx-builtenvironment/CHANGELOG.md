@@ -1,3 +1,6 @@
+## 1.1.1 September 22, 2026
+– Updated MURB icon output
+
 ## 1.1.0 September 2, 2026
 – Updated composer to point to GitHub instance and removed Satis dependency from build system
 

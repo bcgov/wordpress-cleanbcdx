@@ -276,6 +276,18 @@ html:has(body.custom-betterbuildingsbc, body.custom-betterhomesbc, body.betterbu
 				}
 			}
 
+			#how-it-works-murb {
+
+				&::before {
+					content: var(--howitworks-murb-horizontal);
+					display: block;
+
+					@container howitworksgrid (width < 650px) {
+						content: var(--howitworks-murb-vertical);
+					}
+				}
+			}
+
 			.how-it-works-diagram {
 
 				&::before {
