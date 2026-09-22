@@ -1,3 +1,6 @@
+## 1.1.5 September 21, 2026
+– Added linked card exclusion to external link processing
+
 ## 1.1.4 September 18, 2026
 – modified custom how it works graphics
 

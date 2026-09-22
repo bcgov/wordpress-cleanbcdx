@@ -92,7 +92,7 @@ const bcgovBlockThemePluginDomLoader = () => {
 		const processExternalLinks = () => {
 			const observer = new MutationObserver((mutationsList, observer) => {
 				// Check if any links have been given the 'external' class.
-				const externalLinks = document.querySelectorAll('a.external:not(#postFilterApp a, #pqeasResults a, #contractorFilterApp a, .vue-card-content a)');
+				const externalLinks = document.querySelectorAll('a.external:not(#postFilterApp a, #pqeasResults a, #contractorFilterApp a, .vue-card-content a, .linked-cards a, .card-title-link)');
 				if (externalLinks.length > 0) {
 					// Externally updated classes identified. Processing links.
 					observer.disconnect(); // Stop observing once links are found.
