@@ -139,18 +139,18 @@ else
 
             exit 98
         fi 
+
+    else #if [ "$CMD_RESULTS" -ne 200 ]; then
+            echo "::error::Incorrect http status returned, ${CMD_RESULTS}"
+
+
+            echo "Restoring pod ip whitelist"
+            ./.github/oc-retry-wrapper.sh annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
+
+
+            exit 99
+        fi 
     fi
-
-    if [ "$CMD_RESULTS" -ne 200 ]; then
-        echo "::error::Incorrect http status returned, ${CMD_RESULTS}"
-
-
-        echo "Restoring pod ip whitelist"
-        ./.github/oc-retry-wrapper.sh annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
-
-
-        exit 99
-    fi 
 fi
 
 
