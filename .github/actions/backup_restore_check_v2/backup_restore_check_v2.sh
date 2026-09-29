@@ -122,7 +122,23 @@ elif [ $CMD_EXIT_CODE -ne 0 ]; then
 
 else
     if [ $CMD_RESULTS -eq 200 ]; then
-        echo "Success, restored site responded with http 200 - $NEW_SITE_URL"
+        echo "Checking for content length > 0"
+        set +e
+        CMD_RESULTS=$(curl -s -o /dev/null -w "%{size_download}\n" ${NEW_SITE_URL})
+        CMD_EXIT_CODE=$?
+        set -e
+
+        if [ "$CMD_RESULTS" -gt 0 ]; then
+            echo "Success, restored site responded with http 200 - $NEW_SITE_URL. Content length = ${CMD_RESULTS}"
+
+        else
+            echo "::error::Incorrect content length returned, ${CMD_RESULTS}"
+
+            echo "Restoring pod ip whitelist"
+            ./.github/oc-retry-wrapper.sh annotate route -n $NAMESPACE $NGINX_ROUTE_NAME --overwrite haproxy.router.openshift.io/ip_whitelist="$NGINX_ROUTE_IP_WHITELIST"
+
+            exit 98
+        fi 
     fi
 
     if [ "$CMD_RESULTS" -ne 200 ]; then
